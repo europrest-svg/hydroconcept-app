@@ -214,6 +214,66 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .theme-toggle{cursor:pointer;font-size:18px;background:none;border:none;padding:4px 8px;border-radius:6px;}
 .theme-toggle:hover{background:rgba(255,255,255,.1);}
 
+/* CALENDAR */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cal-header h3{font-size:16px;color:#C9A84C;font-weight:700;}
+.cal-nav{display:flex;gap:6px;}
+.cal-nav button{background:#1B3A6B;border:none;color:#fff;width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-day-hdr{text-align:center;font-size:10px;color:#6688aa;padding:6px 0;font-weight:700;text-transform:uppercase;}
+.cal-day{min-height:70px;background:#111f35;border:1px solid #1a2a40;border-radius:4px;padding:4px;font-size:10px;position:relative;}
+.cal-day.today{border-color:#C9A84C;background:#1a2530;}
+.cal-day.other-month{opacity:.3;}
+.cal-day .day-num{font-weight:700;font-size:11px;color:#8899aa;margin-bottom:2px;}
+.cal-day.today .day-num{color:#C9A84C;}
+.cal-event{background:#2563A8;color:#fff;border-radius:3px;padding:1px 4px;font-size:9px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.cal-event.ev-accepted{background:#27ae60;}
+.cal-event.ev-waiting{background:#f39c12;}
+
+/* GALERIE */
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.gallery-item{background:#111f35;border:1px solid #1B3A6B;border-radius:10px;overflow:hidden;cursor:pointer;transition:.2s;}
+.gallery-item:hover{border-color:#C9A84C;transform:scale(1.02);}
+.gallery-img{width:100%;height:150px;object-fit:cover;background:#0a1420;}
+.gallery-info{padding:10px;}
+.gallery-info .gi-name{font-size:12px;font-weight:700;color:#fff;}
+.gallery-info .gi-desc{font-size:10px;color:#6688aa;margin-top:2px;}
+.gallery-info .gi-date{font-size:9px;color:#4a6a8a;margin-top:4px;}
+.gallery-upload{background:#0e1a2a;border:2px dashed #1B3A6B;border-radius:10px;padding:30px;text-align:center;cursor:pointer;transition:.2s;}
+.gallery-upload:hover{border-color:#C9A84C;}
+.gallery-upload .gu-icon{font-size:36px;}
+.gallery-upload .gu-text{font-size:12px;color:#6688aa;margin-top:8px;}
+.lightbox{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.9);z-index:200;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.lightbox img{max-width:90%;max-height:85%;border-radius:8px;}
+.lightbox .lb-close{position:absolute;top:15px;right:20px;font-size:28px;color:#fff;cursor:pointer;}
+.lightbox .lb-info{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;text-align:center;font-size:13px;}
+
+/* PROFIT */
+.profit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.profit-card{background:#111f35;border:1px solid #1B3A6B;border-radius:10px;padding:16px;}
+.profit-card .pc-client{font-size:13px;font-weight:700;margin-bottom:4px;}
+.profit-card .pc-obiectiv{font-size:11px;color:#6688aa;margin-bottom:10px;}
+.profit-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid #1a2a40;}
+.profit-row:last-child{border:none;}
+.profit-row .pr-label{color:#8899aa;}
+.profit-row .pr-val{font-weight:700;}
+.profit-pos{color:#2ecc71;}
+.profit-neg{color:#e74c3c;}
+.profit-total{margin-top:10px;padding-top:8px;border-top:2px solid #C9A84C;font-size:14px;font-weight:800;text-align:right;}
+
+/* LIGHT overrides for new features */
+body.light .cal-day{background:#fff;border-color:#e0e0e0;}
+body.light .cal-day.today{background:#fffbe6;border-color:#C9A84C;}
+body.light .cal-day .day-num{color:#333;}
+body.light .cal-nav button{background:#2563A8;}
+body.light .gallery-item{background:#fff;border-color:#ddd;}
+body.light .gallery-info .gi-name{color:#1a202c;}
+body.light .gallery-upload{background:#fafafa;border-color:#ddd;}
+body.light .profit-card{background:#fff;border-color:#ddd;}
+body.light .profit-row{border-color:#eee;}
+
+@media(max-width:700px){.cal-day{min-height:50px;}.gallery-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}.profit-grid{grid-template-columns:1fr;}}
+
 /* LIGHT MODE */
 body.light{background:#f0f2f5;color:#1a202c;}
 body.light .app-header{background:linear-gradient(135deg,#C9A84C,#a88a2a);}
@@ -271,6 +331,9 @@ body{background:#fff!important;color:#000!important;}
 <button class="tab active" onclick="showPage('dashboard')">📊 Dashboard</button>
 <button class="tab" onclick="showPage('oferte')">💰 Ofertă Nouă</button>
 <button class="tab" onclick="showPage('centralizator')">📋 Centralizator <span class="badge" id="badgeCount">0</span></button>
+<button class="tab" onclick="showPage('calendar')">📅 Calendar</button>
+<button class="tab" onclick="showPage('galerie')">📷 Galerie</button>
+<button class="tab" onclick="showPage('profit')">💹 Profit</button>
 <button class="tab" onclick="showPage('mesaje')">📧 Mesaje</button>
 <button class="tab" onclick="showPage('calculator')">🔢 Calculator</button>
 </div>
@@ -324,7 +387,10 @@ body{background:#fff!important;color:#000!important;}
 <div style="display:flex;gap:10px;flex-wrap:wrap;">
     <button class="btn btn-gold" onclick="salveazaOferta()">💾 Salvează oferta</button>
     <button class="btn btn-blue" onclick="previzualizeaza()">👁️ Previzualizare</button>
-    <button class="btn btn-green" onclick="genereazaDOCX()">📄 Descarcă DOCX</button>
+    <button class="btn btn-green" onclick="genereazaDOCX()">📄 Ofertă DOCX</button>
+    <button class="btn btn-blue btn-sm" onclick="genContract()">📋 Contract</button>
+    <button class="btn btn-blue btn-sm" onclick="genDeviz()">📝 Deviz</button>
+    <button class="btn btn-blue btn-sm" onclick="genPV()">✅ PV Recepție</button>
     <button class="btn btn-outline" onclick="reseteazaForm()">🗑️ Resetează</button>
 </div>
 <div id="previewArea" class="hidden mt20">
@@ -370,6 +436,36 @@ body{background:#fff!important;color:#000!important;}
     </table>
 </div>
 <div class="text-muted text-center mt10">Datele sunt salvate local în browser (localStorage).</div>
+</div>
+
+<!-- ═══════ PAGE: CALENDAR ═══════ -->
+<div class="page" id="page-calendar">
+<div class="section-title">Calendar lucrări</div>
+<div class="card">
+    <div class="cal-header">
+        <button class="cal-nav"><button onclick="calNav(-1)">◀</button></button>
+        <h3 id="calTitle"></h3>
+        <div class="cal-nav"><button onclick="calNav(-1)">◀</button><button onclick="calNav(0)">Azi</button><button onclick="calNav(1)">▶</button></div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+</div>
+</div>
+
+<!-- ═══════ PAGE: GALERIE ═══════ -->
+<div class="page" id="page-galerie">
+<div class="section-title">Galerie foto lucrări</div>
+<div class="form-row" style="margin-bottom:15px;">
+    <div class="form-group"><label>Filtru client</label><select id="galFilter" onchange="renderGalerie()"><option value="">Toate</option></select></div>
+</div>
+<div class="gallery-grid" id="galleryGrid"></div>
+<div id="lightboxArea"></div>
+</div>
+
+<!-- ═══════ PAGE: PROFIT ═══════ -->
+<div class="page" id="page-profit">
+<div class="section-title">Calculare profit per lucrare</div>
+<div class="stats-grid" id="profitStats"></div>
+<div class="profit-grid" id="profitGrid"></div>
 </div>
 
 <!-- ═══════ PAGE 3: MESAJE ═══════ -->
@@ -488,6 +584,9 @@ function showPage(name){
     event.target.closest('.tab').classList.add('active');
     if(name==='centralizator') renderCentral();
     if(name==='dashboard') renderDashboard();
+    if(name==='calendar') renderCalendar();
+    if(name==='galerie') renderGalerie();
+    if(name==='profit') renderProfit();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1150,6 +1249,413 @@ function loadTheme(){
         document.body.classList.add('light');
         document.querySelector('.theme-toggle').textContent='🌙';
     }
+}
+
+// ═══════════════════════════════════════════════════════
+// CALENDAR LUCRĂRI
+// ═══════════════════════════════════════════════════════
+let calDate=new Date();
+const LUNI=['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+const ZILE=['Lun','Mar','Mie','Joi','Vin','Sâm','Dum'];
+
+function calNav(dir){
+    if(dir===0)calDate=new Date();
+    else calDate.setMonth(calDate.getMonth()+dir);
+    renderCalendar();
+}
+
+function renderCalendar(){
+    const y=calDate.getFullYear(),m=calDate.getMonth();
+    document.getElementById('calTitle').textContent=LUNI[m]+' '+y;
+    const first=new Date(y,m,1),last=new Date(y,m+1,0);
+    let startDay=(first.getDay()+6)%7; // luni=0
+    const today=new Date();const todayStr=today.getDate()+'.'+(today.getMonth()+1)+'.'+today.getFullYear();
+
+    // Eventuri din centralizator
+    const all=getAll();
+    const events={};
+    all.forEach(o=>{
+        if(!o.dataOferta||o.dataOferta==='—')return;
+        const key=o.dataOferta;
+        if(!events[key])events[key]=[];
+        events[key].push(o);
+    });
+
+    let html=ZILE.map(z=>`<div class="cal-day-hdr">${z}</div>`).join('');
+
+    // Zile din luna anterioară
+    const prevLast=new Date(y,m,0).getDate();
+    for(let i=startDay-1;i>=0;i--){
+        html+=`<div class="cal-day other-month"><div class="day-num">${prevLast-i}</div></div>`;
+    }
+
+    // Zilele lunii
+    for(let d=1;d<=last.getDate();d++){
+        const dateStr=d.toString().padStart(2,'0')+'.'+(m+1).toString().padStart(2,'0')+'.'+y;
+        const isToday=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+        const evts=events[dateStr]||[];
+        let evHTML=evts.slice(0,3).map(e=>{
+            const cls=e.oferta==='Acceptată'?'ev-accepted':e.oferta==='În așteptare'?'ev-waiting':'';
+            return`<div class="cal-event ${cls}" title="${e.client} — ${e.obiectiv}">${(e.client||'—').substring(0,12)}</div>`;
+        }).join('');
+        if(evts.length>3)evHTML+=`<div class="cal-event" style="background:#555;">+${evts.length-3} mai mult</div>`;
+        html+=`<div class="cal-day${isToday?' today':''}"><div class="day-num">${d}</div>${evHTML}</div>`;
+    }
+
+    // Zile din luna următoare
+    const totalCells=startDay+last.getDate();
+    const remaining=totalCells%7===0?0:7-totalCells%7;
+    for(let i=1;i<=remaining;i++){
+        html+=`<div class="cal-day other-month"><div class="day-num">${i}</div></div>`;
+    }
+
+    document.getElementById('calGrid').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// GALERIE FOTO LUCRĂRI
+// ═══════════════════════════════════════════════════════
+function getPhotos(){return JSON.parse(localStorage.getItem('hc_photos')||'[]');}
+function savePhotos(arr){localStorage.setItem('hc_photos',JSON.stringify(arr));}
+
+function renderGalerie(){
+    const photos=getPhotos();
+    const filter=document.getElementById('galFilter').value;
+    const filtered=filter?photos.filter(p=>p.client===filter):photos;
+
+    // Populare dropdown
+    const clients=[...new Set(photos.map(p=>p.client).filter(Boolean))];
+    const sel=document.getElementById('galFilter');
+    const current=sel.value;
+    sel.innerHTML='<option value="">Toate</option>'+clients.map(c=>`<option value="${c}" ${c===current?'selected':''}>${c}</option>`).join('');
+
+    let html=`<div class="gallery-upload" onclick="document.getElementById('photoInput').click()">
+        <div class="gu-icon">📷</div>
+        <div class="gu-text">Click pentru a adăuga poze<br><small>sau trage fișierele aici</small></div>
+        <input type="file" id="photoInput" accept="image/*" capture="environment" multiple onchange="uploadPhotos(this)" style="display:none;">
+    </div>`;
+
+    filtered.forEach((p,i)=>{
+        const realIdx=photos.indexOf(p);
+        html+=`<div class="gallery-item" onclick="openLightbox(${realIdx})">
+            <img class="gallery-img" src="${p.thumb}" alt="${p.desc||''}">
+            <div class="gallery-info">
+                <div class="gi-name">${p.client||'Fără client'}</div>
+                <div class="gi-desc">${p.desc||''} ${p.tag?'• '+p.tag:''}</div>
+                <div class="gi-date">${p.date||''}</div>
+            </div>
+        </div>`;
+    });
+
+    document.getElementById('galleryGrid').innerHTML=html;
+}
+
+function uploadPhotos(input){
+    const files=input.files;
+    if(!files.length)return;
+
+    // Dialog client + descriere
+    const all=getAll();
+    const clientNames=all.map(o=>o.client).filter(Boolean);
+    const client=prompt('Client (ex: Dumitru Ghebaur):',clientNames[0]||'');
+    const desc=prompt('Descriere (ex: Înainte - terasă degradată):','');
+    const tag=prompt('Tag: înainte / după / proces:','');
+
+    const photos=getPhotos();
+    let processed=0;
+
+    Array.from(files).forEach(file=>{
+        const reader=new FileReader();
+        reader.onload=function(e){
+            // Compress to thumbnail
+            const img=new Image();
+            img.onload=function(){
+                const canvas=document.createElement('canvas');
+                const maxW=600;
+                const scale=Math.min(maxW/img.width,1);
+                canvas.width=img.width*scale;
+                canvas.height=img.height*scale;
+                const ctx=canvas.getContext('2d');
+                ctx.drawImage(img,0,0,canvas.width,canvas.height);
+                const thumb=canvas.toDataURL('image/jpeg',0.6);
+
+                photos.push({
+                    id:Date.now()+Math.random(),
+                    client:client||'',
+                    desc:desc||'',
+                    tag:tag||'',
+                    date:dataAzi(),
+                    thumb
+                });
+                processed++;
+                if(processed===files.length){
+                    try{
+                        savePhotos(photos);
+                        renderGalerie();
+                        toast(`✅ ${files.length} poze adăugate!`);
+                    }catch(e){
+                        toast('⚠️ Spațiu insuficient! Încercați cu mai puține poze.');
+                    }
+                }
+            };
+            img.src=e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+    input.value='';
+}
+
+function openLightbox(idx){
+    const photos=getPhotos();
+    const p=photos[idx];
+    document.getElementById('lightboxArea').innerHTML=`
+        <div class="lightbox" onclick="closeLightbox(event)">
+            <span class="lb-close" onclick="closeLightbox(event)">✕</span>
+            <img src="${p.thumb}">
+            <div class="lb-info">
+                <strong>${p.client||''}</strong> — ${p.desc||''} ${p.tag?'('+p.tag+')':''}<br>
+                ${p.date||''} &nbsp;
+                <button onclick="event.stopPropagation();deletePhoto(${idx})" style="background:#c0392b;color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;">🗑️ Șterge</button>
+            </div>
+        </div>`;
+}
+function closeLightbox(e){if(e.target.classList.contains('lightbox')||e.target.classList.contains('lb-close'))document.getElementById('lightboxArea').innerHTML='';}
+function deletePhoto(idx){
+    if(!confirm('Ștergi poza?'))return;
+    const photos=getPhotos();photos.splice(idx,1);savePhotos(photos);
+    document.getElementById('lightboxArea').innerHTML='';
+    renderGalerie();toast('🗑️ Poză ștearsă');
+}
+
+// ═══════════════════════════════════════════════════════
+// CALCULARE PROFIT
+// ═══════════════════════════════════════════════════════
+function getCosts(){return JSON.parse(localStorage.getItem('hc_costs')||'{}');}
+function saveCosts(obj){localStorage.setItem('hc_costs',JSON.stringify(obj));}
+
+function parseValNum(v){if(!v||v==='—')return 0;const n=v.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');const num=parseFloat(n)||0;return v.includes('€')?num*5:num;}
+
+function renderProfit(){
+    const all=getAll();
+    const costs=getCosts();
+    let totalVenit=0,totalCost=0;
+
+    // Stats
+    const accepted=all.filter(o=>o.oferta==='Acceptată'||o.contract!=='—');
+
+    let html='';
+    all.forEach((o,idx)=>{
+        const venit=parseValNum(o.valoare);
+        if(venit<=0)return;
+        const cid=o.id||idx;
+        const cost=costs[cid]||{materiale:0,manopera:0,transport:0,alte:0};
+        const totalC=cost.materiale+cost.manopera+cost.transport+cost.alte;
+        const profitVal=venit-totalC;
+        const margin=venit>0?Math.round(profitVal/venit*100):0;
+
+        if(o.oferta==='Acceptată'||o.contract!=='—'){totalVenit+=venit;totalCost+=totalC;}
+
+        html+=`<div class="profit-card">
+            <div class="pc-client">${o.client||'—'}</div>
+            <div class="pc-obiectiv">${o.obiectiv||''} • ${o.suprafata||''}</div>
+            <div class="profit-row"><span class="pr-label">Valoare ofertă</span><span class="pr-val text-gold">${o.valoare||'—'}</span></div>
+            <div class="profit-row"><span class="pr-label">Materiale</span><span class="pr-val"><input type="number" value="${cost.materiale}" onchange="updateCost('${cid}','materiale',this.value)" style="width:80px;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;text-align:right;"></span></div>
+            <div class="profit-row"><span class="pr-label">Manoperă</span><span class="pr-val"><input type="number" value="${cost.manopera}" onchange="updateCost('${cid}','manopera',this.value)" style="width:80px;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;text-align:right;"></span></div>
+            <div class="profit-row"><span class="pr-label">Transport</span><span class="pr-val"><input type="number" value="${cost.transport}" onchange="updateCost('${cid}','transport',this.value)" style="width:80px;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;text-align:right;"></span></div>
+            <div class="profit-row"><span class="pr-label">Alte costuri</span><span class="pr-val"><input type="number" value="${cost.alte}" onchange="updateCost('${cid}','alte',this.value)" style="width:80px;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;text-align:right;"></span></div>
+            <div class="profit-total ${profitVal>=0?'profit-pos':'profit-neg'}">Profit: ${nr(Math.round(profitVal))} lei (${margin}%)</div>
+        </div>`;
+    });
+
+    const totalProfit=totalVenit-totalCost;
+    document.getElementById('profitStats').innerHTML=`
+        <div class="stat-card"><div class="num" style="color:#C9A84C;font-size:20px;">${nr(Math.round(totalVenit))} lei</div><div class="lbl">Venit total (acceptate)</div></div>
+        <div class="stat-card"><div class="num" style="color:#e74c3c;font-size:20px;">${nr(Math.round(totalCost))} lei</div><div class="lbl">Costuri totale</div></div>
+        <div class="stat-card"><div class="num" style="color:${totalProfit>=0?'#2ecc71':'#e74c3c'};font-size:20px;">${nr(Math.round(totalProfit))} lei</div><div class="lbl">Profit net</div></div>
+        <div class="stat-card"><div class="num" style="color:${totalProfit>=0?'#2ecc71':'#e74c3c'};">${totalVenit>0?Math.round(totalProfit/totalVenit*100):0}%</div><div class="lbl">Marjă profit</div></div>
+    `;
+    document.getElementById('profitGrid').innerHTML=html||'<div class="text-muted text-center">Nicio lucrare cu valoare.</div>';
+}
+
+function updateCost(cid,field,val){
+    const costs=getCosts();
+    if(!costs[cid])costs[cid]={materiale:0,manopera:0,transport:0,alte:0};
+    costs[cid][field]=parseInt(val)||0;
+    saveCosts(costs);
+    // Re-render stats only
+    const all=getAll();let totalVenit=0,totalCost=0;
+    all.forEach((o,idx)=>{
+        if(o.oferta!=='Acceptată'&&o.contract==='—')return;
+        const venit=parseValNum(o.valoare);
+        const c=costs[o.id||idx]||{materiale:0,manopera:0,transport:0,alte:0};
+        totalVenit+=venit;totalCost+=c.materiale+c.manopera+c.transport+c.alte;
+    });
+    const totalProfit=totalVenit-totalCost;
+    document.getElementById('profitStats').innerHTML=`
+        <div class="stat-card"><div class="num" style="color:#C9A84C;font-size:20px;">${nr(Math.round(totalVenit))} lei</div><div class="lbl">Venit total (acceptate)</div></div>
+        <div class="stat-card"><div class="num" style="color:#e74c3c;font-size:20px;">${nr(Math.round(totalCost))} lei</div><div class="lbl">Costuri totale</div></div>
+        <div class="stat-card"><div class="num" style="color:${totalProfit>=0?'#2ecc71':'#e74c3c'};font-size:20px;">${nr(Math.round(totalProfit))} lei</div><div class="lbl">Profit net</div></div>
+        <div class="stat-card"><div class="num" style="color:${totalProfit>=0?'#2ecc71':'#e74c3c'};">${totalVenit>0?Math.round(totalProfit/totalVenit*100):0}%</div><div class="lbl">Marjă profit</div></div>
+    `;
+}
+
+// ═══════════════════════════════════════════════════════
+// GENERARE CONTRACT / DEVIZ / PV (DOCX)
+// ═══════════════════════════════════════════════════════
+function genContract(){
+    const client=v('of-client')||'Client',mp=parseInt(v('of-mp'))||0;
+    if(!client||mp<=0){toast('⚠️ Completează client + mp!');return;}
+    const D=docx,str=parseInt(v('of-straturi')),mult=str===2?1.6:1;
+    const pS=Math.round(P.soprema.p*mult)*mp;
+    const R=(text,opts={})=>new D.TextRun({text,font:'Calibri',size:opts.size||22,color:opts.color||'1A202C',bold:opts.bold||false});
+
+    const doc=new D.Document({
+        styles:{default:{document:{run:{font:'Calibri',size:22}}}},
+        sections:[{properties:{page:{margin:{top:1200,right:1000,bottom:1000,left:1200}}},
+        children:[
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:200},children:[R('CONTRACT DE EXECUȚIE LUCRĂRI',{bold:true,size:32,color:'1B3A6B'})]}),
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:400},children:[R('Nr. _____ / '+dataAzi(),{size:22,color:'4A5568'})]}),
+
+            new D.Paragraph({spacing:{after:100},children:[R('1. PĂRȚILE CONTRACTANTE',{bold:true,size:24,color:'1B3A6B'})]}),
+            new D.Paragraph({spacing:{after:60},children:[R('Prestator: ',{bold:true}),R(F.oficial+', CUI: '+F.cui+', J40/2762/2011')]}),
+            new D.Paragraph({spacing:{after:60},children:[R('Reprezentant: ',{bold:true}),R(F.admin+', Administrator')]}),
+            new D.Paragraph({spacing:{after:60},children:[R('Beneficiar: ',{bold:true}),R(client)]}),
+            new D.Paragraph({spacing:{after:60},children:[R('Adresa lucrare: ',{bold:true}),R(v('of-adresa')||'______________________')]}),
+            new D.Paragraph({spacing:{after:200},children:[R('Telefon: ',{bold:true}),R(v('of-telefon')||'______________________')]}),
+
+            new D.Paragraph({spacing:{after:100},children:[R('2. OBIECTUL CONTRACTULUI',{bold:true,size:24,color:'1B3A6B'})]}),
+            new D.Paragraph({spacing:{after:200},children:[R('Executarea lucrărilor de hidroizolație: '+v('of-tip')+', suprafață '+mp+' mp'+(str===2?', 2 straturi':'')+'. Sistem Soprema SBS.')]}),
+
+            new D.Paragraph({spacing:{after:100},children:[R('3. PREȚUL CONTRACTULUI',{bold:true,size:24,color:'1B3A6B'})]}),
+            new D.Paragraph({spacing:{after:60},children:[R('Valoare totală: ',{bold:true}),R(nr(pS)+' lei (inclusiv manoperă, materiale, transport)')]}),
+            new D.Paragraph({spacing:{after:200},children:[R('Plata: 50% avans la semnare, 50% la finalizare.')]}),
+
+            new D.Paragraph({spacing:{after:100},children:[R('4. TERMEN DE EXECUȚIE',{bold:true,size:24,color:'1B3A6B'})]}),
+            new D.Paragraph({spacing:{after:200},children:[R('Durata estimată: 5-10 zile lucrătoare de la data începerii. Începerea: în maxim 5 zile de la semnarea contractului.')]}),
+
+            new D.Paragraph({spacing:{after:100},children:[R('5. GARANȚIE',{bold:true,size:24,color:'1B3A6B'})]}),
+            new D.Paragraph({spacing:{after:200},children:[R('Garanție: '+P.soprema.g+' ani de la data recepției. Intervenții în garanție: gratuit, în maxim 48h de la sesizare.')]}),
+
+            new D.Paragraph({spacing:{after:100},children:[R('6. OBLIGAȚII',{bold:true,size:24,color:'1B3A6B'})]}),
+            new D.Paragraph({spacing:{after:60},children:[R('Prestatorul: execută lucrarea conform normelor tehnice, asigură materiale și manoperă calificată.')]}),
+            new D.Paragraph({spacing:{after:200},children:[R('Beneficiarul: asigură accesul la lucrare, efectuează plățile conform graficului.')]}),
+
+            new D.Paragraph({spacing:{before:400,after:200},children:[R('PRESTATOR',{bold:true}),R('                                                              '),R('BENEFICIAR',{bold:true})]}),
+            new D.Paragraph({children:[R(F.oficial),R('                                                              '),R(client)]}),
+            new D.Paragraph({spacing:{before:100},children:[R('Semnătura: ________________'),R('                    '),R('Semnătura: ________________')]}),
+        ]}]
+    });
+
+    D.Packer.toBlob(doc).then(blob=>{
+        const fn='Contract_'+client.replace(/[^a-zA-Z0-9]/g,'_')+'_'+dataAzi().replace(/\./g,'')+'.docx';
+        saveAs(blob,fn);toast('✅ Contract generat: '+fn);
+    });
+}
+
+function genDeviz(){
+    const client=v('of-client')||'Client',mp=parseInt(v('of-mp'))||0;
+    if(!client||mp<=0){toast('⚠️ Completează client + mp!');return;}
+    const D=docx,str=parseInt(v('of-straturi')),mult=str===2?1.6:1;
+    const R=(text,opts={})=>new D.TextRun({text,font:'Calibri',size:opts.size||22,color:opts.color||'1A202C',bold:opts.bold||false});
+
+    const items=[
+        ['Pregătire și curățare suprafață','mp',mp,8],
+        ['Amorsă bituminoasă pe solvent','mp',mp,5],
+        ['Închidere detalii (atice, coturi, sifoane)','ml',Math.round(mp*0.3),12],
+        ['Membrană Soprema SBS 4mm — strat '+(str===2?'1+2':'1'),'mp',mp,Math.round(P.soprema.p*mult*0.6)],
+        ['Manoperă montaj membrană','mp',mp,Math.round(P.soprema.p*mult*0.3)],
+        ['Piese speciale hidroizolație','buc',Math.round(mp*0.05),25],
+        ['Transport materiale','curs',1,500],
+    ];
+    let totalDeviz=0;
+
+    const bLight={style:D.BorderStyle.SINGLE,size:1,color:'C8D8EA'};
+    const allB={top:bLight,bottom:bLight,left:bLight,right:bLight};
+
+    const headerRow=new D.TableRow({tableHeader:true,children:['Nr.','Descriere lucrare','U.M.','Cant.','Preț unit.','Total'].map((h,i)=>
+        new D.TableCell({borders:allB,shading:{fill:'1B3A6B',type:D.ShadingType.CLEAR},margins:{top:80,bottom:80,left:80,right:80},
+            width:{size:i===1?3500:1100,type:D.WidthType.DXA},
+            children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[R(h,{bold:true,size:20,color:'FFFFFF'})]})]})
+    )});
+
+    const dataRows=items.map((it,i)=>{
+        const total=it[2]*it[3];totalDeviz+=total;
+        return new D.TableRow({children:[
+            new D.TableCell({borders:allB,margins:{top:60,bottom:60,left:80,right:80},width:{size:1100,type:D.WidthType.DXA},children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[R(''+(i+1))]})]}),
+            new D.TableCell({borders:allB,margins:{top:60,bottom:60,left:80,right:80},width:{size:3500,type:D.WidthType.DXA},children:[new D.Paragraph({children:[R(it[0])]})]}),
+            new D.TableCell({borders:allB,margins:{top:60,bottom:60,left:80,right:80},width:{size:1100,type:D.WidthType.DXA},children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[R(it[1])]})]}),
+            new D.TableCell({borders:allB,margins:{top:60,bottom:60,left:80,right:80},width:{size:1100,type:D.WidthType.DXA},children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[R(''+it[2])]})]}),
+            new D.TableCell({borders:allB,margins:{top:60,bottom:60,left:80,right:80},width:{size:1100,type:D.WidthType.DXA},children:[new D.Paragraph({alignment:D.AlignmentType.RIGHT,children:[R(nr(it[3])+' lei')]})]}),
+            new D.TableCell({borders:allB,margins:{top:60,bottom:60,left:80,right:80},width:{size:1100,type:D.WidthType.DXA},children:[new D.Paragraph({alignment:D.AlignmentType.RIGHT,children:[R(nr(total)+' lei',{bold:true})]})]}),
+        ]});
+    });
+
+    const totalRow=new D.TableRow({children:[
+        new D.TableCell({borders:allB,columnSpan:5,shading:{fill:'EAF3FB',type:D.ShadingType.CLEAR},margins:{top:80,bottom:80,left:80,right:80},children:[new D.Paragraph({alignment:D.AlignmentType.RIGHT,children:[R('TOTAL GENERAL:',{bold:true,size:24,color:'1B3A6B'})]})]}),
+        new D.TableCell({borders:allB,shading:{fill:'EAF3FB',type:D.ShadingType.CLEAR},margins:{top:80,bottom:80,left:80,right:80},width:{size:1100,type:D.WidthType.DXA},children:[new D.Paragraph({alignment:D.AlignmentType.RIGHT,children:[R(nr(totalDeviz)+' lei',{bold:true,size:24,color:'E87722'})]})]}),
+    ]});
+
+    const doc=new D.Document({
+        sections:[{properties:{page:{margin:{top:1000,right:900,bottom:900,left:1000}}},
+        children:[
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:100},children:[R('DEVIZ ESTIMATIV',{bold:true,size:32,color:'1B3A6B'})]}),
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:300},children:[R(client+' — '+mp+' mp — '+dataAzi(),{size:22,color:'4A5568'})]}),
+            new D.Table({width:{size:9000,type:D.WidthType.DXA},rows:[headerRow,...dataRows,totalRow]}),
+            new D.Paragraph({spacing:{before:300},children:[R('Prestator: '+F.oficial,{size:20,color:'4A5568'})]}),
+            new D.Paragraph({children:[R('📞 '+F.tel+' • '+F.email,{size:20,color:'4A5568'})]}),
+        ]}]
+    });
+
+    D.Packer.toBlob(doc).then(blob=>{
+        const fn='Deviz_'+client.replace(/[^a-zA-Z0-9]/g,'_')+'_'+dataAzi().replace(/\./g,'')+'.docx';
+        saveAs(blob,fn);toast('✅ Deviz generat: '+fn);
+    });
+}
+
+function genPV(){
+    const client=v('of-client')||'Client',mp=parseInt(v('of-mp'))||0;
+    if(!client||mp<=0){toast('⚠️ Completează client + mp!');return;}
+    const D=docx;
+    const R=(text,opts={})=>new D.TextRun({text,font:'Calibri',size:opts.size||22,color:opts.color||'1A202C',bold:opts.bold||false});
+
+    const doc=new D.Document({
+        sections:[{properties:{page:{margin:{top:1200,right:1000,bottom:1000,left:1200}}},
+        children:[
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:200},children:[R('PROCES-VERBAL DE RECEPȚIE',{bold:true,size:32,color:'1B3A6B'})]}),
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:400},children:[R('Nr. _____ / '+dataAzi(),{size:22,color:'4A5568'})]}),
+
+            new D.Paragraph({spacing:{after:200},children:[R('Subsemnații:',{bold:true,size:24})]}),
+            new D.Paragraph({spacing:{after:60},children:[R('Prestator: ',{bold:true}),R(F.oficial+' — '+F.admin+', Administrator')]}),
+            new D.Paragraph({spacing:{after:200},children:[R('Beneficiar: ',{bold:true}),R(client)]}),
+
+            new D.Paragraph({spacing:{after:200},children:[R('Am procedat la recepția lucrărilor de hidroizolație executate la:')]}),
+            new D.Paragraph({spacing:{after:60},children:[R('Adresa: ',{bold:true}),R(v('of-adresa')||'______________________')]}),
+            new D.Paragraph({spacing:{after:60},children:[R('Tip lucrare: ',{bold:true}),R(v('of-tip'))]}),
+            new D.Paragraph({spacing:{after:60},children:[R('Suprafață: ',{bold:true}),R(mp+' mp')]}),
+            new D.Paragraph({spacing:{after:200},children:[R('Material: ',{bold:true}),R('Membrană Soprema SBS 4mm')]}),
+
+            new D.Paragraph({spacing:{after:200},children:[R('CONSTATĂRI:',{bold:true,size:24,color:'1B3A6B'})]}),
+            new D.Paragraph({spacing:{after:60},children:[R('☑ Lucrarea a fost executată conform contractului')]}),
+            new D.Paragraph({spacing:{after:60},children:[R('☑ Calitatea materialelor — conformă')]}),
+            new D.Paragraph({spacing:{after:60},children:[R('☑ Verificare etanșeitate — fără infiltrații')]}),
+            new D.Paragraph({spacing:{after:60},children:[R('☑ Racorduri atice, sifoane, penetrații — conforme')]}),
+            new D.Paragraph({spacing:{after:200},children:[R('☑ Suprafață executată: '+mp+' mp — conform')]}),
+
+            new D.Paragraph({spacing:{after:200},children:[R('GARANȚIE:',{bold:true,size:24,color:'1B3A6B'})]}),
+            new D.Paragraph({spacing:{after:200},children:[R('Prestatorul acordă garanție '+P.soprema.g+' ani de la data semnării prezentului proces-verbal.')]}),
+
+            new D.Paragraph({spacing:{after:60},children:[R('Observații: _______________________________________________')]}),
+            new D.Paragraph({spacing:{before:400,after:200},children:[R('PRESTATOR',{bold:true}),R('                                                              '),R('BENEFICIAR',{bold:true})]}),
+            new D.Paragraph({children:[R(F.oficial),R('                                                              '),R(client)]}),
+            new D.Paragraph({spacing:{before:100},children:[R('Semnătura: ________________'),R('                    '),R('Semnătura: ________________')]}),
+            new D.Paragraph({spacing:{before:60},children:[R('Data: '+dataAzi()),R('                                                    '),R('Data: '+dataAzi())]}),
+        ]}]
+    });
+
+    D.Packer.toBlob(doc).then(blob=>{
+        const fn='PV_Receptie_'+client.replace(/[^a-zA-Z0-9]/g,'_')+'_'+dataAzi().replace(/\./g,'')+'.docx';
+        saveAs(blob,fn);toast('✅ PV Recepție generat: '+fn);
+    });
 }
 
 // ═══════════════════════════════════════════════════════
