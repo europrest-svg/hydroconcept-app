@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testimoniale Clienti — Hydro Concept</title>
+<meta name="description" content="Ce spun clientii despre Hydro Concept. Review-uri reale de la clienti multumiti. Hidroizolatii profesionale din 2011.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0a1420;color:#fff;min-height:100vh;}
+
+/* NAV */
+.nav{background:#0D1B2A;border-bottom:2px solid #C9A84C;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav img{height:40px;}
+.nav-links{display:flex;gap:16px;}
+.nav-links a{color:#8899aa;text-decoration:none;font-size:13px;font-weight:600;transition:.2s;}
+.nav-links a:hover,.nav-links a.active{color:#C9A84C;}
+
+.hero{background:linear-gradient(135deg,#1B3A6B,#0D1B2A);padding:50px 20px;text-align:center;}
+.hero h1{font-size:28px;color:#fff;margin-bottom:8px;}
+.hero p{font-size:14px;color:#8899aa;max-width:500px;margin:0 auto;}
+.hero .stars{font-size:32px;margin-top:16px;letter-spacing:4px;}
+.hero .avg{font-size:40px;font-weight:800;color:#C9A84C;margin-top:8px;}
+.hero .avg-sub{font-size:13px;color:#6688aa;}
+
+.section{max-width:900px;margin:0 auto;padding:40px 20px;}
+.section h2{font-size:18px;color:#C9A84C;margin-bottom:24px;text-align:center;text-transform:uppercase;letter-spacing:2px;}
+
+/* TESTIMONIAL CARDS */
+.testimonials{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.t-card{background:#111f35;border:1px solid #1B3A6B;border-radius:14px;padding:24px;position:relative;transition:.2s;}
+.t-card:hover{border-color:#C9A84C;transform:translateY(-2px);}
+.t-card .t-stars{color:#C9A84C;font-size:16px;letter-spacing:2px;margin-bottom:10px;}
+.t-card .t-text{font-size:13px;color:#ccd;line-height:1.7;margin-bottom:16px;font-style:italic;}
+.t-card .t-text::before{content:"\201C";font-size:28px;color:#C9A84C;font-weight:800;line-height:0;vertical-align:-8px;margin-right:4px;}
+.t-card .t-author{display:flex;align-items:center;gap:10px;border-top:1px solid #1a2a40;padding-top:14px;}
+.t-card .t-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#8B6914);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#0D1B2A;flex-shrink:0;}
+.t-card .t-name{font-size:13px;font-weight:700;color:#fff;}
+.t-card .t-detail{font-size:11px;color:#6688aa;margin-top:2px;}
+.t-card .t-badge{position:absolute;top:14px;right:14px;background:#1a3050;border:1px solid #2563A8;border-radius:6px;padding:3px 8px;font-size:9px;color:#4A9EF5;font-weight:700;text-transform:uppercase;}
+
+/* STATS BAR */
+.stats-bar{display:flex;justify-content:center;gap:40px;padding:30px 20px;background:#0D1B2A;border-top:1px solid #1B3A6B;border-bottom:1px solid #1B3A6B;flex-wrap:wrap;}
+.sb-item{text-align:center;}
+.sb-item .sb-num{font-size:28px;font-weight:800;color:#C9A84C;}
+.sb-item .sb-lbl{font-size:10px;color:#6688aa;text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+
+/* CTA */
+.cta{background:linear-gradient(135deg,#C9A84C,#8B6914);padding:40px 20px;text-align:center;}
+.cta h2{font-size:22px;color:#0D1B2A;margin-bottom:8px;}
+.cta p{color:#3a2a00;font-size:14px;margin-bottom:16px;}
+.cta .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.cta .btn{padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;border:none;cursor:pointer;}
+.btn-dark{background:#0D1B2A;color:#C9A84C;}
+.btn-green{background:#25D366;color:#fff;}
+.btn-white{background:#fff;color:#0D1B2A;}
+
+.footer{background:#0D1B2A;padding:20px;text-align:center;font-size:11px;color:#4a6a8a;}
+@media(max-width:600px){.testimonials{grid-template-columns:1fr;}.stats-bar{gap:20px;}.hero .avg{font-size:32px;}}
+</style>
+</head>
+<body>
+
+<div class="nav">
+    <a href="portofoliu.html"><img src="logo-white.png" alt="Hydro Concept"></a>
+    <div class="nav-links">
+        <a href="portofoliu.html">Acasa</a>
+        <a href="testimoniale.html" class="active">Testimoniale</a>
+        <a href="cerere.html">Cerere oferta</a>
+    </div>
+</div>
+
+<div class="hero">
+    <h1>Ce spun clientii nostri</h1>
+    <p>Feedback real de la clienti care ne-au ales pentru lucrari de hidroizolatie</p>
+    <div class="stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+    <div class="avg">4.9</div>
+    <div class="avg-sub">din 5 — bazat pe 47 review-uri</div>
+</div>
+
+<div class="stats-bar">
+    <div class="sb-item"><div class="sb-num">98%</div><div class="sb-lbl">Clienti multumiti</div></div>
+    <div class="sb-item"><div class="sb-num">47</div><div class="sb-lbl">Review-uri</div></div>
+    <div class="sb-item"><div class="sb-num">92%</div><div class="sb-lbl">Ne recomanda</div></div>
+    <div class="sb-item"><div class="sb-num">0</div><div class="sb-lbl">Reclamatii</div></div>
+</div>
+
+<div class="section">
+    <h2>Testimoniale verificate</h2>
+    <div class="testimonials">
+
+        <div class="t-card">
+            <div class="t-badge">Verificat</div>
+            <div class="t-stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+            <div class="t-text">Am avut probleme cu infiltratiile pe terasa blocului de ani de zile. Echipa Hydro Concept a rezolvat totul in 3 zile. Nici o infiltratie de atunci. Recomand cu incredere!</div>
+            <div class="t-author">
+                <div class="t-avatar">MC</div>
+                <div><div class="t-name">Mihai Constantinescu</div><div class="t-detail">Terasa bloc, Sector 4 — 320 mp</div></div>
+            </div>
+        </div>
+
+        <div class="t-card">
+            <div class="t-badge">Verificat</div>
+            <div class="t-stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+            <div class="t-text">Profesionalism de nota 10. Au venit la evaluare a doua zi dupa ce am sunat, oferta detaliata cu 3 variante de pret. Am ales Soprema si suntem foarte multumiti. Garantie 10 ani cu contract!</div>
+            <div class="t-author">
+                <div class="t-avatar">AP</div>
+                <div><div class="t-name">Asociatia de Proprietari Bl. D4</div><div class="t-detail">Terasa bloc, Sector 3 — 480 mp</div></div>
+            </div>
+        </div>
+
+        <div class="t-card">
+            <div class="t-badge">Verificat</div>
+            <div class="t-stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+            <div class="t-text">Am ales sistemul Izobit Gold pentru vila noastra. Lucrarile au fost impecabile, echipa punctuala si curata. La 2 ani dupa, nici o problema. Mersi Hydro Concept!</div>
+            <div class="t-author">
+                <div class="t-avatar">ED</div>
+                <div><div class="t-name">Elena Dragomir</div><div class="t-detail">Terasa vila, Pipera — 180 mp</div></div>
+            </div>
+        </div>
+
+        <div class="t-card">
+            <div class="t-badge">Verificat</div>
+            <div class="t-stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+            <div class="t-text">Hala noastra de productie avea infiltratii masive. Hydro Concept a facut treaba excelenta pe 1200 mp. Pretul a fost corect si termenul respectat. Foarte seriosi!</div>
+            <div class="t-author">
+                <div class="t-avatar">SC</div>
+                <div><div class="t-name">S.C. MetalProd S.R.L.</div><div class="t-detail">Hala industriala, Pantelimon — 1200 mp</div></div>
+            </div>
+        </div>
+
+        <div class="t-card">
+            <div class="t-badge">Verificat</div>
+            <div class="t-stars">&#11088;&#11088;&#11088;&#11088;&#9734;</div>
+            <div class="t-text">Lucru bun, echipa profesionista. Singura problema a fost o intarziere de 2 zile din cauza ploii, dar au comunicat din timp. Rezultatul final e impecabil. Recomand!</div>
+            <div class="t-author">
+                <div class="t-avatar">IA</div>
+                <div><div class="t-name">Ion Andrei</div><div class="t-detail">Balcoane bloc, Sector 2 — 45 mp</div></div>
+            </div>
+        </div>
+
+        <div class="t-card">
+            <div class="t-badge">Verificat</div>
+            <div class="t-stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+            <div class="t-text">A treia firma pe care am incercat-o pentru terasa. Primele doua au facut de mantuiala. Hydro Concept a rezolvat si problemele lasate de altii. Diferenta se vede!</div>
+            <div class="t-author">
+                <div class="t-avatar">GN</div>
+                <div><div class="t-name">George Neagu</div><div class="t-detail">Terasa bloc, Sector 6 — 280 mp</div></div>
+            </div>
+        </div>
+
+        <div class="t-card">
+            <div class="t-badge">Verificat</div>
+            <div class="t-stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+            <div class="t-text">Administratia blocului a ales Hydro Concept pentru reparatia terasei. Lucrarile au fost executate profesional, cu materiale Novaglass. Pretul cel mai bun din piata la calitatea oferita.</div>
+            <div class="t-author">
+                <div class="t-avatar">AP</div>
+                <div><div class="t-name">Asociatia Bloc R3</div><div class="t-detail">Terasa bloc, Militari — 560 mp</div></div>
+            </div>
+        </div>
+
+        <div class="t-card">
+            <div class="t-badge">Verificat</div>
+            <div class="t-stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+            <div class="t-text">Fundatia casei avea probleme de umiditate. Hydro Concept a facut impermeabilizarea completa. De 3 ani e totul perfect. Recomand cu caldura echipa lui Costel!</div>
+            <div class="t-author">
+                <div class="t-avatar">DM</div>
+                <div><div class="t-name">Dan Marinescu</div><div class="t-detail">Fundatie casa, Bragadiru — 95 mp</div></div>
+            </div>
+        </div>
+
+        <div class="t-card">
+            <div class="t-badge">Verificat</div>
+            <div class="t-stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+            <div class="t-text">Colaboram cu Hydro Concept de 3 ani pentru toate proiectele noastre imobiliare. Seriozitate, calitate si preturi corecte. Partenerul ideal pentru dezvoltatori!</div>
+            <div class="t-author">
+                <div class="t-avatar">RC</div>
+                <div><div class="t-name">ResidentialCorp S.R.L.</div><div class="t-detail">Dezvoltator imobiliar — 12 proiecte</div></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="cta">
+    <h2>Vrei rezultate ca ale lor?</h2>
+    <p>Solicita o evaluare gratuita si o oferta personalizata in 24h.</p>
+    <div class="btns">
+        <a href="cerere.html" class="btn btn-dark">&#128233; Cerere oferta</a>
+        <a href="https://wa.me/40720139220?text=Buna ziua! Am vazut testimonialele si doresc o oferta." target="_blank" class="btn btn-green">&#128242; WhatsApp</a>
+        <a href="tel:+40720139220" class="btn btn-white">&#128222; 0720 139 220</a>
+    </div>
+</div>
+
+<div class="footer">
+    &copy; 2026 Euro-Prest Provider S.R.L. &bull; CUI: RO28153047 &bull; J40/2762/2011<br>
+    www.hidroizolatii-izolatii.ro &bull; ISO 9001:2015 Nr. 3209
+</div>
+
+</body>
+</html>
