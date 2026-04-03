@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Hydro Concept — Aplicație de Lucru v3.0</title>
+<title>Hydro Concept — Aplicație de Lucru v3.3</title>
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -272,7 +272,31 @@ body.light .gallery-upload{background:#fafafa;border-color:#ddd;}
 body.light .profit-card{background:#fff;border-color:#ddd;}
 body.light .profit-row{border-color:#eee;}
 
-@media(max-width:700px){.cal-day{min-height:50px;}.gallery-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}.profit-grid{grid-template-columns:1fr;}}
+/* PIN LOCK */
+.pin-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#0a1420,#0D1B2A);z-index:500;display:flex;align-items:center;justify-content:center;}
+.pin-box{background:#111f35;border:2px solid #C9A84C;border-radius:16px;padding:40px;text-align:center;width:320px;}
+.pin-box .pin-logo{font-size:40px;margin-bottom:12px;}
+.pin-box h2{font-size:20px;color:#C9A84C;margin-bottom:6px;}
+.pin-box p{font-size:12px;color:#6688aa;margin-bottom:20px;}
+.pin-box input{width:100%;background:#0a1420;border:2px solid #1B3A6B;border-radius:10px;padding:14px;color:#fff;font-size:24px;text-align:center;letter-spacing:12px;font-family:inherit;}
+.pin-box input:focus{outline:none;border-color:#C9A84C;}
+.pin-box .pin-err{color:#e74c3c;font-size:12px;margin-top:8px;min-height:18px;}
+.pin-box .pin-hint{color:#334455;font-size:10px;margin-top:12px;}
+
+/* BACKUP/SYNC */
+.sync-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;}
+.sync-card{background:#111f35;border:1px solid #1B3A6B;border-radius:12px;padding:24px;text-align:center;}
+.sync-card .sc-icon{font-size:36px;margin-bottom:10px;}
+.sync-card h3{font-size:14px;color:#C9A84C;margin-bottom:8px;}
+.sync-card p{font-size:11px;color:#6688aa;margin-bottom:14px;}
+.sync-textarea{width:100%;background:#0a1420;border:1px solid #1B3A6B;border-radius:8px;padding:10px;color:#6688aa;font-size:10px;font-family:monospace;resize:vertical;min-height:80px;}
+.sync-info{font-size:10px;color:#4a6a8a;margin-top:6px;}
+
+/* QR */
+.qr-wrap{text-align:center;padding:20px;}
+.qr-wrap canvas,.qr-wrap img{border:8px solid #fff;border-radius:8px;}
+
+@media(max-width:700px){.cal-day{min-height:50px;}.gallery-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}.profit-grid{grid-template-columns:1fr;}.sync-grid{grid-template-columns:1fr;}}
 
 /* LIGHT MODE */
 body.light{background:#f0f2f5;color:#1a202c;}
@@ -305,6 +329,11 @@ body.light .followup-item:hover{background:#f0f7ff;}
 body.light .bar-label{color:#888;}
 body.light .pipeline-label{color:#666;}
 body.light .toast{background:#27ae60;color:#fff;}
+body.light .pin-overlay{background:linear-gradient(135deg,#e8e8e8,#f5f5f5);}
+body.light .pin-box{background:#fff;border-color:#C9A84C;}
+body.light .pin-box input{background:#f8f9fa;border-color:#ddd;color:#333;}
+body.light .sync-card{background:#fff;border-color:#ddd;}
+body.light .sync-textarea{background:#f8f9fa;border-color:#ddd;color:#333;}
 
 @media print{
 body{background:#fff!important;color:#000!important;}
@@ -320,7 +349,7 @@ body{background:#fff!important;color:#000!important;}
 <body>
 
 <div class="app-header">
-<div class="brand">⚡ Hydro Concept <small>— Aplicație de Lucru v3.1</small></div>
+<div class="brand">⚡ Hydro Concept <small>— Aplicație de Lucru v3.3</small></div>
 <div style="display:flex;align-items:center;gap:12px;">
 <button class="theme-toggle" onclick="toggleTheme()" title="Dark/Light">🌓</button>
 <span style="font-size:12px;color:#0D1B2A;">📞 0720 139 220</span>
@@ -336,6 +365,7 @@ body{background:#fff!important;color:#000!important;}
 <button class="tab" onclick="showPage('profit')">💹 Profit</button>
 <button class="tab" onclick="showPage('mesaje')">📧 Mesaje</button>
 <button class="tab" onclick="showPage('calculator')">🔢 Calculator</button>
+<button class="tab" onclick="showPage('setari')">⚙️ Setări</button>
 </div>
 
 <!-- ═══════ PAGE 0: DASHBOARD ═══════ -->
@@ -522,6 +552,86 @@ body{background:#fff!important;color:#000!important;}
 <div class="text-muted text-center">Prețuri orientative. Totul inclus: manoperă + materiale + transport.</div>
 </div>
 
+<!-- PIN LOCK OVERLAY -->
+<div class="pin-overlay" id="pinOverlay" style="display:none;">
+<div class="pin-box">
+    <div class="pin-logo">⚡🔒</div>
+    <h2>Hydro Concept</h2>
+    <p>Introdu PIN-ul pentru acces</p>
+    <input type="password" id="pinInput" maxlength="6" placeholder="••••" oninput="checkPin()" autofocus>
+    <div class="pin-err" id="pinErr"></div>
+    <div class="pin-hint">PIN implicit: 1234</div>
+</div>
+</div>
+
+<!-- ═══════ PAGE: SETĂRI ═══════ -->
+<div class="page" id="page-setari">
+<div class="section-title">Setări aplicație</div>
+
+<div class="card">
+    <div class="section-title" style="font-size:12px;">🔒 Protecție PIN</div>
+    <div class="form-row">
+        <div class="form-group" style="max-width:200px;"><label>PIN actual</label><input type="password" id="set-pin-old" placeholder="PIN vechi"></div>
+        <div class="form-group" style="max-width:200px;"><label>PIN nou</label><input type="password" id="set-pin-new" placeholder="PIN nou (4-6 cifre)"></div>
+        <div class="form-group" style="max-width:120px;"><label>&nbsp;</label><button class="btn btn-gold btn-sm" onclick="changePin()">Schimbă PIN</button></div>
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="max-width:200px;">
+            <label>PIN activ</label>
+            <select id="set-pin-active" onchange="togglePinActive()">
+                <option value="1">Da — Cere PIN la deschidere</option>
+                <option value="0">Nu — Fără PIN</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="section-title" style="margin-top:20px;">☁️ Backup & Sincronizare</div>
+<div class="sync-grid">
+    <div class="sync-card">
+        <div class="sc-icon">📤</div>
+        <h3>Export backup</h3>
+        <p>Descarcă toate datele (clienți, costuri, poze) într-un fișier JSON</p>
+        <button class="btn btn-gold" onclick="exportBackup()">📤 Descarcă backup</button>
+        <div class="sync-info" id="backupInfo"></div>
+    </div>
+    <div class="sync-card">
+        <div class="sc-icon">📥</div>
+        <h3>Import backup</h3>
+        <p>Restaurează datele dintr-un fișier JSON salvat anterior</p>
+        <button class="btn btn-blue" onclick="document.getElementById('importFile').click()">📥 Încarcă backup</button>
+        <input type="file" id="importFile" accept=".json" onchange="importBackup(this)" style="display:none;">
+        <div class="sync-info" id="importInfo"></div>
+    </div>
+    <div class="sync-card">
+        <div class="sc-icon">📋</div>
+        <h3>Sincronizare rapidă</h3>
+        <p>Copiază datele ca text → lipește pe alt dispozitiv</p>
+        <button class="btn btn-green btn-sm" onclick="copySync()">📋 Copiază date</button>
+        <textarea class="sync-textarea mt10" id="syncText" placeholder="Sau lipește date aici și apasă Importă..."></textarea>
+        <button class="btn btn-blue btn-sm mt10" onclick="pasteSync()">📥 Importă din text</button>
+    </div>
+    <div class="sync-card">
+        <div class="sc-icon">🔄</div>
+        <h3>Backup automat</h3>
+        <p>Salvare automată la fiecare modificare</p>
+        <div style="font-size:12px;color:#2ecc71;font-weight:700;margin:10px 0;">✅ Activ — localStorage</div>
+        <div class="sync-info">Ultimul backup: <span id="lastBackupTime">—</span></div>
+        <button class="btn btn-outline btn-sm mt10" onclick="resetApp()">⚠️ Resetează aplicația</button>
+    </div>
+</div>
+
+<div class="section-title" style="margin-top:20px;">📱 QR Code — Cerere ofertă</div>
+<div class="card">
+    <p class="text-muted" style="margin-bottom:12px;">Scanează QR-ul de pe cartea de vizită → deschide formularul de cerere ofertă</p>
+    <div class="qr-wrap" id="qrArea"></div>
+    <div class="text-center mt10">
+        <button class="btn btn-gold btn-sm" onclick="generateQR()">🔄 Generează QR</button>
+        <button class="btn btn-blue btn-sm" onclick="downloadQR()">📥 Descarcă QR</button>
+    </div>
+</div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -587,6 +697,7 @@ function showPage(name){
     if(name==='calendar') renderCalendar();
     if(name==='galerie') renderGalerie();
     if(name==='profit') renderProfit();
+    if(name==='setari'){loadPinSetting();document.getElementById('lastBackupTime').textContent=localStorage.getItem('hc_last_backup')||'Niciodată';generateQR();}
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1659,9 +1770,162 @@ function genPV(){
 }
 
 // ═══════════════════════════════════════════════════════
+// PIN LOCK
+// ═══════════════════════════════════════════════════════
+function getPin(){return localStorage.getItem('hc_pin')||'1234';}
+function isPinActive(){return localStorage.getItem('hc_pin_active')!=='0';}
+
+function showPinLock(){
+    if(!isPinActive())return;
+    if(sessionStorage.getItem('hc_unlocked'))return;
+    document.getElementById('pinOverlay').style.display='flex';
+    setTimeout(()=>document.getElementById('pinInput').focus(),100);
+}
+
+function checkPin(){
+    const input=document.getElementById('pinInput').value;
+    if(input.length>=4){
+        if(input===getPin()){
+            sessionStorage.setItem('hc_unlocked','1');
+            document.getElementById('pinOverlay').style.display='none';
+            toast('🔓 Deblocat!');
+        } else {
+            document.getElementById('pinErr').textContent='❌ PIN greșit!';
+            document.getElementById('pinInput').value='';
+            setTimeout(()=>document.getElementById('pinErr').textContent='',2000);
+        }
+    }
+}
+
+function changePin(){
+    const old=document.getElementById('set-pin-old').value;
+    const nw=document.getElementById('set-pin-new').value;
+    if(old!==getPin()){toast('❌ PIN vechi greșit!');return;}
+    if(nw.length<4||nw.length>6){toast('⚠️ PIN-ul trebuie să aibă 4-6 cifre');return;}
+    localStorage.setItem('hc_pin',nw);
+    document.getElementById('set-pin-old').value='';
+    document.getElementById('set-pin-new').value='';
+    toast('✅ PIN schimbat!');
+}
+
+function togglePinActive(){
+    const active=document.getElementById('set-pin-active').value;
+    localStorage.setItem('hc_pin_active',active);
+    toast(active==='1'?'🔒 PIN activat':'🔓 PIN dezactivat');
+}
+
+function loadPinSetting(){
+    document.getElementById('set-pin-active').value=isPinActive()?'1':'0';
+}
+
+// ═══════════════════════════════════════════════════════
+// BACKUP & SYNC
+// ═══════════════════════════════════════════════════════
+function exportBackup(){
+    const data={
+        version:'3.2',
+        date:new Date().toISOString(),
+        clients:getAll(),
+        photos:getPhotos(),
+        costs:getCosts(),
+        pin:getPin(),
+        theme:localStorage.getItem('hc_theme')||'dark'
+    };
+    const json=JSON.stringify(data,null,2);
+    const blob=new Blob([json],{type:'application/json'});
+    const link=document.createElement('a');
+    link.href=URL.createObjectURL(blob);
+    link.download='HydroConcept_Backup_'+dataAzi().replace(/\./g,'')+'.json';
+    link.click();
+    localStorage.setItem('hc_last_backup',new Date().toLocaleString('ro-RO'));
+    document.getElementById('backupInfo').textContent='✅ Backup salvat: '+dataAzi();
+    toast('📤 Backup descărcat!');
+}
+
+function importBackup(input){
+    const file=input.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(e){
+        try{
+            const data=JSON.parse(e.target.result);
+            if(data.clients){saveAll(data.clients);toast('✅ '+data.clients.length+' clienți restaurați');}
+            if(data.photos){savePhotos(data.photos);}
+            if(data.costs){saveCosts(data.costs);}
+            if(data.pin){localStorage.setItem('hc_pin',data.pin);}
+            if(data.theme){localStorage.setItem('hc_theme',data.theme);}
+            document.getElementById('importInfo').textContent='✅ Restaurat din '+data.date;
+            updateBadge();
+            toast('📥 Backup importat cu succes!');
+        }catch(err){
+            toast('❌ Fișier invalid!');
+        }
+    };
+    reader.readAsText(file);
+    input.value='';
+}
+
+function copySync(){
+    const data={clients:getAll(),costs:getCosts(),date:new Date().toISOString()};
+    const json=JSON.stringify(data);
+    navigator.clipboard.writeText(json).then(()=>{
+        toast('📋 Date copiate! Lipește pe celălalt dispozitiv.');
+    });
+}
+
+function pasteSync(){
+    const text=document.getElementById('syncText').value.trim();
+    if(!text){toast('⚠️ Lipește datele mai întâi');return;}
+    try{
+        const data=JSON.parse(text);
+        if(data.clients){saveAll(data.clients);updateBadge();}
+        if(data.costs){saveCosts(data.costs);}
+        document.getElementById('syncText').value='';
+        toast('✅ Sincronizat! '+((data.clients||[]).length)+' clienți');
+    }catch(err){toast('❌ Format invalid!');}
+}
+
+function resetApp(){
+    if(!confirm('⚠️ ATENȚIE! Ștergi TOATE datele? Fă backup înainte!'))return;
+    if(!confirm('Sigur sigur? Nu se poate reveni!'))return;
+    localStorage.clear();
+    sessionStorage.clear();
+    location.reload();
+}
+
+// ═══════════════════════════════════════════════════════
+// QR CODE GENERATOR (simple canvas-based)
+// ═══════════════════════════════════════════════════════
+function generateQR(){
+    const url='https://europrest-svg.github.io/hydroconcept-app/cerere.html';
+    // Use QR API service for simplicity
+    const qrImg=document.createElement('img');
+    qrImg.src='https://api.qrserver.com/v1/create-qr-code/?size=250x250&data='+encodeURIComponent(url);
+    qrImg.alt='QR Code — Cerere ofertă';
+    qrImg.id='qrImage';
+    qrImg.style.borderRadius='8px';
+    document.getElementById('qrArea').innerHTML='';
+    document.getElementById('qrArea').appendChild(qrImg);
+    const info=document.createElement('div');
+    info.style.cssText='margin-top:12px;font-size:12px;color:#6688aa;';
+    info.innerHTML='<strong>Link:</strong> '+url+'<br><small>Scanează QR-ul → se deschide formularul de cerere ofertă</small>';
+    document.getElementById('qrArea').appendChild(info);
+}
+
+function downloadQR(){
+    const img=document.getElementById('qrImage');
+    if(!img){generateQR();return;}
+    const a=document.createElement('a');
+    a.href=img.src;
+    a.download='HydroConcept_QR_CerereOferta.png';
+    a.click();
+    toast('📥 QR descărcat!');
+}
+
+// ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
-seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard();
+seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard();showPinLock();
 
 // PWA — Service Worker registration
 if('serviceWorker' in navigator){

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cerere Ofertă — Hydro Concept</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(135deg,#0a1420,#0D1B2A);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.container{background:#111f35;border:1px solid #1B3A6B;border-radius:16px;padding:30px;width:100%;max-width:500px;}
+.logo{text-align:center;margin-bottom:20px;}
+.logo .brand{font-size:24px;font-weight:800;color:#C9A84C;}
+.logo .sub{font-size:12px;color:#6688aa;margin-top:4px;}
+h1{text-align:center;font-size:18px;color:#fff;margin-bottom:4px;}
+.desc{text-align:center;font-size:12px;color:#6688aa;margin-bottom:24px;}
+label{display:block;font-size:11px;color:#8899aa;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+input,select,textarea{width:100%;background:#0a1420;border:1px solid #1B3A6B;border-radius:8px;padding:12px;color:#fff;font-size:14px;font-family:inherit;margin-bottom:14px;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#C9A84C;}
+textarea{resize:vertical;min-height:80px;}
+.btn{width:100%;background:linear-gradient(135deg,#C9A84C,#8B6914);color:#0D1B2A;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn:hover{opacity:.9;}
+.success{display:none;text-align:center;padding:30px 0;}
+.success .icon{font-size:48px;margin-bottom:12px;}
+.success h2{color:#2ecc71;margin-bottom:8px;}
+.success p{color:#6688aa;font-size:13px;}
+.contact{text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid #1B3A6B;}
+.contact a{color:#C9A84C;text-decoration:none;font-weight:700;font-size:16px;}
+.contact .web{font-size:11px;color:#6688aa;margin-top:6px;}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="logo">
+        <div class="brand">⚡ Hydro Concept</div>
+        <div class="sub">Euro-Prest Provider S.R.L. • Din 2011</div>
+    </div>
+
+    <div id="formArea">
+        <h1>Cerere ofertă gratuită</h1>
+        <div class="desc">Completează formularul și te contactăm în maxim 24h</div>
+
+        <label>Nume complet *</label>
+        <input type="text" id="c-nume" placeholder="ex: Ion Popescu" required>
+
+        <label>Telefon *</label>
+        <input type="tel" id="c-tel" placeholder="ex: 0722 123 456" required>
+
+        <label>Email</label>
+        <input type="email" id="c-email" placeholder="ex: ion@email.com">
+
+        <label>Tip lucrare</label>
+        <select id="c-tip">
+            <option>Terasă bloc necirculabilă</option>
+            <option>Terasă bloc circulabilă</option>
+            <option>Terasă casă/vilă</option>
+            <option>Acoperiș hală industrială</option>
+            <option>Balcon</option>
+            <option>Fundație</option>
+            <option>Altele</option>
+        </select>
+
+        <label>Suprafață estimată (mp)</label>
+        <input type="number" id="c-mp" placeholder="ex: 200">
+
+        <label>Adresa lucrării</label>
+        <input type="text" id="c-adresa" placeholder="ex: București, Sector 4">
+
+        <label>Detalii suplimentare</label>
+        <textarea id="c-detalii" placeholder="ex: Terasa are infiltrații de 2 ani, gresie crăpată..."></textarea>
+
+        <button class="btn" onclick="trimite()">📩 Trimite cererea</button>
+    </div>
+
+    <div class="success" id="successArea">
+        <div class="icon">✅</div>
+        <h2>Cerere trimisă!</h2>
+        <p>Vă vom contacta în maxim 24 de ore.<br>Evaluarea la fața locului este <strong>GRATUITĂ</strong>.</p>
+    </div>
+
+    <div class="contact">
+        <div>📞 <a href="tel:+40720139220">0720 139 220</a></div>
+        <div class="web">www.hidroizolatii-izolatii.ro • ISO 9001:2015</div>
+    </div>
+</div>
+
+<script>
+function trimite(){
+    const nume=document.getElementById('c-nume').value.trim();
+    const tel=document.getElementById('c-tel').value.trim();
+    if(!nume||!tel){alert('Completează numele și telefonul!');return;}
+
+    // Salvăm cererea în localStorage (poate fi preluată de admin din app)
+    const cereri=JSON.parse(localStorage.getItem('hc_cereri')||'[]');
+    cereri.push({
+        nume,tel,
+        email:document.getElementById('c-email').value.trim(),
+        tip:document.getElementById('c-tip').value,
+        mp:document.getElementById('c-mp').value,
+        adresa:document.getElementById('c-adresa').value.trim(),
+        detalii:document.getElementById('c-detalii').value.trim(),
+        data:new Date().toLocaleString('ro-RO'),
+        status:'nou'
+    });
+    localStorage.setItem('hc_cereri',JSON.stringify(cereri));
+
+    // Construim mesaj WhatsApp
+    let msg=`Cerere ofertă nouă:\n\nNume: ${nume}\nTelefon: ${tel}`;
+    const email=document.getElementById('c-email').value.trim();
+    if(email)msg+=`\nEmail: ${email}`;
+    msg+=`\nTip: ${document.getElementById('c-tip').value}`;
+    const mp=document.getElementById('c-mp').value;
+    if(mp)msg+=`\nSuprafață: ${mp} mp`;
+    const adresa=document.getElementById('c-adresa').value.trim();
+    if(adresa)msg+=`\nAdresa: ${adresa}`;
+    const detalii=document.getElementById('c-detalii').value.trim();
+    if(detalii)msg+=`\nDetalii: ${detalii}`;
+
+    // Trimite pe WhatsApp către admin
+    window.open('https://wa.me/40720139220?text='+encodeURIComponent(msg),'_blank');
+
+    document.getElementById('formArea').style.display='none';
+    document.getElementById('successArea').style.display='block';
+}
+</script>
+</body>
+</html>
