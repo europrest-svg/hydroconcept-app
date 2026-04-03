@@ -22,7 +22,8 @@
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0a1420;color:#fff;min-height:100vh;}
 
 .app-header{background:linear-gradient(135deg,#C9A84C,#8B6914);padding:12px 25px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.app-header .brand{font-size:20px;font-weight:800;color:#0D1B2A;}
+.app-header .brand{font-size:20px;font-weight:800;color:#0D1B2A;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+.hc-logo{vertical-align:middle;border-radius:6px;flex-shrink:0;}
 .app-header .brand small{font-weight:400;font-size:12px;opacity:.7;}
 
 .tabs{display:flex;background:#0D1B2A;border-bottom:2px solid #1B3A6B;position:sticky;top:48px;z-index:99;}
@@ -349,7 +350,7 @@ body{background:#fff!important;color:#000!important;}
 <body>
 
 <div class="app-header">
-<div class="brand">⚡ Hydro Concept <small>— Aplicație de Lucru v3.3</small></div>
+<div class="brand"><img src="logo-black.png" alt="Hydro Concept" class="hc-logo" style="height:44px;"> <small>— Aplicație de Lucru v3.3</small></div>
 <div style="display:flex;align-items:center;gap:12px;">
 <button class="theme-toggle" onclick="toggleTheme()" title="Dark/Light">🌓</button>
 <span style="font-size:12px;color:#0D1B2A;">📞 0720 139 220</span>
@@ -555,8 +556,7 @@ body{background:#fff!important;color:#000!important;}
 <!-- PIN LOCK OVERLAY -->
 <div class="pin-overlay" id="pinOverlay" style="display:none;">
 <div class="pin-box">
-    <div class="pin-logo">⚡🔒</div>
-    <h2>Hydro Concept</h2>
+    <div class="pin-logo"><img src="logo-black.png" alt="Hydro Concept" style="height:80px;"></div>
     <p>Introdu PIN-ul pentru acces</p>
     <input type="password" id="pinInput" maxlength="6" placeholder="••••" oninput="checkPin()" autofocus>
     <div class="pin-err" id="pinErr"></div>
@@ -901,7 +901,7 @@ function previzualizeaza(){
     let cmpHTML=COMPARE_ROWS.map((row,i)=>{let r=[...row];if(r[0]==='Preț / mp'){r[1]=pr.novaglass.pretA+'/mp';r[2]=pr.soprema.pretA+'/mp';r[3]=pr.izobit.pretA+'/mp';}if(r[0]==='Sistem'){r[1]=r[2]=r[3]=str+' strat membrană bituminoasă';}const ip=r[0]==='Preț / mp';return`<tr><td>${r[0]}</td><td style="${ip?'font-weight:700;color:#E87722;':''}">${r[1]}</td><td style="${ip?'font-weight:700;color:#2563A8;':''}">${r[2]}</td><td style="${ip?'font-weight:700;color:#B8860B;background:#FFF8E7;':''}">${r[3]}</td></tr>`;}).join('');
     const stepsCol=(steps)=>steps.map((s,i)=>`<div class="pv-step-item"><span class="pv-step-num">${i+1}.</span> ${s}</div>`).join('');
     document.getElementById('previewContent').innerHTML=`
-    <div class="pv-header"><div><div class="pv-logo-text">⚡ HYDRO</div><div class="pv-logo-sub">Euro-Prest Provider</div></div><div class="pv-center"><h3>HIDROIZOLAȚII PROFESIONALE</h3><div class="pv-info">📞 0720 139 220 • europrest@yahoo.com</div></div><div><div class="pv-iso-badge">ISO 9001<br>2015</div></div></div>
+    <div class="pv-header"><div><img src="logo-black.png" alt="Hydro Concept" style="height:44px;"><div><div class="pv-logo-sub">Euro-Prest Provider</div></div></div><div class="pv-center"><h3>HIDROIZOLAȚII PROFESIONALE</h3><div class="pv-info">📞 0720 139 220 • europrest@yahoo.com</div></div><div><div class="pv-iso-badge">ISO 9001<br>2015</div></div></div>
     <div class="pv-body">
     <div class="pv-title">OFERTĂ HIDROIZOLAȚIE TERASĂ</div>
     <div class="pv-subtitle">${client} • ${mp>0?mp+' mp':''} • 3 variante${str===2?' (2 straturi)':''}</div>
