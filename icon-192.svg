@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="34" fill="#0D1B2A"/>
+  <rect x="8" y="8" width="176" height="176" rx="29" fill="none" stroke="#C9A84C" stroke-width="8"/>
+  <path d="M96 21 Q54 67 54 92 Q54 130 96 130 Q138 130 138 92 Q138 67 96 21Z" fill="#2563A8"/>
+  <ellipse cx="80" cy="88" rx="8" ry="18" fill="rgba(255,255,255,0.25)" transform="rotate(-15 80 88)"/>
+  <text x="96" y="168" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="35" fill="#C9A84C">HC</text>
+</svg>
