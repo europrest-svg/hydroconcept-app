@@ -177,33 +177,120 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .mt10{margin-top:10px;}.mt20{margin-top:20px;}
 .text-right{text-align:right;}.text-center{text-align:center;}.text-gold{color:#C9A84C;}.text-muted{color:#6688aa;font-size:12px;}
 
+/* DASHBOARD CHARTS */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+.chart-card{background:#111f35;border:1px solid #1B3A6B;border-radius:12px;padding:18px;}
+.chart-card h3{font-size:13px;color:#C9A84C;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:160px;padding-top:10px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;}
+.bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .5s ease;}
+.bar-label{font-size:9px;color:#6688aa;margin-top:6px;text-align:center;white-space:nowrap;}
+.bar-val{font-size:10px;color:#fff;font-weight:700;margin-bottom:3px;}
+.donut-wrap{display:flex;align-items:center;justify-content:center;gap:20px;}
+.donut-legend{font-size:11px;line-height:2;}
+.donut-legend span{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+.pipeline-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.pipeline-bar{height:22px;border-radius:4px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:700;color:#fff;min-width:30px;}
+.pipeline-label{font-size:11px;color:#8899aa;width:80px;text-align:right;flex-shrink:0;}
+.pipeline-val{font-size:11px;color:#fff;font-weight:700;margin-left:8px;flex-shrink:0;}
+
+/* FOLLOW-UP ALERTS */
+.alert-bar{background:linear-gradient(135deg,#2c1810,#1a1020);border:1px solid #E87722;border-radius:10px;padding:14px 18px;margin-bottom:15px;display:flex;align-items:center;gap:12px;}
+.alert-bar .alert-icon{font-size:24px;}
+.alert-bar .alert-text{flex:1;font-size:13px;color:#f0d0a0;}
+.alert-bar .alert-count{background:#E87722;color:#fff;font-size:18px;font-weight:800;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.followup-list{max-height:200px;overflow-y:auto;}
+.followup-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #1a2a40;font-size:12px;}
+.followup-item:hover{background:#152540;}
+.followup-days{background:#E87722;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.followup-name{flex:1;font-weight:600;}
+.btn-wa{background:#25D366;color:#fff;font-size:11px;padding:4px 10px;border-radius:6px;text-decoration:none;white-space:nowrap;}
+
+/* WHATSAPP BUTTON */
+.btn-whatsapp{background:#25D366;color:#fff;font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer;border:none;font-family:inherit;font-weight:600;}
+.btn-whatsapp:hover{background:#1da851;}
+
+/* DARK/LIGHT TOGGLE */
+.theme-toggle{cursor:pointer;font-size:18px;background:none;border:none;padding:4px 8px;border-radius:6px;}
+.theme-toggle:hover{background:rgba(255,255,255,.1);}
+
+/* LIGHT MODE */
+body.light{background:#f0f2f5;color:#1a202c;}
+body.light .app-header{background:linear-gradient(135deg,#C9A84C,#a88a2a);}
+body.light .tabs{background:#fff;border-bottom-color:#ddd;}
+body.light .tab{color:#666;}body.light .tab.active{color:#8B6914;border-bottom-color:#C9A84C;background:#fafafa;}
+body.light .page{color:#1a202c;}
+body.light .card,body.light .chart-card{background:#fff;border-color:#ddd;color:#1a202c;}
+body.light .stat-card{background:#fff;border-color:#ddd;}
+body.light .stat-card .lbl{color:#666;}
+body.light .section-title{color:#8B6914;}
+body.light .form-group label{color:#555;}
+body.light .form-group input,body.light .form-group select,body.light .form-group textarea{background:#f8f9fa;border-color:#ddd;color:#1a202c;}
+body.light .form-group input::placeholder,body.light .form-group textarea::placeholder{color:#999;}
+body.light .tbl-wrap{border-color:#ddd;}
+body.light th{background:#2563A8;color:#fff;}
+body.light td{border-color:#e0e0e0;color:#1a202c;}
+body.light tr:nth-child(even) td{background:#f8f9fa;}
+body.light tr:hover td{background:#eef5ff;}
+body.light td.editable:hover{background:#e8f0fe!important;outline-color:#C9A84C;}
+body.light .search-bar input,body.light .search-bar select{background:#f8f9fa;border-color:#ddd;color:#1a202c;}
+body.light .output-box{background:#f8f9fa;color:#1a202c;}
+body.light .text-muted{color:#888;}
+body.light .btn-outline{border-color:#ddd;color:#666;}
+body.light .btn-outline:hover{border-color:#C9A84C;color:#8B6914;}
+body.light .alert-bar{background:linear-gradient(135deg,#fff5eb,#fff0f0);border-color:#E87722;}
+body.light .alert-bar .alert-text{color:#8B4513;}
+body.light .followup-item{border-bottom-color:#eee;}
+body.light .followup-item:hover{background:#f0f7ff;}
+body.light .bar-label{color:#888;}
+body.light .pipeline-label{color:#666;}
+body.light .toast{background:#27ae60;color:#fff;}
+
 @media print{
-body{background:#fff;}
+body{background:#fff!important;color:#000!important;}
 .app-header,.tabs,.card,.btn,.search-bar,.stats-grid,.toast,.page:not(#page-oferte){display:none!important;}
 #page-oferte{display:block!important;max-width:100%;padding:0;}
 #page-oferte>*:not(#previewArea){display:none!important;}
 #previewArea{display:block!important;}
 .oferta-preview{box-shadow:none;border-radius:0;}
 }
-@media(max-width:700px){.pv-prices,.pv-steps,.pv-benefits,.pv-client-box{flex-direction:column;}.pv-benefits{grid-template-columns:1fr;}}
+@media(max-width:700px){.pv-prices,.pv-steps,.pv-benefits,.pv-client-box{flex-direction:column;}.pv-benefits{grid-template-columns:1fr;}.chart-grid{grid-template-columns:1fr;}.tabs{flex-wrap:wrap;}.tab{padding:10px 14px;font-size:12px;}}
 </style>
 </head>
 <body>
 
 <div class="app-header">
-<div class="brand">⚡ Hydro Concept <small>— Aplicație de Lucru v3.0</small></div>
-<div style="font-size:12px;color:#0D1B2A;">📞 0720 139 220</div>
+<div class="brand">⚡ Hydro Concept <small>— Aplicație de Lucru v3.1</small></div>
+<div style="display:flex;align-items:center;gap:12px;">
+<button class="theme-toggle" onclick="toggleTheme()" title="Dark/Light">🌓</button>
+<span style="font-size:12px;color:#0D1B2A;">📞 0720 139 220</span>
+</div>
 </div>
 
 <div class="tabs">
-<button class="tab active" onclick="showPage('oferte')">💰 Ofertă Nouă</button>
+<button class="tab active" onclick="showPage('dashboard')">📊 Dashboard</button>
+<button class="tab" onclick="showPage('oferte')">💰 Ofertă Nouă</button>
 <button class="tab" onclick="showPage('centralizator')">📋 Centralizator <span class="badge" id="badgeCount">0</span></button>
 <button class="tab" onclick="showPage('mesaje')">📧 Mesaje</button>
 <button class="tab" onclick="showPage('calculator')">🔢 Calculator</button>
 </div>
 
+<!-- ═══════ PAGE 0: DASHBOARD ═══════ -->
+<div class="page active" id="page-dashboard">
+<div class="section-title">Dashboard — Situație generală</div>
+<div id="alertArea"></div>
+<div class="stats-grid" id="dashStats"></div>
+<div class="chart-grid">
+    <div class="chart-card"><h3>Status oferte</h3><div id="chartOferte"></div></div>
+    <div class="chart-card"><h3>Pipeline valoare</h3><div id="chartPipeline"></div></div>
+    <div class="chart-card"><h3>Oferte pe săptămână</h3><div class="bar-chart" id="chartWeekly"></div></div>
+    <div class="chart-card"><h3>Top clienți (valoare)</h3><div id="chartTopClienti"></div></div>
+</div>
+<div id="followupArea"></div>
+</div>
+
 <!-- ═══════ PAGE 1: OFERTĂ NOUĂ ═══════ -->
-<div class="page active" id="page-oferte">
+<div class="page" id="page-oferte">
 <div class="section-title">Crează ofertă nouă</div>
 <div class="card">
     <div class="form-row">
@@ -245,6 +332,7 @@ body{background:#fff;}
     <div class="oferta-preview" id="previewContent"></div>
     <div class="mt10" style="display:flex;gap:10px;">
         <button class="btn btn-blue" onclick="window.print()">🖨️ Printează / PDF</button>
+        <button class="btn btn-green" onclick="exportPDF()">📄 Export PDF</button>
         <button class="btn btn-outline" onclick="document.getElementById('previewArea').classList.add('hidden')">✕ Închide</button>
     </div>
 </div>
@@ -399,6 +487,7 @@ function showPage(name){
     document.getElementById('page-'+name).classList.add('active');
     event.target.closest('.tab').classList.add('active');
     if(name==='centralizator') renderCentral();
+    if(name==='dashboard') renderDashboard();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -537,7 +626,7 @@ function renderCentral(){
             <td class="editable col-center" ondblclick="editCell(this,${realIdx},'factura','select')">${stBadge(o.factura)}</td>
             <td class="editable col-center" ondblclick="editCell(this,${realIdx},'statusPlata','select')">${stBadge(o.statusPlata)}</td>
             <td class="editable" style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}" ondblclick="editCell(this,${realIdx},'obs','text')">${o.obs||'—'}</td>
-            <td><button class="btn btn-red btn-sm" onclick="stergeOferta(${realIdx})">✕</button></td>
+            <td style="white-space:nowrap;"><button class="btn-whatsapp" onclick="openWA(${realIdx})" title="WhatsApp">📲</button> <button class="btn btn-red btn-sm" onclick="stergeOferta(${realIdx})">✕</button></td>
         </tr>`;
     });
     document.getElementById('centralTbody').innerHTML=html||'<tr><td colspan="14" class="text-center text-muted">Nicio ofertă.</td></tr>';
@@ -856,9 +945,217 @@ function genereazaDOCX(){
 }
 
 // ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function renderDashboard(){
+    const all=getAll();
+    const now=new Date();
+
+    // Parse valoare to number
+    function parseVal(v){if(!v||v==='—')return 0;const n=v.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');return parseFloat(n)||0;}
+    function isEuro(v){return v&&v.includes('€');}
+
+    // Stats
+    const st={total:all.length,trimise:0,asteptare:0,acceptate:0,respinse:0,contracte:0,valTotal:0};
+    all.forEach(o=>{
+        if(o.oferta==='Trimisă')st.trimise++;
+        if(o.oferta==='În așteptare')st.asteptare++;
+        if(o.oferta==='Acceptată')st.acceptate++;
+        if(o.oferta==='Respinsă')st.respinse++;
+        if(o.contract&&o.contract!=='—')st.contracte++;
+        const val=parseVal(o.valoare);
+        st.valTotal+=isEuro(o.valoare)?val*5:val;
+    });
+
+    document.getElementById('dashStats').innerHTML=`
+        <div class="stat-card"><div class="num">${st.total}</div><div class="lbl">Total clienți</div></div>
+        <div class="stat-card"><div class="num" style="color:#f39c12;">${st.trimise}</div><div class="lbl">Oferte trimise</div></div>
+        <div class="stat-card"><div class="num" style="color:#2ecc71;">${st.acceptate}</div><div class="lbl">Acceptate</div></div>
+        <div class="stat-card"><div class="num" style="color:#27ae60;">${st.contracte}</div><div class="lbl">Contracte</div></div>
+        <div class="stat-card"><div class="num" style="font-size:18px;">${nr(Math.round(st.valTotal))} lei</div><div class="lbl">Valoare totală</div></div>
+        <div class="stat-card"><div class="num" style="font-size:18px;color:#2ecc71;">${nr(Math.round(st.valTotal*(st.acceptate/Math.max(st.total,1))))} lei</div><div class="lbl">Valoare acceptate</div></div>
+    `;
+
+    // Chart: Status oferte (donut-style bars)
+    const colors={trimise:'#f39c12',asteptare:'#4A9EF5',acceptate:'#2ecc71',respinse:'#e74c3c'};
+    const labels={trimise:'Trimise',asteptare:'În așteptare',acceptate:'Acceptate',respinse:'Respinse'};
+    let donutHTML='';
+    for(const[k,label] of Object.entries(labels)){
+        const val=st[k],pct=st.total?Math.round(val/st.total*100):0;
+        donutHTML+=`<div class="pipeline-row">
+            <div class="pipeline-label">${label}</div>
+            <div class="pipeline-bar" style="background:${colors[k]};width:${Math.max(pct*2,30)}px;">${val}</div>
+            <div class="pipeline-val">${pct}%</div>
+        </div>`;
+    }
+    document.getElementById('chartOferte').innerHTML=donutHTML;
+
+    // Chart: Pipeline valoare
+    const valByStatus={trimise:0,asteptare:0,acceptate:0};
+    all.forEach(o=>{
+        const val=parseVal(o.valoare);const v2=isEuro(o.valoare)?val*5:val;
+        if(o.oferta==='Trimisă')valByStatus.trimise+=v2;
+        if(o.oferta==='În așteptare')valByStatus.asteptare+=v2;
+        if(o.oferta==='Acceptată')valByStatus.acceptate+=v2;
+    });
+    const maxPipe=Math.max(...Object.values(valByStatus),1);
+    let pipeHTML='';
+    const pipeColors={trimise:['Trimise','#f39c12'],asteptare:['În așteptare','#4A9EF5'],acceptate:['Acceptate','#2ecc71']};
+    for(const[k,[label,color]] of Object.entries(pipeColors)){
+        const w=Math.round(valByStatus[k]/maxPipe*200);
+        pipeHTML+=`<div class="pipeline-row">
+            <div class="pipeline-label">${label}</div>
+            <div class="pipeline-bar" style="background:${color};width:${Math.max(w,30)}px;">${nr(Math.round(valByStatus[k]))}</div>
+            <div class="pipeline-val">lei</div>
+        </div>`;
+    }
+    document.getElementById('chartPipeline').innerHTML=pipeHTML;
+
+    // Chart: Weekly (last 4 weeks)
+    const weeks=[0,1,2,3].map(w=>{
+        const start=new Date(now);start.setDate(start.getDate()-start.getDay()-w*7+1);
+        const end=new Date(start);end.setDate(end.getDate()+6);
+        return{start,end,label:`${start.getDate()}/${start.getMonth()+1}`,count:0};
+    }).reverse();
+    all.forEach(o=>{
+        if(!o.dataOferta||o.dataOferta==='—')return;
+        const parts=o.dataOferta.split('.');
+        if(parts.length<3)return;
+        const d=new Date(parts[2],parts[1]-1,parts[0]);
+        weeks.forEach(w=>{if(d>=w.start&&d<=w.end)w.count++;});
+    });
+    const maxW=Math.max(...weeks.map(w=>w.count),1);
+    document.getElementById('chartWeekly').innerHTML=weeks.map(w=>{
+        const h=Math.max(Math.round(w.count/maxW*140),8);
+        return`<div class="bar-col"><div class="bar-val">${w.count}</div><div class="bar" style="height:${h}px;background:linear-gradient(180deg,#C9A84C,#8B6914);"></div><div class="bar-label">${w.label}</div></div>`;
+    }).join('');
+
+    // Chart: Top 5 clienți
+    const clientVals=[];
+    all.forEach(o=>{
+        if(!o.client||o.client==='—')return;
+        const val=parseVal(o.valoare);const v2=isEuro(o.valoare)?val*5:val;
+        if(v2>0)clientVals.push({name:o.client,val:v2});
+    });
+    clientVals.sort((a,b)=>b.val-a.val);
+    const top5=clientVals.slice(0,5);
+    const maxC=top5.length?top5[0].val:1;
+    document.getElementById('chartTopClienti').innerHTML=top5.map((c,i)=>{
+        const w=Math.round(c.val/maxC*200);
+        const colors2=['#C9A84C','#2563A8','#E87722','#2ecc71','#9b59b6'];
+        return`<div class="pipeline-row">
+            <div class="pipeline-label" style="width:120px;font-size:10px;overflow:hidden;text-overflow:ellipsis;" title="${c.name}">${c.name.substring(0,15)}</div>
+            <div class="pipeline-bar" style="background:${colors2[i]};width:${Math.max(w,40)}px;">${nr(Math.round(c.val))}</div>
+            <div class="pipeline-val">lei</div>
+        </div>`;
+    }).join('')||'<div class="text-muted">Nicio valoare.</div>';
+
+    // Follow-up alerts
+    renderFollowups(all,now);
+}
+
+// ═══════════════════════════════════════════════════════
+// FOLLOW-UP NOTIFICATIONS
+// ═══════════════════════════════════════════════════════
+function renderFollowups(all,now){
+    const followups=[];
+    all.forEach((o,idx)=>{
+        if(o.oferta!=='Trimisă'&&o.oferta!=='În așteptare')return;
+        if(!o.dataOferta||o.dataOferta==='—')return;
+        const parts=o.dataOferta.split('.');
+        if(parts.length<3)return;
+        const d=new Date(parts[2],parts[1]-1,parts[0]);
+        const days=Math.floor((now-d)/(1000*60*60*24));
+        if(days>=3)followups.push({...o,days,idx});
+    });
+    followups.sort((a,b)=>b.days-a.days);
+
+    if(followups.length>0){
+        document.getElementById('alertArea').innerHTML=`
+            <div class="alert-bar">
+                <div class="alert-icon">🔔</div>
+                <div class="alert-text"><strong>${followups.length} oferte</strong> fără răspuns de peste 3 zile — necesită follow-up!</div>
+                <div class="alert-count">${followups.length}</div>
+            </div>`;
+
+        let fhtml='<div class="card"><div class="section-title" style="font-size:12px;">Follow-up necesar</div><div class="followup-list">';
+        followups.forEach(f=>{
+            const phone=extractPhone(f.client);
+            fhtml+=`<div class="followup-item">
+                <span class="followup-days">${f.days} zile</span>
+                <span class="followup-name">${f.client||'—'}</span>
+                <span class="text-muted">${f.obiectiv||''}</span>
+                <span class="text-gold" style="font-size:11px;font-weight:700;">${f.valoare||''}</span>
+                ${phone?`<a href="https://wa.me/${phone}" target="_blank" class="btn-wa">📲 WhatsApp</a>`:''}
+            </div>`;
+        });
+        fhtml+='</div></div>';
+        document.getElementById('followupArea').innerHTML=fhtml;
+    } else {
+        document.getElementById('alertArea').innerHTML='';
+        document.getElementById('followupArea').innerHTML='<div class="card" style="text-align:center;padding:30px;"><span style="font-size:28px;">✅</span><br><span class="text-muted">Toate ofertele sunt la zi — niciun follow-up necesar!</span></div>';
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// WHATSAPP DIRECT
+// ═══════════════════════════════════════════════════════
+function extractPhone(text){
+    if(!text)return null;
+    const m=text.match(/(\+?\d[\d\s]{8,})/);
+    if(!m)return null;
+    let phone=m[1].replace(/\s/g,'');
+    if(phone.startsWith('0'))phone='4'+phone;
+    if(!phone.startsWith('+'))phone='+'+phone;
+    return phone.replace('+','');
+}
+
+function openWA(idx){
+    const all=getAll();
+    const o=all[idx];
+    const phone=extractPhone(o.client)||extractPhone(o.obs);
+    if(phone){
+        const msg=encodeURIComponent(`Bună ziua! Sunt ${F.admin} de la ${F.nume}. Revin cu privire la oferta pentru ${o.obiectiv||'lucrarea discutată'}. Când putem stabili o întâlnire? Mulțumesc!`);
+        window.open(`https://wa.me/${phone}?text=${msg}`,'_blank');
+    } else {
+        const phoneInput=prompt('Introduceți numărul de telefon (ex: 0722123456):');
+        if(phoneInput){
+            let ph=phoneInput.replace(/\s/g,'');
+            if(ph.startsWith('0'))ph='4'+ph;
+            const msg=encodeURIComponent(`Bună ziua! Sunt ${F.admin} de la ${F.nume}. Revin cu privire la oferta pentru ${o.obiectiv||'lucrarea discutată'}. Când putem stabili o întâlnire? Mulțumesc!`);
+            window.open(`https://wa.me/${ph}?text=${msg}`,'_blank');
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT PDF (via print)
+// ═══════════════════════════════════════════════════════
+function exportPDF(){
+    toast('📄 Se deschide dialogul de print — alege "Save as PDF"');
+    setTimeout(()=>window.print(),300);
+}
+
+// ═══════════════════════════════════════════════════════
+// DARK / LIGHT MODE
+// ═══════════════════════════════════════════════════════
+function toggleTheme(){
+    document.body.classList.toggle('light');
+    const isLight=document.body.classList.contains('light');
+    localStorage.setItem('hc_theme',isLight?'light':'dark');
+    document.querySelector('.theme-toggle').textContent=isLight?'🌙':'🌓';
+}
+function loadTheme(){
+    if(localStorage.getItem('hc_theme')==='light'){
+        document.body.classList.add('light');
+        document.querySelector('.theme-toggle').textContent='🌙';
+    }
+}
+
+// ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
-seedData();updateBadge();updMsgForm();populateAuto();
+seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard();
 
 // PWA — Service Worker registration
 if('serviceWorker' in navigator){
