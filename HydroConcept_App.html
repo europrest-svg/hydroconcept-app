@@ -21,10 +21,10 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0a1420;color:#fff;min-height:100vh;}
 
-.app-header{background:linear-gradient(135deg,#C9A84C,#8B6914);padding:12px 25px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.app-header .brand{font-size:20px;font-weight:800;color:#0D1B2A;display:flex;align-items:center;gap:8px;white-space:nowrap;}
-.hc-logo{vertical-align:middle;border-radius:6px;flex-shrink:0;}
-.app-header .brand small{font-weight:400;font-size:12px;opacity:.7;}
+.app-header{background:#0D1B2A;padding:10px 25px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:3px solid #C9A84C;}
+.app-header .brand{font-size:20px;font-weight:800;color:#C9A84C;display:flex;align-items:center;gap:10px;white-space:nowrap;}
+.hc-logo{vertical-align:middle;flex-shrink:0;}
+.app-header .brand small{font-weight:400;font-size:12px;opacity:.7;color:#8899aa;}
 
 .tabs{display:flex;background:#0D1B2A;border-bottom:2px solid #1B3A6B;position:sticky;top:48px;z-index:99;}
 .tab{padding:14px 28px;font-size:14px;font-weight:600;color:#6688aa;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;font-family:inherit;background:none;border-top:none;border-left:none;border-right:none;}
@@ -301,7 +301,7 @@ body.light .profit-row{border-color:#eee;}
 
 /* LIGHT MODE */
 body.light{background:#f0f2f5;color:#1a202c;}
-body.light .app-header{background:linear-gradient(135deg,#C9A84C,#a88a2a);}
+body.light .app-header{background:#0D1B2A;}
 body.light .tabs{background:#fff;border-bottom-color:#ddd;}
 body.light .tab{color:#666;}body.light .tab.active{color:#8B6914;border-bottom-color:#C9A84C;background:#fafafa;}
 body.light .page{color:#1a202c;}
@@ -350,10 +350,10 @@ body{background:#fff!important;color:#000!important;}
 <body>
 
 <div class="app-header">
-<div class="brand"><img src="logo-black.png" alt="Hydro Concept" class="hc-logo" style="height:44px;"> <small>— Aplicație de Lucru v3.3</small></div>
+<div class="brand"><img src="logo-white.png" alt="Hydro Concept" class="hc-logo" style="height:48px;"> <small>— Aplicație de Lucru v3.4</small></div>
 <div style="display:flex;align-items:center;gap:12px;">
 <button class="theme-toggle" onclick="toggleTheme()" title="Dark/Light">🌓</button>
-<span style="font-size:12px;color:#0D1B2A;">📞 0720 139 220</span>
+<span style="font-size:12px;color:#C9A84C;font-weight:700;">📞 0720 139 220</span>
 </div>
 </div>
 
