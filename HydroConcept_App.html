@@ -52,6 +52,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a1420;color:#fff;min-h
 .btn-gold{background:linear-gradient(135deg,#C9A84C,#8B6914);color:#0D1B2A;}
 .btn-blue{background:#2563A8;color:#fff;}
 .btn-green{background:#27ae60;color:#fff;}
+.ck-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:16px;background:#1a2a40;border:1px solid #334;color:#8899aa;font-size:12px;cursor:pointer;transition:.2s;user-select:none;}
+.ck-chip:has(input:checked){background:#1a3a2a;border-color:#2ecc71;color:#2ecc71;}
+.ck-chip input{display:none;}
 .btn-red{background:#c0392b;color:#fff;font-size:11px;padding:6px 12px;}
 .btn-sm{padding:6px 14px;font-size:11px;}
 .btn-outline{background:transparent;border:1px solid #1B3A6B;color:#8899aa;}
@@ -433,6 +436,99 @@ body{background:#fff!important;color:#000!important;}
     </div>
     <div class="form-row"><div class="form-group"><label>Observații</label><textarea id="of-obs" placeholder="ex: Decopertare necesară, acces dificil, etc."></textarea></div></div>
 </div>
+
+<!-- CONSTATARE TEREN -->
+<div class="card" style="border-color:#C9A84C;">
+    <div class="section-title" style="cursor:pointer;" onclick="document.getElementById('constatareBody').classList.toggle('hidden')">📋 Constatare teren <span style="font-size:11px;color:#6688aa;">(click pentru expandare)</span></div>
+    <div id="constatareBody" class="hidden">
+        <!-- 1. Stare inițială hidroizolație -->
+        <div style="margin-bottom:12px;">
+            <label style="color:#C9A84C;font-weight:700;font-size:13px;">Hidroizolație existentă:</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-hidro">
+                <label class="ck-chip"><input type="checkbox" value="membrană bituminoasă fără ardezie" onchange="genConstatare()"> Membrană fără ardezie</label>
+                <label class="ck-chip"><input type="checkbox" value="membrană bituminoasă cu ardezie" onchange="genConstatare()"> Membrană cu ardezie</label>
+                <label class="ck-chip"><input type="checkbox" value="membrană PVC" onchange="genConstatare()"> Membrană PVC</label>
+                <label class="ck-chip"><input type="checkbox" value="folie lichidă" onchange="genConstatare()"> Folie lichidă</label>
+                <label class="ck-chip"><input type="checkbox" value="strat de pietriș" onchange="genConstatare()"> Pietriș deasupra</label>
+                <label class="ck-chip"><input type="checkbox" value="termoizolație polistiren" onchange="genConstatare()"> Termoizolație</label>
+                <label class="ck-chip"><input type="checkbox" value="șapă de protecție" onchange="genConstatare()"> Șapă protecție</label>
+                <label class="ck-chip"><input type="checkbox" value="fără hidroizolație" onchange="genConstatare()"> Fără hidroizolație</label>
+            </div>
+        </div>
+        <!-- 2. Stare suprafață orizontală -->
+        <div style="margin-bottom:12px;">
+            <label style="color:#C9A84C;font-weight:700;font-size:13px;">Stare suprafață orizontală:</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-orizontal">
+                <label class="ck-chip"><input type="checkbox" value="umflături" onchange="genConstatare()"> Umflături</label>
+                <label class="ck-chip"><input type="checkbox" value="desprinderi de stratul suport" onchange="genConstatare()"> Desprinderi</label>
+                <label class="ck-chip"><input type="checkbox" value="dezlipiri între suprapunerile sulurilor" onchange="genConstatare()"> Dezlipiri suluri</label>
+                <label class="ck-chip"><input type="checkbox" value="fisuri și crăpături" onchange="genConstatare()"> Fisuri/crăpături</label>
+                <label class="ck-chip"><input type="checkbox" value="băltiri / stagnări apă" onchange="genConstatare()"> Băltiri apă</label>
+                <label class="ck-chip"><input type="checkbox" value="vegetație / mușchi" onchange="genConstatare()"> Vegetație/mușchi</label>
+                <label class="ck-chip"><input type="checkbox" value="degradare avansată" onchange="genConstatare()"> Degradare avansată</label>
+                <label class="ck-chip"><input type="checkbox" value="stare acceptabilă" onchange="genConstatare()"> Stare acceptabilă</label>
+            </div>
+        </div>
+        <!-- 3. Stare suprafață verticală -->
+        <div style="margin-bottom:12px;">
+            <label style="color:#C9A84C;font-weight:700;font-size:13px;">Stare suprafață verticală (atice, racorduri):</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-vertical">
+                <label class="ck-chip"><input type="checkbox" value="racorduri verticale degradate" onchange="genConstatare()"> Racorduri degradate</label>
+                <label class="ck-chip"><input type="checkbox" value="desprinderi pe verticală" onchange="genConstatare()"> Desprinderi</label>
+                <label class="ck-chip"><input type="checkbox" value="lipsa racordului pe atic" onchange="genConstatare()"> Lipsă racord atic</label>
+                <label class="ck-chip"><input type="checkbox" value="infiltrații pe verticală" onchange="genConstatare()"> Infiltrații</label>
+                <label class="ck-chip"><input type="checkbox" value="stare bună pe verticală" onchange="genConstatare()"> Stare bună</label>
+            </div>
+        </div>
+        <!-- 4. Tablă atic -->
+        <div style="margin-bottom:12px;">
+            <label style="color:#C9A84C;font-weight:700;font-size:13px;">Tablă atic / copertine:</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-tabla">
+                <label class="ck-chip"><input type="checkbox" value="tablă fălțuită în stare bună" onchange="genConstatare()"> Stare bună</label>
+                <label class="ck-chip"><input type="checkbox" value="tablă ruginită" onchange="genConstatare()"> Ruginită</label>
+                <label class="ck-chip"><input type="checkbox" value="tablă lipsă pe porțiuni" onchange="genConstatare()"> Lipsă porțiuni</label>
+                <label class="ck-chip"><input type="checkbox" value="necesită înlocuire tablă" onchange="genConstatare()"> Necesită înlocuire</label>
+                <label class="ck-chip"><input type="checkbox" value="fără tablă pe atic" onchange="genConstatare()"> Fără tablă</label>
+            </div>
+        </div>
+        <!-- 5. Guri scurgere -->
+        <div style="margin-bottom:12px;">
+            <label style="color:#C9A84C;font-weight:700;font-size:13px;">Guri de scurgere:</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-scurgere">
+                <label class="ck-chip"><input type="checkbox" value="guri de scurgere obturate cu bitum" onchange="genConstatare()"> Obturate bitum</label>
+                <label class="ck-chip"><input type="checkbox" value="guri de scurgere înfundate" onchange="genConstatare()"> Înfundate</label>
+                <label class="ck-chip"><input type="checkbox" value="guri de scurgere lipsă" onchange="genConstatare()"> Lipsă</label>
+                <label class="ck-chip"><input type="checkbox" value="guri de scurgere funcționale" onchange="genConstatare()"> Funcționale</label>
+                <label class="ck-chip"><input type="checkbox" value="necesită desfundare / refacere" onchange="genConstatare()"> Necesită refacere</label>
+            </div>
+        </div>
+        <!-- 6. Elemente speciale -->
+        <div style="margin-bottom:12px;">
+            <label style="color:#C9A84C;font-weight:700;font-size:13px;">Alte elemente:</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-alte">
+                <label class="ck-chip"><input type="checkbox" value="casa liftului foarte afectată" onchange="genConstatare()"> Casă lift afectată</label>
+                <label class="ck-chip"><input type="checkbox" value="coșuri de fum degradate" onchange="genConstatare()"> Coșuri fum degradate</label>
+                <label class="ck-chip"><input type="checkbox" value="antene/instalații pe acoperiș" onchange="genConstatare()"> Antene/instalații</label>
+                <label class="ck-chip"><input type="checkbox" value="acces dificil" onchange="genConstatare()"> Acces dificil</label>
+                <label class="ck-chip"><input type="checkbox" value="necesită macara" onchange="genConstatare()"> Necesită macara</label>
+                <label class="ck-chip"><input type="checkbox" value="decopertare necesară" onchange="genConstatare()"> Decopertare necesară</label>
+                <label class="ck-chip"><input type="checkbox" value="evacuare moloz necesară" onchange="genConstatare()"> Evacuare moloz</label>
+            </div>
+        </div>
+        <!-- Note extra -->
+        <div style="margin-bottom:12px;">
+            <label style="color:#C9A84C;font-weight:700;font-size:13px;">Note suplimentare:</label>
+            <textarea id="constatareExtra" placeholder="Adaugă observații suplimentare..." style="width:100%;margin-top:6px;" oninput="genConstatare()"></textarea>
+        </div>
+        <!-- Preview constatare -->
+        <div id="constatarePreview" style="background:#0a1525;border:1px solid #334;border-radius:8px;padding:12px;font-size:12px;color:#aabbcc;margin-top:8px;display:none;white-space:pre-wrap;"></div>
+        <div style="margin-top:10px;display:flex;gap:8px;">
+            <button class="btn btn-gold btn-sm" onclick="aplicaConstatare()">✅ Adaugă la observații</button>
+            <button class="btn btn-outline btn-sm" onclick="resetConstatare()">🗑️ Resetează</button>
+        </div>
+    </div>
+</div>
+
 <div class="card" id="pretBox">
     <div class="section-title">Prețuri calculate</div>
     <table><thead><tr><th>Material</th><th>Preț/mp</th><th>Suprafață</th><th>Total</th><th>Garanție</th></tr></thead>
@@ -1278,7 +1374,58 @@ function previzualizeaza(){
     document.getElementById('previewArea').scrollIntoView({behavior:'smooth'});
 }
 
-function reseteazaForm(){['of-client','of-telefon','of-email','of-adresa','of-mp','of-obs'].forEach(id=>document.getElementById(id).value='');document.getElementById('of-straturi').value='1';document.getElementById('of-moneda').value='lei';document.getElementById('pretTbody').innerHTML='<tr><td colspan="5" class="text-center text-muted">Introdu suprafața</td></tr>';document.getElementById('previewArea').classList.add('hidden');}
+function reseteazaForm(){['of-client','of-telefon','of-email','of-adresa','of-mp','of-obs'].forEach(id=>document.getElementById(id).value='');document.getElementById('of-straturi').value='1';document.getElementById('of-moneda').value='lei';document.getElementById('pretTbody').innerHTML='<tr><td colspan="5" class="text-center text-muted">Introdu suprafața</td></tr>';document.getElementById('previewArea').classList.add('hidden');resetConstatare();}
+
+// ═══════════════════════════════════════════════════════
+// CONSTATARE TEREN — checklist rapid de pe acoperiș
+// ═══════════════════════════════════════════════════════
+function getChecked(containerId){
+    return Array.from(document.querySelectorAll('#'+containerId+' input:checked')).map(c=>c.value);
+}
+function genConstatare(){
+    const adresa=document.getElementById('of-adresa').value||'____________________';
+    const hidro=getChecked('ck-hidro');
+    const oriz=getChecked('ck-orizontal');
+    const vert=getChecked('ck-vertical');
+    const tabla=getChecked('ck-tabla');
+    const scurg=getChecked('ck-scurgere');
+    const alte=getChecked('ck-alte');
+    const extra=(document.getElementById('constatareExtra').value||'').trim();
+
+    let text='În urma vizitei efectuate la imobilul din '+adresa+', în vederea stabilirii soluției tehnice pentru refacerea hidroizolației acoperișului, am constatat următoarele:\n\n';
+
+    if(hidro.length) text+='HIDROIZOLAȚIE EXISTENTĂ: Acoperișul/terasa prezintă o hidroizolație inițială formată din '+hidro.join(', ')+'.\n\n';
+    if(oriz.length) text+='STARE SUPRAFAȚĂ ORIZONTALĂ: Hidroizolația pe suprafața orizontală prezintă '+oriz.join(', ')+'.\n\n';
+    if(vert.length) text+='STARE SUPRAFAȚĂ VERTICALĂ: Pe suprafața verticală (atice, racorduri) — '+vert.join(', ')+'.\n\n';
+    if(tabla.length) text+='TABLĂ ATIC / COPERTINE: '+tabla.join(', ')+'.\n\n';
+    if(scurg.length) text+='GURI DE SCURGERE: '+scurg.join(', ')+'.\n\n';
+    if(alte.length) text+='ALTE CONSTATĂRI: '+alte.join(', ')+'.\n\n';
+    if(extra) text+='NOTE SUPLIMENTARE: '+extra+'\n';
+
+    const prev=document.getElementById('constatarePreview');
+    if(hidro.length||oriz.length||vert.length||tabla.length||scurg.length||alte.length||extra){
+        prev.style.display='block';
+        prev.textContent=text.trim();
+    } else {
+        prev.style.display='none';
+    }
+    return text.trim();
+}
+function aplicaConstatare(){
+    const text=genConstatare();
+    if(!text||text.includes('am constatat următoarele:\n\n\n')){toast('⚠️ Bifează cel puțin o opțiune!');return;}
+    const obs=document.getElementById('of-obs');
+    obs.value=obs.value?(obs.value+'\n\n'+text):text;
+    toast('✅ Constatare adăugată la observații!');
+    document.getElementById('constatareBody').classList.add('hidden');
+}
+function resetConstatare(){
+    document.querySelectorAll('#constatareBody input[type=checkbox]').forEach(c=>c.checked=false);
+    const extra=document.getElementById('constatareExtra');
+    if(extra)extra.value='';
+    const prev=document.getElementById('constatarePreview');
+    if(prev){prev.style.display='none';prev.textContent='';}
+}
 
 // ═══════════════════════════════════════════════════════
 // CALCULATOR
@@ -2520,7 +2667,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.5';
+const APP_VERSION='2026.04.04.6';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
