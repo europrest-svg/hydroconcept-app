@@ -921,8 +921,12 @@ function seedData(){
     if(localStorage.getItem('hc_seeded_v5'))return;
     // v5 — 22 clienți activi, înlocuiește TOTUL (fără merge)
     const seeded=HC.map((c,i)=>({...c,id:1000000+i}));
-    saveAll(seeded);
+    localStorage.setItem('hc_data',JSON.stringify(seeded));
+    updateBadge();
     localStorage.setItem('hc_seeded_v5','1');
+    localStorage.setItem('hc_just_seeded','1');
+    // Push imediat în cloud ca să suprascrie datele vechi
+    setTimeout(()=>{if(getGHToken())cloudPushSilent();},3000);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2644,8 +2648,11 @@ async function cloudPull(){
     }catch(e){if(st)st.innerHTML='<span style="color:#e74c3c;">❌ Eroare: '+e.message+'</span>';}
 }
 
-// Auto-pull la deschiderea aplicației
-setTimeout(()=>{if(getGHToken())cloudPull();},2000);
+// Auto-pull la deschiderea aplicației (dar nu imediat după reseed)
+setTimeout(()=>{
+    if(getGHToken()&&!localStorage.getItem('hc_just_seeded'))cloudPull();
+    localStorage.removeItem('hc_just_seeded');
+},4000);
 // Auto-pull periodic (la fiecare 60 secunde)
 setInterval(()=>{if(getGHToken()&&!_pushing)cloudPull();},60000);
 
@@ -2790,7 +2797,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.12';
+const APP_VERSION='2026.04.04.13';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
