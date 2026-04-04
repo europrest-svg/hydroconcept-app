@@ -273,6 +273,15 @@ body.light .gallery-upload{background:#fafafa;border-color:#ddd;}
 body.light .profit-card{background:#fff;border-color:#ddd;}
 body.light .profit-row{border-color:#eee;}
 
+/* DOC UPLOAD */
+.doc-cell{display:flex;align-items:center;gap:4px;justify-content:center;}
+.doc-upload-btn{background:none;border:1px dashed #1B3A6B;border-radius:4px;color:#6688aa;font-size:10px;cursor:pointer;padding:2px 5px;transition:.2s;}
+.doc-upload-btn:hover{border-color:#C9A84C;color:#C9A84C;}
+.doc-file-btn{background:#1a3050;border:1px solid #2563A8;border-radius:4px;color:#4A9EF5;font-size:10px;cursor:pointer;padding:2px 6px;font-weight:700;transition:.2s;}
+.doc-file-btn:hover{background:#2563A8;color:#fff;}
+.doc-del-btn{background:none;border:none;color:#555;font-size:10px;cursor:pointer;padding:0 2px;}
+.doc-del-btn:hover{color:#e74c3c;}
+
 /* PIN LOCK */
 .pin-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#0a1420,#0D1B2A);z-index:500;display:flex;align-items:center;justify-content:center;}
 .pin-box{background:#111f35;border:2px solid #C9A84C;border-radius:16px;padding:40px;text-align:center;width:320px;}
@@ -635,6 +644,8 @@ body{background:#fff!important;color:#000!important;}
 <div class="toast" id="toast"></div>
 
 <script>
+let docDB=null;
+let _cachedDocKeys=[];
 // ═══════════════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════════════
@@ -819,6 +830,21 @@ function renderCentral(){
         return `<span class="status-badge ${map[val]||''}">${val}</span>`;
     };
 
+    // Doc attach helper — arată buton upload sau download
+    const docCell=(realIdx,docType,statusVal)=>{
+        const hasFile=_cachedDocKeys.includes(docKey(realIdx,docType));
+        let h='<div class="doc-cell">';
+        h+=`<span class="editable" ondblclick="editCell(this,${realIdx},'${docType}','select')">${stBadge(statusVal)}</span>`;
+        if(hasFile){
+            h+=` <button class="doc-file-btn" onclick="downloadDoc(${realIdx},\'${docType}\')" title="Descarcă">📥</button>`;
+            h+=`<button class="doc-del-btn" onclick="deleteDoc(${realIdx},\'${docType}\')" title="Șterge fișier">✕</button>`;
+        } else {
+            h+=` <button class="doc-upload-btn" onclick="uploadDoc(${realIdx},\'${docType}\')" title="Atașează fișier">📎</button>`;
+        }
+        h+='</div>';
+        return h;
+    };
+
     let html='';
     filtered.forEach((o,idx)=>{
         const realIdx=all.indexOf(o);
@@ -830,10 +856,10 @@ function renderCentral(){
             <td class="editable text-right" style="font-weight:700;color:#C9A84C;" ondblclick="editCell(this,${realIdx},'valoare','text')">${o.valoare||'—'}</td>
             <td class="editable col-center" ondblclick="editCell(this,${realIdx},'dataOferta','text')">${o.dataOferta||'—'}</td>
             <td class="editable col-center" ondblclick="editCell(this,${realIdx},'oferta','select')">${stBadge(o.oferta)}</td>
-            <td class="editable col-center" ondblclick="editCell(this,${realIdx},'contract','select')">${stBadge(o.contract)}</td>
-            <td class="editable col-center" ondblclick="editCell(this,${realIdx},'deviz','select')">${stBadge(o.deviz)}</td>
-            <td class="editable col-center" ondblclick="editCell(this,${realIdx},'pv','select')">${stBadge(o.pv)}</td>
-            <td class="editable col-center" ondblclick="editCell(this,${realIdx},'factura','select')">${stBadge(o.factura)}</td>
+            <td class="col-center">${docCell(realIdx,'contract',o.contract)}</td>
+            <td class="col-center">${docCell(realIdx,'deviz',o.deviz)}</td>
+            <td class="col-center">${docCell(realIdx,'pv',o.pv)}</td>
+            <td class="col-center">${docCell(realIdx,'factura',o.factura)}</td>
             <td class="editable col-center" ondblclick="editCell(this,${realIdx},'statusPlata','select')">${stBadge(o.statusPlata)}</td>
             <td class="editable" style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}" ondblclick="editCell(this,${realIdx},'obs','text')">${o.obs||'—'}</td>
             <td style="white-space:nowrap;"><button class="btn-whatsapp" onclick="openWA(${realIdx})" title="WhatsApp">📲</button> <button class="btn btn-red btn-sm" onclick="stergeOferta(${realIdx})">✕</button></td>
@@ -1923,9 +1949,81 @@ function downloadQR(){
 }
 
 // ═══════════════════════════════════════════════════════
+// INDEXED DB — stocare documente atașate (PDF/DOCX/XLS)
+// ═══════════════════════════════════════════════════════
+function openDocDB(){
+    return new Promise((resolve,reject)=>{
+        if(docDB){resolve(docDB);return;}
+        const req=indexedDB.open('hc_documents',1);
+        req.onupgradeneeded=e=>{e.target.result.createObjectStore('files',{keyPath:'id'});};
+        req.onsuccess=e=>{docDB=e.target.result;resolve(docDB);};
+        req.onerror=e=>reject(e);
+    });
+}
+function docKey(clientIdx,docType){return clientIdx+'_'+docType;}
+async function saveDoc(clientIdx,docType,file){
+    const db=await openDocDB();
+    const reader=new FileReader();
+    reader.onload=()=>{
+        const tx=db.transaction('files','readwrite');
+        tx.objectStore('files').put({id:docKey(clientIdx,docType),name:file.name,type:file.type,size:file.size,data:reader.result,date:new Date().toLocaleString('ro-RO')});
+        tx.oncomplete=()=>{toast('✅ '+file.name+' atașat!');renderCentral();};
+    };
+    reader.readAsArrayBuffer(file);
+}
+async function getDoc(clientIdx,docType){
+    const db=await openDocDB();
+    return new Promise((resolve)=>{
+        const tx=db.transaction('files','readonly');
+        const req=tx.objectStore('files').get(docKey(clientIdx,docType));
+        req.onsuccess=()=>resolve(req.result||null);
+        req.onerror=()=>resolve(null);
+    });
+}
+async function delDoc(clientIdx,docType){
+    const db=await openDocDB();
+    const tx=db.transaction('files','readwrite');
+    tx.objectStore('files').delete(docKey(clientIdx,docType));
+    tx.oncomplete=()=>{toast('🗑️ Document șters');renderCentral();};
+}
+async function getAllDocKeys(){
+    const db=await openDocDB();
+    return new Promise((resolve)=>{
+        const tx=db.transaction('files','readonly');
+        const req=tx.objectStore('files').getAllKeys();
+        req.onsuccess=()=>resolve(req.result||[]);
+        req.onerror=()=>resolve([]);
+    });
+}
+function uploadDoc(clientIdx,docType){
+    const inp=document.createElement('input');
+    inp.type='file';
+    inp.accept='.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png';
+    inp.onchange=()=>{if(inp.files[0])saveDoc(clientIdx,docType,inp.files[0]);};
+    inp.click();
+}
+async function downloadDoc(clientIdx,docType){
+    const doc=await getDoc(clientIdx,docType);
+    if(!doc){toast('⚠️ Niciun document');return;}
+    const blob=new Blob([doc.data],{type:doc.type});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=doc.name;a.click();
+    URL.revokeObjectURL(url);
+}
+async function deleteDoc(clientIdx,docType){
+    if(!confirm('Ștergi documentul atașat?'))return;
+    await delDoc(clientIdx,docType);
+}
+
+// Cached doc keys for rendering
+async function refreshDocKeys(){_cachedDocKeys=await getAllDocKeys();renderCentral();}
+
+// ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard();showPinLock();
+openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration
 if('serviceWorker' in navigator){
