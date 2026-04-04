@@ -178,6 +178,25 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .output-box{background:#0a1525;border-radius:10px;padding:18px;white-space:pre-wrap;font-size:13px;line-height:1.6;color:#ddeeff;max-height:400px;overflow-y:auto;margin-top:10px;}
 .email-sub{background:#1B3A6B;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:12px;color:#C9A84C;font-weight:600;}
 
+/* CLIENT CARDS IN MESAJE */
+.mc-card{background:#111f35;border:1px solid #1B3A6B;border-radius:10px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:.2s;}
+.mc-card:hover{border-color:#C9A84C;background:#162540;}
+.mc-card.mc-selected{border-color:#C9A84C;background:#1a2a45;box-shadow:0 0 10px rgba(201,168,76,.12);}
+.mc-top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.mc-name{font-size:14px;font-weight:700;color:#fff;}
+.mc-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.mc-badge-sent{background:#f39c12;color:#fff;}
+.mc-badge-wait{background:#3498db;color:#fff;}
+.mc-badge-ok{background:#27ae60;color:#fff;}
+.mc-badge-no{background:#e74c3c;color:#fff;}
+.mc-details{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:11px;color:#6688aa;}
+.mc-details span{display:flex;align-items:center;gap:3px;}
+.mc-days{font-size:10px;margin-top:4px;}
+.mc-days.mc-old{color:#e74c3c;font-weight:700;}
+.mc-days.mc-ok{color:#27ae60;}
+.mc-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.mc-actions .btn{font-size:11px;padding:5px 12px;}
+
 .hidden{display:none!important;}
 .toast{position:fixed;bottom:25px;right:25px;background:#27ae60;color:#fff;padding:12px 22px;border-radius:10px;font-weight:600;font-size:13px;opacity:0;transition:opacity .3s;z-index:999;}
 .toast.show{opacity:1;}
@@ -742,6 +761,25 @@ body{background:#fff!important;color:#000!important;}
 
 <!-- ═══════ PAGE 3: MESAJE ═══════ -->
 <div class="page" id="page-mesaje">
+<!-- LISTA CLIENȚI CU OFERTE & TERMENE -->
+<div class="section-title">📋 Clienți — oferte & termene</div>
+<div class="card" style="margin-bottom:8px;">
+    <div class="form-row" style="margin-bottom:0;">
+        <div class="form-group" style="flex:2;"><input type="text" id="msgSearch" placeholder="🔍 Caută client..." oninput="renderMsgClients()"></div>
+        <div class="form-group" style="max-width:160px;">
+            <select id="msgFilter" onchange="renderMsgClients()">
+                <option value="">Toate</option>
+                <option value="Trimisă">Trimisă</option>
+                <option value="În așteptare">În așteptare</option>
+                <option value="Acceptată">Acceptată</option>
+                <option value="Respinsă">Respinsă</option>
+            </select>
+        </div>
+    </div>
+</div>
+<div id="msgClientsList" style="max-height:420px;overflow-y:auto;margin-bottom:18px;"></div>
+
+<hr style="border-color:#1B3A6B;margin:18px 0;">
 <div class="section-title">1. Alege tipul de mesaj</div>
 <div class="tip-grid">
     <div class="tip-btn active" data-tip="oferta" onclick="selectTip(this)"><div class="icon">💰</div><div class="label">Ofertă</div></div>
@@ -959,6 +997,7 @@ function showPage(name){
     if(name==='calendar') renderCalendar();
     if(name==='galerie') renderGalerie();
     if(name==='profit') renderProfit();
+    if(name==='mesaje') renderMsgClients();
     if(name==='setari'){loadPinSetting();document.getElementById('lastBackupTime').textContent=localStorage.getItem('hc_last_backup')||'Niciodată';generateQR();}
 }
 
@@ -1707,7 +1746,95 @@ function calcRapid(){
 }
 
 // ═══════════════════════════════════════════════════════
-// MESAJE
+// MESAJE — LISTA CLIENȚI
+// ═══════════════════════════════════════════════════════
+function parseRoDateMsg(d){if(!d||d==='—')return null;const p=d.split('.');if(p.length!==3)return null;return new Date(+p[2],+p[1]-1,+p[0]);}
+function daysAgoMsg(d){const dt=parseRoDateMsg(d);if(!dt)return null;return Math.floor((Date.now()-dt.getTime())/86400000);}
+
+function renderMsgClients(){
+    const all=getAll();
+    const q=(document.getElementById('msgSearch').value||'').toLowerCase();
+    const filt=document.getElementById('msgFilter').value;
+    let list=all.filter(o=>{
+        if(q&&!(o.client||'').toLowerCase().includes(q)&&!(o.obiectiv||'').toLowerCase().includes(q)&&!(o.telefon||'').includes(q))return false;
+        if(filt&&o.oferta!==filt)return false;
+        return true;
+    });
+    // Sort by date descending
+    list.sort((a,b)=>{const da=parseRoDateMsg(a.dataOferta),db=parseRoDateMsg(b.dataOferta);if(!da)return 1;if(!db)return -1;return db-da;});
+
+    let html='';
+    list.forEach(o=>{
+        const days=daysAgoMsg(o.dataOferta);
+        const badgeCls=o.oferta==='Trimisă'?'mc-badge-sent':o.oferta==='În așteptare'?'mc-badge-wait':o.oferta==='Acceptată'?'mc-badge-ok':'mc-badge-no';
+        const plataCls=o.statusPlata==='Plătit'?'color:#27ae60':o.statusPlata==='Parțial'?'color:#f39c12':'color:#e74c3c';
+        let daysText='';
+        if(days!==null){
+            if(days===0)daysText='<span class="mc-days mc-ok">📅 Azi</span>';
+            else if(days<=7)daysText=`<span class="mc-days mc-ok">📅 acum ${days} zile</span>`;
+            else daysText=`<span class="mc-days mc-old">⚠️ acum ${days} zile — fără răspuns!</span>`;
+        }
+        const tel=(o.telefon||'').replace(/\s/g,'');
+        const hasTel=tel.length>=6;
+
+        html+=`<div class="mc-card" onclick="selectMsgClient(this,'${(o.client||'').replace(/'/g,"\\'")}','${tel}',${o.id})">
+            <div class="mc-top">
+                <div class="mc-name">${o.client||'—'}</div>
+                <span class="mc-badge ${badgeCls}">${o.oferta||'—'}</span>
+            </div>
+            <div class="mc-details">
+                <span>📍 ${o.obiectiv||'—'}</span>
+                <span>📐 ${o.suprafata||'—'}</span>
+                <span>💰 ${o.valoare||'—'}</span>
+                <span style="${plataCls}">💳 ${o.statusPlata||'—'}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-top:4px;">
+                <div>${daysText} ${o.dataOferta&&o.dataOferta!=='—'?'<span style="font-size:10px;color:#445;">('+o.dataOferta+')</span>':''}</div>
+                ${o.contract&&o.contract!=='—'?'<span style="font-size:10px;color:#27ae60;">📝 Contract: '+o.contract+'</span>':''}
+                ${o.deviz&&o.deviz!=='—'?'<span style="font-size:10px;color:#4A9EF5;">📋 Deviz: '+o.deviz+'</span>':''}
+            </div>
+            <div class="mc-actions">
+                ${hasTel?`<button class="btn btn-green btn-sm" onclick="event.stopPropagation();openWhatsApp('${tel}','${(o.client||'').replace(/'/g,"\\'")}')">📱 WhatsApp</button>`:''}
+                ${hasTel?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();window.open('tel:${tel}')">📞 Sună</button>`:''}
+                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();useMsgClient('${(o.client||'').replace(/'/g,"\\'")}',${parseInt(o.suprafata)||0})">✉️ Mesaj</button>
+            </div>
+        </div>`;
+    });
+    if(!list.length)html='<div style="text-align:center;color:#445;padding:20px;font-size:13px;">Niciun client găsit.</div>';
+    document.getElementById('msgClientsList').innerHTML=html;
+}
+
+function selectMsgClient(el,name,tel,id){
+    document.querySelectorAll('.mc-card').forEach(c=>c.classList.remove('mc-selected'));
+    el.classList.add('mc-selected');
+}
+
+function openWhatsApp(tel,name){
+    // Clean phone number, add country code if needed
+    let phone=tel.replace(/[^0-9+]/g,'');
+    if(phone.startsWith('0'))phone='4'+phone; // Romania: 0xxx → 40xxx
+    if(!phone.startsWith('+')&&!phone.startsWith('4'))phone='40'+phone;
+    // Quick template based on selected tip
+    const tip=tipM||'oferta';
+    let text='';
+    switch(tip){
+        case'oferta':text=`Bună ziua, ${name}! 👋\nSunt de la Hydro Concept.\nV-am trimis o ofertă de hidroizolație. Ați avut timp să o analizați?\n\n${F.admin}\n📞 ${F.tel}`;break;
+        case'followup':text=`Bună ziua, ${name}! 😊\nRevin cu privire la oferta de hidroizolație.\nAveți întrebări?\n\n${F.admin}\n📞 ${F.tel}`;break;
+        case'programare':text=`Bună ziua, ${name}! ✅\nDoresc să confirm programarea.\nCând vă este convenabil?\n\n${F.admin}\n📞 ${F.tel}`;break;
+        default:text=`Bună ziua, ${name}!\n\n${F.admin}\n📞 ${F.tel}`;
+    }
+    window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(text),'_blank');
+}
+
+function useMsgClient(name,mp){
+    document.getElementById('msg-client').value=name;
+    if(mp>0)document.getElementById('msg-mp').value=mp;
+    document.getElementById('msg-client').scrollIntoView({behavior:'smooth'});
+    toast('✅ Client selectat: '+name);
+}
+
+// ═══════════════════════════════════════════════════════
+// MESAJE — TEMPLATE-URI
 // ═══════════════════════════════════════════════════════
 let tipM='oferta',fmtM='whatsapp';
 function selectTip(el){document.querySelectorAll('.tip-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipM=el.dataset.tip;updMsgForm();}
@@ -3077,7 +3204,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.16';
+const APP_VERSION='2026.04.04.17';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
