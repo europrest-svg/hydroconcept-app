@@ -525,7 +525,6 @@ body{background:#fff!important;color:#000!important;}
                     <label class="ck-chip"><input type="radio" name="ck-straturi" value="1 strat membrană bituminoasă SBS" onchange="genConstatare()"> 1 strat SBS</label>
                     <label class="ck-chip"><input type="radio" name="ck-straturi" value="2 straturi membrană bituminoasă SBS" onchange="genConstatare()"> 2 straturi SBS</label>
                     <label class="ck-chip"><input type="radio" name="ck-straturi" value="1 strat membrană PVC" onchange="genConstatare()"> 1 strat PVC</label>
-                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="2 straturi membrană PVC" onchange="genConstatare()"> 2 straturi PVC</label>
                 </div>
             </div>
             <div style="margin-bottom:8px;">
@@ -2730,7 +2729,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.7';
+const APP_VERSION='2026.04.04.8';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
