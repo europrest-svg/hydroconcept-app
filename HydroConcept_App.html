@@ -2426,23 +2426,39 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
+const APP_VERSION='2026.04.04.2';
 if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('./sw.js').then(reg=>{
+    navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
-        // Check for updates every 60 seconds
-        setInterval(()=>reg.update(),60000);
+        // Force check on every load
+        reg.update();
+        // Also check every 30 seconds
+        setInterval(()=>reg.update(),30000);
         reg.addEventListener('updatefound',()=>{
             const nw=reg.installing;
             nw.addEventListener('statechange',()=>{
                 if(nw.state==='installed'&&navigator.serviceWorker.controller){
-                    // New version available — auto-refresh
-                    toast('🔄 Versiune nouă disponibilă! Se actualizează...');
+                    toast('🔄 Versiune nouă! Se actualizează...');
                     setTimeout(()=>location.reload(),1500);
                 }
             });
         });
     }).catch(e=>console.log('SW fail',e));
 }
+// Auto-version check — forțează refresh dacă versiunea e veche
+(function autoVersionCheck(){
+    const stored=localStorage.getItem('hc_app_version');
+    if(stored&&stored!==APP_VERSION){
+        // Versiune nouă detectată — golește cache + reseed
+        caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
+        localStorage.removeItem('hc_seeded_v5');
+        localStorage.removeItem('hc_data');
+        localStorage.setItem('hc_app_version',APP_VERSION);
+        location.reload();
+        return;
+    }
+    localStorage.setItem('hc_app_version',APP_VERSION);
+})();
 
 function forceUpdate(){
     if(!('serviceWorker' in navigator)){location.reload();return;}
