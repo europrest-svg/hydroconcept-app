@@ -656,6 +656,10 @@ body{background:#fff!important;color:#000!important;}
 <div class="section-title" style="margin-top:20px;">☁️ Sincronizare Cloud</div>
 <div class="card" id="cloudSyncCard">
     <p style="font-size:12px;color:#8899aa;margin-bottom:14px;">Sincronizează datele între telefon și laptop. Apasă "Trimite" pe un dispozitiv, "Preia" pe celălalt.</p>
+    <div id="tokenSetup" style="margin-bottom:12px;">
+        <input type="password" id="ghToken" placeholder="GitHub Token (introdu o singură dată)" style="width:100%;padding:8px;border-radius:6px;border:1px solid #334;background:#1a2233;color:#ddd;font-size:12px;margin-bottom:6px;">
+        <button class="btn btn-outline btn-sm" onclick="saveGHToken()">💾 Salvează token</button>
+    </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-green" onclick="cloudPush()">📤 Trimite date în cloud</button>
         <button class="btn btn-blue" onclick="cloudPull()">📥 Preia date din cloud</button>
@@ -2248,41 +2252,67 @@ function resetApp(){
 }
 
 // ═══════════════════════════════════════════════════════
-// CLOUD SYNC — jsonblob.com (zero setup)
+// CLOUD SYNC — GitHub API (CORS-enabled, reliable)
 // ═══════════════════════════════════════════════════════
-const CLOUD_URL='https://jsonblob.com/api/jsonBlob/019d5818-7853-7fd6-9bb9-e5b07b76912a';
+const GH_REPO='europrest-svg/hydroconcept-app';
+const GH_FILE='sync.json';
+const GH_API='https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE;
 
-function cloudPush(){
-    const st=document.getElementById('cloudStatus');
-    st.innerHTML='<span style="color:#C9A84C;">⏳ Se trimit datele...</span>';
-    const data={oferte:getAll(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
-    fetch(CLOUD_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-    .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-    .then(d=>{
-        localStorage.setItem('hc_sync_ts',String(data.sync_ts));
-        st.innerHTML='<span style="color:#2ecc71;">✅ '+data.oferte.length+' clienți trimiși în cloud!</span>';
-        document.getElementById('cloudLastSync').innerHTML='Ultima sincronizare: '+data.date;
-        toast('☁️ Date trimise în cloud!');
-    })
-    .catch(e=>{st.innerHTML='<span style="color:#e74c3c;">❌ Eroare: '+e.message+'</span>';});
+function getGHToken(){return localStorage.getItem('hc_gh_token')||'';}
+function saveGHToken(){
+    const t=document.getElementById('ghToken').value.trim();
+    if(!t){toast('❌ Introdu tokenul!');return;}
+    localStorage.setItem('hc_gh_token',t);
+    document.getElementById('ghToken').value='';
+    document.getElementById('tokenSetup').innerHTML='<span style="color:#2ecc71;font-size:12px;">✅ Token salvat!</span>';
+    toast('✅ Token GitHub salvat!');
+}
+// Hide token input if already saved
+if(localStorage.getItem('hc_gh_token')){
+    setTimeout(()=>{const ts=document.getElementById('tokenSetup');if(ts)ts.innerHTML='<span style="color:#2ecc71;font-size:12px;">✅ Token configurat</span>';},100);
 }
 
-function cloudPull(){
+async function cloudPush(){
+    const st=document.getElementById('cloudStatus');
+    const token=getGHToken();
+    if(!token){st.innerHTML='<span style="color:#e74c3c;">❌ Introdu tokenul GitHub mai întâi!</span>';return;}
+    st.innerHTML='<span style="color:#C9A84C;">⏳ Se trimit datele...</span>';
+    const syncData={oferte:getAll(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(syncData))));
+    try{
+        // Get current file SHA (needed for update)
+        let sha='';
+        try{const r=await fetch(GH_API,{headers:{'Authorization':'Bearer '+token}});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
+        const body={message:'sync: '+syncData.date,content:content};
+        if(sha)body.sha=sha;
+        const res=await fetch(GH_API,{method:'PUT',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        localStorage.setItem('hc_sync_ts',String(syncData.sync_ts));
+        st.innerHTML='<span style="color:#2ecc71;">✅ '+syncData.oferte.length+' clienți trimiși în cloud!</span>';
+        document.getElementById('cloudLastSync').innerHTML='Ultima sincronizare: '+syncData.date;
+        toast('☁️ Date trimise în cloud!');
+    }catch(e){st.innerHTML='<span style="color:#e74c3c;">❌ Eroare: '+e.message+'</span>';}
+}
+
+async function cloudPull(){
     const st=document.getElementById('cloudStatus');
     st.innerHTML='<span style="color:#C9A84C;">⏳ Se preiau datele...</span>';
-    fetch(CLOUD_URL).then(r=>r.json()).then(data=>{
-        if(!data.oferte||!data.oferte.length){
+    try{
+        const res=await fetch(GH_API);
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        const d=await res.json();
+        const json=JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))));
+        if(!json.oferte||!json.oferte.length){
             st.innerHTML='<span style="color:#E87722;">⚠️ Nu sunt date în cloud. Trimite mai întâi de pe celălalt dispozitiv.</span>';
             return;
         }
-        saveAll(data.oferte);
-        localStorage.setItem('hc_sync_ts',String(data.sync_ts||Date.now()));
+        saveAll(json.oferte);
+        localStorage.setItem('hc_sync_ts',String(json.sync_ts||Date.now()));
         renderCentral();renderDashboard();updateBadge();
-        st.innerHTML='<span style="color:#2ecc71;">✅ '+data.oferte.length+' clienți preluați din cloud!</span>';
-        document.getElementById('cloudLastSync').innerHTML='Date din cloud de la: '+(data.date||'—');
-        toast('☁️ '+data.oferte.length+' clienți preluați din cloud!');
-    })
-    .catch(e=>{st.innerHTML='<span style="color:#e74c3c;">❌ Eroare: '+e.message+'</span>';});
+        st.innerHTML='<span style="color:#2ecc71;">✅ '+json.oferte.length+' clienți preluați din cloud!</span>';
+        document.getElementById('cloudLastSync').innerHTML='Date din cloud de la: '+(json.date||'—');
+        toast('☁️ '+json.oferte.length+' clienți preluați din cloud!');
+    }catch(e){st.innerHTML='<span style="color:#e74c3c;">❌ Eroare: '+e.message+'</span>';}
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2426,7 +2456,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.2';
+const APP_VERSION='2026.04.04.3';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
