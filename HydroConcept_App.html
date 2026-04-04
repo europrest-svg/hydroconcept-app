@@ -1633,15 +1633,25 @@ function extractPhone(text){
 function openWA(idx){
     const all=getAll();
     const o=all[idx];
-    const phone=extractPhone(o.client)||extractPhone(o.obs);
+    // Check telefon field first, then fallback to extracting from client/obs
+    let phone=null;
+    if(o.telefon){
+        let ph=o.telefon.replace(/[\s\.\-\(\)]/g,'');
+        if(ph.startsWith('0'))ph='4'+ph;
+        if(ph.startsWith('+'))ph=ph.substring(1);
+        phone=ph;
+    }
+    if(!phone) phone=extractPhone(o.client)||extractPhone(o.obs);
     if(phone){
         const msg=encodeURIComponent(`Bună ziua! Sunt ${F.admin} de la ${F.nume}. Revin cu privire la oferta pentru ${o.obiectiv||'lucrarea discutată'}. Când putem stabili o întâlnire? Mulțumesc!`);
         window.open(`https://wa.me/${phone}?text=${msg}`,'_blank');
     } else {
-        const phoneInput=prompt('Introduceți numărul de telefon (ex: 0722123456):');
+        const phoneInput=prompt('Nr. telefon '+o.client+' (ex: 0722123456):');
         if(phoneInput){
-            let ph=phoneInput.replace(/\s/g,'');
+            let ph=phoneInput.replace(/[\s\.\-]/g,'');
             if(ph.startsWith('0'))ph='4'+ph;
+            // Save the phone for future use
+            o.telefon=phoneInput.trim();saveAll(all);renderCentral();
             const msg=encodeURIComponent(`Bună ziua! Sunt ${F.admin} de la ${F.nume}. Revin cu privire la oferta pentru ${o.obiectiv||'lucrarea discutată'}. Când putem stabili o întâlnire? Mulțumesc!`);
             window.open(`https://wa.me/${ph}?text=${msg}`,'_blank');
         }
