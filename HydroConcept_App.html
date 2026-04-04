@@ -681,14 +681,45 @@ body{background:#fff!important;color:#000!important;}
 
 <!-- ═══════ PAGE: CALENDAR ═══════ -->
 <div class="page" id="page-calendar">
-<div class="section-title">Calendar lucrări</div>
+<div class="section-title">Calendar lucrări & programare echipe</div>
+<!-- Echipe -->
+<div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:13px;font-weight:700;color:#C9A84C;">👷 Echipe:</div>
+        <div id="echipeChips" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        <button class="btn btn-outline btn-sm" onclick="addEchipa()">+ Echipă nouă</button>
+    </div>
+</div>
 <div class="card">
     <div class="cal-header">
-        <button class="cal-nav"><button onclick="calNav(-1)">◀</button></button>
+        <div class="cal-nav"><button onclick="calNav(-1)">◀</button></div>
         <h3 id="calTitle"></h3>
         <div class="cal-nav"><button onclick="calNav(-1)">◀</button><button onclick="calNav(0)">Azi</button><button onclick="calNav(1)">▶</button></div>
     </div>
     <div class="cal-grid" id="calGrid"></div>
+</div>
+<!-- Adaugă lucrare -->
+<div class="card mt10" id="addLucrareCard" style="display:none;border-color:#2ecc71;">
+    <div class="section-title" style="font-size:13px;">➕ Programează lucrare</div>
+    <div class="form-row">
+        <div class="form-group"><label>Data</label><input type="text" id="prog-data" placeholder="dd.mm.yyyy" readonly></div>
+        <div class="form-group"><label>Client</label><input type="text" id="prog-client" placeholder="Nume client" list="clientiList"></div>
+        <div class="form-group"><label>Echipa</label><select id="prog-echipa"></select></div>
+    </div>
+    <div class="form-row">
+        <div class="form-group"><label>Adresa</label><input type="text" id="prog-adresa" placeholder="Adresa lucrării"></div>
+        <div class="form-group" style="max-width:100px;"><label>Ore</label><input type="text" id="prog-ore" placeholder="08-17"></div>
+        <div class="form-group"><label>Detalii</label><input type="text" id="prog-detalii" placeholder="ex: Montaj membrană etaj 2"></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <button class="btn btn-green btn-sm" onclick="saveLucrare()">💾 Salvează</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('addLucrareCard').style.display='none'">✕ Anulează</button>
+    </div>
+</div>
+<!-- Lista zilei -->
+<div class="card mt10" id="dayDetailCard" style="display:none;">
+    <div class="section-title" style="font-size:13px;">📋 Programare <span id="dayDetailTitle"></span></div>
+    <div id="dayDetailList"></div>
 </div>
 </div>
 
@@ -2171,45 +2202,145 @@ function calNav(dir){
     renderCalendar();
 }
 
+// ECHIPE & LUCRĂRI PROGRAMATE
+function getEchipe(){return JSON.parse(localStorage.getItem('hc_echipe')||'["Echipa 1","Echipa 2"]');}
+function saveEchipe(arr){localStorage.setItem('hc_echipe',JSON.stringify(arr));}
+function getLucrari(){return JSON.parse(localStorage.getItem('hc_lucrari')||'[]');}
+function saveLucrari(arr){localStorage.setItem('hc_lucrari',JSON.stringify(arr));}
+
+const ECHIPA_COLORS=['#2563A8','#27ae60','#e67e22','#9b59b6','#e74c3c','#C9A84C','#1abc9c','#3498db'];
+function echipaColor(name){const echipe=getEchipe();const idx=echipe.indexOf(name);return ECHIPA_COLORS[idx%ECHIPA_COLORS.length];}
+
+function renderEchipeChips(){
+    const echipe=getEchipe();
+    document.getElementById('echipeChips').innerHTML=echipe.map((e,i)=>`<span style="background:${ECHIPA_COLORS[i%ECHIPA_COLORS.length]};color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">${e} <span onclick="removeEchipa(${i})" style="cursor:pointer;margin-left:4px;">✕</span></span>`).join('');
+    // Populate select
+    const sel=document.getElementById('prog-echipa');
+    if(sel)sel.innerHTML=echipe.map(e=>`<option>${e}</option>`).join('');
+}
+function addEchipa(){
+    const name=prompt('Numele echipei:');
+    if(!name)return;
+    const echipe=getEchipe();echipe.push(name.trim());saveEchipe(echipe);renderEchipeChips();renderCalendar();toast('👷 Echipă adăugată: '+name.trim());
+}
+function removeEchipa(idx){
+    const echipe=getEchipe();
+    if(!confirm('Ștergi echipa "'+echipe[idx]+'"?'))return;
+    echipe.splice(idx,1);saveEchipe(echipe);renderEchipeChips();renderCalendar();
+}
+
+function openAddLucrare(dateStr){
+    document.getElementById('prog-data').value=dateStr;
+    document.getElementById('prog-client').value='';
+    document.getElementById('prog-adresa').value='';
+    document.getElementById('prog-ore').value='08:00-17:00';
+    document.getElementById('prog-detalii').value='';
+    renderEchipeChips();
+    document.getElementById('addLucrareCard').style.display='block';
+    document.getElementById('addLucrareCard').scrollIntoView({behavior:'smooth'});
+}
+function saveLucrare(){
+    const data=document.getElementById('prog-data').value;
+    const client=document.getElementById('prog-client').value.trim();
+    const echipa=document.getElementById('prog-echipa').value;
+    const adresa=document.getElementById('prog-adresa').value.trim();
+    const ore=document.getElementById('prog-ore').value.trim();
+    const detalii=document.getElementById('prog-detalii').value.trim();
+    if(!client){toast('⚠️ Completează clientul!');return;}
+    const lucrari=getLucrari();
+    lucrari.push({id:Date.now(),data,client,echipa,adresa,ore,detalii});
+    saveLucrari(lucrari);
+    document.getElementById('addLucrareCard').style.display='none';
+    renderCalendar();
+    showDayDetail(data);
+    toast('✅ Lucrare programată: '+client+' — '+data);
+    autoCloudPush();
+}
+function deleteLucrare(id){
+    if(!confirm('Ștergi această lucrare?'))return;
+    const lucrari=getLucrari().filter(l=>l.id!==id);
+    saveLucrari(lucrari);
+    renderCalendar();
+    toast('🗑️ Lucrare ștearsă');
+    autoCloudPush();
+}
+
+function showDayDetail(dateStr){
+    const lucrari=getLucrari().filter(l=>l.data===dateStr);
+    const all=getAll();
+    const oferte=all.filter(o=>o.dataOferta===dateStr);
+    document.getElementById('dayDetailTitle').textContent=dateStr;
+    let html='';
+    if(lucrari.length){
+        html+='<div style="font-size:12px;color:#C9A84C;font-weight:700;margin-bottom:6px;">🔨 LUCRĂRI PROGRAMATE:</div>';
+        lucrari.forEach(l=>{
+            const c=echipaColor(l.echipa);
+            html+=`<div style="background:#0d1f35;border-left:3px solid ${c};padding:8px 12px;margin-bottom:6px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
+                <div><strong style="color:#ddd;">${l.client}</strong><br><span style="font-size:11px;color:#6688aa;">${l.echipa} • ${l.ore||''} • ${l.adresa||''}</span>${l.detalii?'<br><span style="font-size:11px;color:#8899aa;">'+l.detalii+'</span>':''}</div>
+                <button onclick="deleteLucrare(${l.id})" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;">✕</button>
+            </div>`;
+        });
+    }
+    if(oferte.length){
+        html+='<div style="font-size:12px;color:#4A9EF5;font-weight:700;margin:8px 0 6px;">📄 OFERTE:</div>';
+        oferte.forEach(o=>{
+            html+=`<div style="background:#0d1f35;border-left:3px solid #4A9EF5;padding:6px 12px;margin-bottom:4px;border-radius:6px;font-size:12px;"><strong>${o.client||'—'}</strong> — ${o.obiectiv||''} <span style="color:#C9A84C;">${o.valoare||''}</span></div>`;
+        });
+    }
+    if(!lucrari.length&&!oferte.length) html='<p style="color:#445;font-size:12px;">Nicio programare sau ofertă în această zi.</p>';
+    document.getElementById('dayDetailList').innerHTML=html;
+    document.getElementById('dayDetailCard').style.display='block';
+}
+
 function renderCalendar(){
+    renderEchipeChips();
     const y=calDate.getFullYear(),m=calDate.getMonth();
     document.getElementById('calTitle').textContent=LUNI[m]+' '+y;
     const first=new Date(y,m,1),last=new Date(y,m+1,0);
-    let startDay=(first.getDay()+6)%7; // luni=0
-    const today=new Date();const todayStr=today.getDate()+'.'+(today.getMonth()+1)+'.'+today.getFullYear();
+    let startDay=(first.getDay()+6)%7;
+    const today=new Date();
 
-    // Eventuri din centralizator
+    // Eventuri din centralizator + lucrări programate
     const all=getAll();
+    const lucrari=getLucrari();
     const events={};
     all.forEach(o=>{
         if(!o.dataOferta||o.dataOferta==='—')return;
-        const key=o.dataOferta;
-        if(!events[key])events[key]=[];
-        events[key].push(o);
+        if(!events[o.dataOferta])events[o.dataOferta]={oferte:[],lucrari:[]};
+        events[o.dataOferta].oferte.push(o);
+    });
+    lucrari.forEach(l=>{
+        if(!events[l.data])events[l.data]={oferte:[],lucrari:[]};
+        events[l.data].lucrari.push(l);
     });
 
     let html=ZILE.map(z=>`<div class="cal-day-hdr">${z}</div>`).join('');
 
-    // Zile din luna anterioară
     const prevLast=new Date(y,m,0).getDate();
     for(let i=startDay-1;i>=0;i--){
         html+=`<div class="cal-day other-month"><div class="day-num">${prevLast-i}</div></div>`;
     }
 
-    // Zilele lunii
     for(let d=1;d<=last.getDate();d++){
         const dateStr=d.toString().padStart(2,'0')+'.'+(m+1).toString().padStart(2,'0')+'.'+y;
         const isToday=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
-        const evts=events[dateStr]||[];
-        let evHTML=evts.slice(0,3).map(e=>{
+        const ev=events[dateStr]||{oferte:[],lucrari:[]};
+        let evHTML='';
+        // Lucrări programate (prioritar)
+        ev.lucrari.slice(0,2).forEach(l=>{
+            const c=echipaColor(l.echipa);
+            evHTML+=`<div class="cal-event" style="background:${c};color:#fff;font-weight:700;" title="${l.echipa}: ${l.client} — ${l.detalii||''}">${l.echipa.substring(0,3)}: ${(l.client||'').substring(0,8)}</div>`;
+        });
+        // Oferte
+        ev.oferte.slice(0,ev.lucrari.length?1:3).forEach(e=>{
             const cls=e.oferta==='Acceptată'?'ev-accepted':e.oferta==='În așteptare'?'ev-waiting':'';
-            return`<div class="cal-event ${cls}" title="${e.client} — ${e.obiectiv}">${(e.client||'—').substring(0,12)}</div>`;
-        }).join('');
-        if(evts.length>3)evHTML+=`<div class="cal-event" style="background:#555;">+${evts.length-3} mai mult</div>`;
-        html+=`<div class="cal-day${isToday?' today':''}"><div class="day-num">${d}</div>${evHTML}</div>`;
+            evHTML+=`<div class="cal-event ${cls}" title="${e.client} — ${e.obiectiv}">${(e.client||'—').substring(0,12)}</div>`;
+        });
+        const total=ev.lucrari.length+ev.oferte.length;
+        if(total>3)evHTML+=`<div class="cal-event" style="background:#555;">+${total-3}</div>`;
+        html+=`<div class="cal-day${isToday?' today':''}" onclick="onDayClick('${dateStr}')" style="cursor:pointer;"><div class="day-num">${d}</div>${evHTML}</div>`;
     }
 
-    // Zile din luna următoare
     const totalCells=startDay+last.getDate();
     const remaining=totalCells%7===0?0:7-totalCells%7;
     for(let i=1;i<=remaining;i++){
@@ -2217,6 +2348,13 @@ function renderCalendar(){
     }
 
     document.getElementById('calGrid').innerHTML=html;
+}
+
+function onDayClick(dateStr){
+    showDayDetail(dateStr);
+    // Show add button
+    document.getElementById('prog-data').value=dateStr;
+    renderEchipeChips();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2725,7 +2863,7 @@ async function cloudPushSilent(){
     if(!token)return;
     _pushing=true;
     try{
-        const syncData={oferte:getAll(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
+        const syncData={oferte:getAll(),lucrari:getLucrari(),echipe:getEchipe(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
         const content=btoa(unescape(encodeURIComponent(JSON.stringify(syncData))));
         let sha='';
         try{const r=await fetch(GH_API,{headers:{'Authorization':'Bearer '+token}});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
@@ -2743,7 +2881,7 @@ async function cloudPush(){
     const token=getGHToken();
     if(!token){st.innerHTML='<span style="color:#e74c3c;">❌ Introdu tokenul GitHub mai întâi!</span>';return;}
     st.innerHTML='<span style="color:#C9A84C;">⏳ Se trimit datele...</span>';
-    const syncData={oferte:getAll(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
+    const syncData={oferte:getAll(),lucrari:getLucrari(),echipe:getEchipe(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
     const content=btoa(unescape(encodeURIComponent(JSON.stringify(syncData))));
     try{
         let sha='';
@@ -2775,9 +2913,12 @@ async function cloudPull(){
         if(json.sync_ts>localTs){
             // Cloud e mai nou — preluăm
             localStorage.setItem('hc_data',JSON.stringify(json.oferte));
+            if(json.lucrari)saveLucrari(json.lucrari);
+            if(json.echipe)saveEchipe(json.echipe);
             updateBadge();
             localStorage.setItem('hc_sync_ts',String(json.sync_ts));
             renderCentral();renderDashboard();
+            if(document.getElementById('page-calendar').classList.contains('active'))renderCalendar();
             if(st){st.innerHTML='<span style="color:#2ecc71;">✅ '+json.oferte.length+' clienți preluați din cloud!</span>';
             document.getElementById('cloudLastSync').innerHTML='Date din cloud de la: '+(json.date||'—');}
             toast('☁️ '+json.oferte.length+' clienți sincronizați!');
@@ -2936,7 +3077,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.15';
+const APP_VERSION='2026.04.04.16';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
