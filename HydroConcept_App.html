@@ -1670,7 +1670,7 @@ function renderZone(){
         }
 
         const mp=calcZona(z);
-        html+=`<span style="color:${c};font-weight:700;font-size:14px;min-width:80px;text-align:right;">${mp.toFixed(1)} mp</span>`;
+        html+=`<span id="zmp_${z.id}" style="color:${c};font-weight:700;font-size:14px;min-width:80px;text-align:right;">${mp.toFixed(1)} mp</span>`;
         html+=`</div></div>`;
     });
     container.innerHTML=html||'<p style="color:#445;font-size:12px;text-align:center;">Adaugă zone cu butoanele de mai sus</p>';
@@ -1683,48 +1683,30 @@ function inputField(zid,label,placeholder,key){
 function getZVal(zid,key){return parseFloat(document.getElementById('zi_'+zid+'_'+key)?.value)||0;}
 
 function calcZona(z){
-    // Read from DOM if available, fallback to saved vals
-    function gv(key){const el=document.getElementById('zi_'+z.id+'_'+key);const domVal=el?parseFloat(el.value):NaN;return isNaN(domVal)?(z.vals&&z.vals[key]||0):domVal;}
     if(z.tip==='dreptunghi'){
-        return gv('lung')*gv('lat');
+        return getZVal(z.id,'lung')*getZVal(z.id,'lat');
     } else if(z.tip==='triunghi'){
-        return (gv('baza')*gv('h'))/2;
+        return (getZVal(z.id,'baza')*getZVal(z.id,'h'))/2;
     } else if(z.tip==='trapez'){
-        return ((gv('B')+gv('b'))*gv('h'))/2;
+        return ((getZVal(z.id,'B')+getZVal(z.id,'b'))*getZVal(z.id,'h'))/2;
     } else if(z.tip==='cerc'){
-        const r=gv('r');
-        const el=document.getElementById('zs_'+z.id+'_semi');
-        const isSemi=el?el.checked:(z.vals&&z.vals.semi||false);
+        const r=getZVal(z.id,'r');
+        const isSemi=document.getElementById('zs_'+z.id+'_semi')?.checked;
         return isSemi?Math.PI*r*r/2:Math.PI*r*r;
     } else if(z.tip==='l-shape'){
-        return (gv('L1')*gv('l1'))+(gv('L2')*gv('l2'));
+        return (getZVal(z.id,'L1')*getZVal(z.id,'l1'))+(getZVal(z.id,'L2')*getZVal(z.id,'l2'));
     }
     return 0;
 }
 
-let _calcLock=false;
 function calcTotalMp(){
-    if(_calcLock)return;
-    _calcLock=true;
-    // Save current values before re-render
+    // Update mp labels inline — NO re-render, just update numbers
     _zone.forEach(z=>{
-        if(z.tip==='dreptunghi'){z.vals={lung:getZVal(z.id,'lung'),lat:getZVal(z.id,'lat')};}
-        else if(z.tip==='triunghi'){z.vals={baza:getZVal(z.id,'baza'),h:getZVal(z.id,'h')};}
-        else if(z.tip==='trapez'){z.vals={B:getZVal(z.id,'B'),b:getZVal(z.id,'b'),h:getZVal(z.id,'h')};}
-        else if(z.tip==='cerc'){z.vals={r:getZVal(z.id,'r'),semi:document.getElementById('zs_'+z.id+'_semi')?.checked||false};}
-        else if(z.tip==='l-shape'){z.vals={L1:getZVal(z.id,'L1'),l1:getZVal(z.id,'l1'),L2:getZVal(z.id,'L2'),l2:getZVal(z.id,'l2')};}
-    });
-    renderZone();
-    // Restore values after render
-    _zone.forEach(z=>{
-        Object.entries(z.vals).forEach(([k,v])=>{
-            if(k==='semi'){const el=document.getElementById('zs_'+z.id+'_semi');if(el)el.checked=v;}
-            else{const el=document.getElementById('zi_'+z.id+'_'+k);if(el&&v)el.value=v;}
-        });
+        const mpEl=document.getElementById('zmp_'+z.id);
+        if(mpEl) mpEl.textContent=calcZona(z).toFixed(1)+' mp';
     });
     const total=_zone.reduce((s,z)=>s+calcZona(z),0);
     document.getElementById('totalMpCalc').textContent=Math.round(total*10)/10;
-    _calcLock=false;
 }
 
 function aplicaTotalMp(){
@@ -3211,7 +3193,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.18';
+const APP_VERSION='2026.04.04.19';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
