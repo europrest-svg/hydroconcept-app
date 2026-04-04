@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hc-app-v9';
+const CACHE_NAME = 'hc-app-v10';
 const ASSETS = [
   './',
   './HydroConcept_App.html',
@@ -15,8 +15,6 @@ const ASSETS = [
   'https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
-  'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'
 ];
 
 // Install — cache all assets
