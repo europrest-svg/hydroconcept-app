@@ -1683,23 +1683,29 @@ function inputField(zid,label,placeholder,key){
 function getZVal(zid,key){return parseFloat(document.getElementById('zi_'+zid+'_'+key)?.value)||0;}
 
 function calcZona(z){
+    // Read from DOM if available, fallback to saved vals
+    function gv(key){const el=document.getElementById('zi_'+z.id+'_'+key);const domVal=el?parseFloat(el.value):NaN;return isNaN(domVal)?(z.vals&&z.vals[key]||0):domVal;}
     if(z.tip==='dreptunghi'){
-        return getZVal(z.id,'lung')*getZVal(z.id,'lat');
+        return gv('lung')*gv('lat');
     } else if(z.tip==='triunghi'){
-        return (getZVal(z.id,'baza')*getZVal(z.id,'h'))/2;
+        return (gv('baza')*gv('h'))/2;
     } else if(z.tip==='trapez'){
-        return ((getZVal(z.id,'B')+getZVal(z.id,'b'))*getZVal(z.id,'h'))/2;
+        return ((gv('B')+gv('b'))*gv('h'))/2;
     } else if(z.tip==='cerc'){
-        const r=getZVal(z.id,'r');
-        const isSemi=document.getElementById('zs_'+z.id+'_semi')?.checked;
+        const r=gv('r');
+        const el=document.getElementById('zs_'+z.id+'_semi');
+        const isSemi=el?el.checked:(z.vals&&z.vals.semi||false);
         return isSemi?Math.PI*r*r/2:Math.PI*r*r;
     } else if(z.tip==='l-shape'){
-        return (getZVal(z.id,'L1')*getZVal(z.id,'l1'))+(getZVal(z.id,'L2')*getZVal(z.id,'l2'));
+        return (gv('L1')*gv('l1'))+(gv('L2')*gv('l2'));
     }
     return 0;
 }
 
+let _calcLock=false;
 function calcTotalMp(){
+    if(_calcLock)return;
+    _calcLock=true;
     // Save current values before re-render
     _zone.forEach(z=>{
         if(z.tip==='dreptunghi'){z.vals={lung:getZVal(z.id,'lung'),lat:getZVal(z.id,'lat')};}
@@ -1718,6 +1724,7 @@ function calcTotalMp(){
     });
     const total=_zone.reduce((s,z)=>s+calcZona(z),0);
     document.getElementById('totalMpCalc').textContent=Math.round(total*10)/10;
+    _calcLock=false;
 }
 
 function aplicaTotalMp(){
@@ -3204,7 +3211,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.17';
+const APP_VERSION='2026.04.04.18';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
