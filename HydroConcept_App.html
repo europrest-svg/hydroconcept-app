@@ -19,6 +19,8 @@
 <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <script src="https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0a1420;color:#fff;min-height:100vh;}
@@ -651,6 +653,26 @@ body{background:#fff!important;color:#000!important;}
     </div>
 </div>
 
+<div class="section-title" style="margin-top:20px;">☁️ Sincronizare Cloud (Firebase)</div>
+<div class="card" id="firebaseCard">
+    <p style="font-size:12px;color:#8899aa;margin-bottom:14px;">Sincronizează automat datele pe toate dispozitivele (telefon, laptop, etc). Datele se actualizează în timp real.</p>
+    <div class="form-row">
+        <div class="form-group"><label>Firebase API Key</label><input type="text" id="fb-apiKey" placeholder="AIzaSy..."></div>
+        <div class="form-group"><label>Database URL</label><input type="text" id="fb-dbUrl" placeholder="https://xxx.firebaseio.com"></div>
+    </div>
+    <div class="form-row">
+        <div class="form-group"><label>Project ID</label><input type="text" id="fb-projectId" placeholder="hydroconcept-xxxxx"></div>
+        <div class="form-group"><label>Cheie sincronizare</label><input type="text" id="fb-syncKey" placeholder="ex: hydro2026" value="hydroconcept"></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+        <button class="btn btn-gold btn-sm" onclick="saveFirebaseConfig()">💾 Salvează config</button>
+        <button class="btn btn-green btn-sm" onclick="firebasePush()">📤 Trimite date în cloud</button>
+        <button class="btn btn-blue btn-sm" onclick="firebasePull()">📥 Preia date din cloud</button>
+    </div>
+    <div id="fbStatus" style="margin-top:10px;font-size:12px;"></div>
+    <div id="fbSyncStatus" style="margin-top:6px;font-size:11px;color:#6688aa;"></div>
+</div>
+
 <div class="section-title" style="margin-top:20px;">📱 QR Code — Cerere ofertă</div>
 <div class="card">
     <p class="text-muted" style="margin-bottom:12px;">Scanează QR-ul de pe cartea de vizită → deschide formularul de cerere ofertă</p>
@@ -730,14 +752,22 @@ function showPage(name){
     if(name==='calendar') renderCalendar();
     if(name==='galerie') renderGalerie();
     if(name==='profit') renderProfit();
-    if(name==='setari'){loadPinSetting();document.getElementById('lastBackupTime').textContent=localStorage.getItem('hc_last_backup')||'Niciodată';generateQR();}
+    if(name==='setari'){loadPinSetting();loadFirebaseConfig();document.getElementById('lastBackupTime').textContent=localStorage.getItem('hc_last_backup')||'Niciodată';generateQR();}
 }
 
 // ═══════════════════════════════════════════════════════
 // STORAGE — totul în localStorage, editabil
 // ═══════════════════════════════════════════════════════
 function getAll(){return JSON.parse(localStorage.getItem('hc_data')||'[]');}
-function saveAll(arr){localStorage.setItem('hc_data',JSON.stringify(arr));updateBadge();}
+function saveAll(arr){
+    localStorage.setItem('hc_data',JSON.stringify(arr));updateBadge();
+    // Auto-push to Firebase cloud if connected
+    if(fbRef){
+        const ts=Date.now();
+        fbRef.child('data').set({oferte:arr,_syncTS:ts,_device:navigator.userAgent.substring(0,50),_date:new Date().toLocaleString('ro-RO')});
+        localStorage.setItem('hc_sync_ts',String(ts));
+    }
+}
 function updateBadge(){document.getElementById('badgeCount').textContent=getAll().length;}
 
 // Seed: la prima deschidere, importăm clienții istorici
@@ -2233,6 +2263,111 @@ function resetApp(){
 }
 
 // ═══════════════════════════════════════════════════════
+// FIREBASE CLOUD SYNC
+// ═══════════════════════════════════════════════════════
+let fbDB=null;
+let fbRef=null;
+let fbListener=false;
+
+function loadFirebaseConfig(){
+    const cfg=JSON.parse(localStorage.getItem('hc_firebase')||'null');
+    if(cfg){
+        document.getElementById('fb-apiKey').value=cfg.apiKey||'';
+        document.getElementById('fb-dbUrl').value=cfg.databaseURL||'';
+        document.getElementById('fb-projectId').value=cfg.projectId||'';
+        document.getElementById('fb-syncKey').value=cfg.syncKey||'hydroconcept';
+        initFirebase(cfg);
+    }
+}
+
+function saveFirebaseConfig(){
+    const cfg={
+        apiKey:document.getElementById('fb-apiKey').value.trim(),
+        databaseURL:document.getElementById('fb-dbUrl').value.trim(),
+        projectId:document.getElementById('fb-projectId').value.trim(),
+        syncKey:document.getElementById('fb-syncKey').value.trim()||'hydroconcept'
+    };
+    if(!cfg.apiKey||!cfg.databaseURL){
+        document.getElementById('fbStatus').innerHTML='<span style="color:#e74c3c;">❌ Completează API Key și Database URL</span>';
+        return;
+    }
+    localStorage.setItem('hc_firebase',JSON.stringify(cfg));
+    initFirebase(cfg);
+    document.getElementById('fbStatus').innerHTML='<span style="color:#2ecc71;">✅ Config salvat! Sync activ.</span>';
+}
+
+function initFirebase(cfg){
+    try{
+        if(!firebase.apps.length){
+            firebase.initializeApp({apiKey:cfg.apiKey,databaseURL:cfg.databaseURL,projectId:cfg.projectId});
+        }
+        fbDB=firebase.database();
+        fbRef=fbDB.ref('sync/'+cfg.syncKey);
+        // Listen for changes from other devices
+        if(!fbListener){
+            fbRef.child('data').on('value',snap=>{
+                const remote=snap.val();
+                if(!remote)return;
+                const localTS=parseInt(localStorage.getItem('hc_sync_ts')||'0');
+                const remoteTS=remote._syncTS||0;
+                if(remoteTS>localTS){
+                    // Remote is newer — merge
+                    const remoteData=remote.oferte||[];
+                    const localData=getAll();
+                    if(JSON.stringify(localData)!==JSON.stringify(remoteData)){
+                        saveAllLocal(remoteData);
+                        localStorage.setItem('hc_sync_ts',String(remoteTS));
+                        updateBadge();
+                        if(document.getElementById('page-centralizator')?.classList.contains('active')) renderCentral();
+                        if(document.getElementById('page-dashboard')?.classList.contains('active')) renderDashboard();
+                        document.getElementById('fbSyncStatus').innerHTML='<span style="color:#2ecc71;">🔄 Date actualizate din cloud — '+new Date(remoteTS).toLocaleString('ro-RO')+'</span>';
+                        toast('☁️ Date sincronizate din cloud!');
+                    }
+                }
+            });
+            fbListener=true;
+        }
+        document.getElementById('fbSyncStatus').innerHTML='<span style="color:#2ecc71;">🟢 Conectat la Firebase — sync activ</span>';
+    }catch(e){
+        document.getElementById('fbStatus').innerHTML='<span style="color:#e74c3c;">❌ Eroare Firebase: '+e.message+'</span>';
+    }
+}
+
+// Save locally without triggering cloud push (to avoid loops)
+function saveAllLocal(arr){localStorage.setItem('hc_data',JSON.stringify(arr));}
+
+function firebasePush(){
+    if(!fbRef){document.getElementById('fbStatus').innerHTML='<span style="color:#e74c3c;">❌ Configurează Firebase mai întâi</span>';return;}
+    const ts=Date.now();
+    const data={oferte:getAll(),_syncTS:ts,_device:navigator.userAgent.substring(0,50),_date:new Date().toLocaleString('ro-RO')};
+    fbRef.child('data').set(data).then(()=>{
+        localStorage.setItem('hc_sync_ts',String(ts));
+        document.getElementById('fbStatus').innerHTML='<span style="color:#2ecc71;">✅ Date trimise în cloud! ('+data.oferte.length+' clienți)</span>';
+        toast('☁️ Date trimise în cloud!');
+    }).catch(e=>{
+        document.getElementById('fbStatus').innerHTML='<span style="color:#e74c3c;">❌ Eroare: '+e.message+'</span>';
+    });
+}
+
+function firebasePull(){
+    if(!fbRef){document.getElementById('fbStatus').innerHTML='<span style="color:#e74c3c;">❌ Configurează Firebase mai întâi</span>';return;}
+    fbRef.child('data').once('value').then(snap=>{
+        const remote=snap.val();
+        if(!remote||!remote.oferte){
+            document.getElementById('fbStatus').innerHTML='<span style="color:#E87722;">⚠️ Nu sunt date în cloud. Trimite mai întâi.</span>';
+            return;
+        }
+        saveAll(remote.oferte);
+        localStorage.setItem('hc_sync_ts',String(remote._syncTS||Date.now()));
+        renderCentral();renderDashboard();
+        document.getElementById('fbStatus').innerHTML='<span style="color:#2ecc71;">✅ Date preluate din cloud! ('+remote.oferte.length+' clienți)</span>';
+        toast('☁️ '+remote.oferte.length+' clienți preluați din cloud!');
+    }).catch(e=>{
+        document.getElementById('fbStatus').innerHTML='<span style="color:#e74c3c;">❌ Eroare: '+e.message+'</span>';
+    });
+}
+
+// ═══════════════════════════════════════════════════════
 // QR CODE GENERATOR (simple canvas-based)
 // ═══════════════════════════════════════════════════════
 function generateQR(){
@@ -2370,6 +2505,8 @@ async function refreshDocKeys(){_cachedDocKeys=await getAllDocKeys();renderCentr
 // INIT
 // ═══════════════════════════════════════════════════════
 seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard();showPinLock();
+// Auto-connect Firebase if configured
+(()=>{const cfg=JSON.parse(localStorage.getItem('hc_firebase')||'null');if(cfg&&cfg.apiKey)initFirebase(cfg);})();
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration
