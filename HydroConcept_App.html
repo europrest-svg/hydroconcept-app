@@ -273,6 +273,14 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .lightbox img{max-width:90%;max-height:85%;border-radius:8px;}
 .lightbox .lb-close{position:absolute;top:15px;right:20px;font-size:28px;color:#fff;cursor:pointer;}
 .lightbox .lb-info{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;text-align:center;font-size:13px;}
+.foto-tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px;}
+.foto-tag-inainte{background:#3498db;color:#fff;}
+.foto-tag-proces{background:#e67e22;color:#fff;}
+.foto-tag-dupa{background:#27ae60;color:#fff;}
+.foto-tag-detaliu{background:#9b59b6;color:#fff;}
+.foto-tag-problema{background:#e74c3c;color:#fff;}
+.qp-thumb{width:80px;height:80px;object-fit:cover;border-radius:6px;border:2px solid #1B3A6B;}
+.gallery-info .gi-tag{margin-top:2px;}
 
 /* PROFIT */
 .profit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
@@ -744,10 +752,59 @@ body{background:#fff!important;color:#000!important;}
 
 <!-- ═══════ PAGE: GALERIE ═══════ -->
 <div class="page" id="page-galerie">
-<div class="section-title">Galerie foto lucrări</div>
-<div class="form-row" style="margin-bottom:15px;">
-    <div class="form-group"><label>Filtru client</label><select id="galFilter" onchange="renderGalerie()"><option value="">Toate</option></select></div>
+<div class="section-title">📸 Poze teren & galerie lucrări</div>
+
+<!-- CAMERĂ RAPIDĂ -->
+<div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-gold" onclick="document.getElementById('camInput').click()" style="font-size:15px;padding:12px 24px;">📷 FOTOGRAFIAZĂ</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('photoInput').click()">📁 Din galerie</button>
+        <input type="file" id="camInput" accept="image/*" capture="environment" multiple onchange="quickPhoto(this)" style="display:none;">
+        <input type="file" id="photoInput" accept="image/*" multiple onchange="quickPhoto(this)" style="display:none;">
+    </div>
+    <div id="quickPhotoForm" style="display:none;margin-top:12px;">
+        <div class="form-row">
+            <div class="form-group" style="flex:2;"><label>Client</label><select id="foto-client"><option value="">— Alege client —</option></select></div>
+            <div class="form-group" style="max-width:150px;">
+                <label>Etapă</label>
+                <select id="foto-tag">
+                    <option value="înainte">📋 Înainte</option>
+                    <option value="proces">🔨 În lucru</option>
+                    <option value="după">✅ După</option>
+                    <option value="detaliu">🔍 Detaliu</option>
+                    <option value="problemă">⚠️ Problemă</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Descriere</label><input type="text" id="foto-desc" placeholder="ex: Fisură membrană zona nord"></div>
+        </div>
+        <div id="quickPhotoPreview" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;"></div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-green btn-sm" onclick="saveQuickPhotos()">💾 Salvează pozele</button>
+            <button class="btn btn-outline btn-sm" onclick="cancelQuickPhotos()">✕ Anulează</button>
+        </div>
+    </div>
 </div>
+
+<!-- FILTRE -->
+<div class="card" style="margin-bottom:12px;padding:12px 16px;">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <select id="galFilter" onchange="renderGalerie()" style="min-width:160px;">
+            <option value="">Toți clienții</option>
+        </select>
+        <select id="galTagFilter" onchange="renderGalerie()" style="min-width:120px;">
+            <option value="">Toate etapele</option>
+            <option value="înainte">📋 Înainte</option>
+            <option value="proces">🔨 În lucru</option>
+            <option value="după">✅ După</option>
+            <option value="detaliu">🔍 Detaliu</option>
+            <option value="problemă">⚠️ Problemă</option>
+        </select>
+        <span id="galCount" style="font-size:11px;color:#6688aa;margin-left:auto;"></span>
+    </div>
+</div>
+
 <div class="gallery-grid" id="galleryGrid"></div>
 <div id="lightboxArea"></div>
 </div>
@@ -2479,30 +2536,57 @@ function onDayClick(dateStr){
 function getPhotos(){return JSON.parse(localStorage.getItem('hc_photos')||'[]');}
 function savePhotos(arr){localStorage.setItem('hc_photos',JSON.stringify(arr));}
 
+let _pendingPhotos=[];
+
+function tagClass(tag){
+    const map={'înainte':'inainte','proces':'proces','după':'dupa','detaliu':'detaliu','problemă':'problema'};
+    return 'foto-tag-'+(map[tag]||'inainte');
+}
+function tagIcon(tag){
+    const map={'înainte':'📋','proces':'🔨','după':'✅','detaliu':'🔍','problemă':'⚠️'};
+    return map[tag]||'📷';
+}
+
 function renderGalerie(){
     const photos=getPhotos();
     const filter=document.getElementById('galFilter').value;
-    const filtered=filter?photos.filter(p=>p.client===filter):photos;
+    const tagFilter=document.getElementById('galTagFilter').value;
+    let filtered=photos;
+    if(filter)filtered=filtered.filter(p=>p.client===filter);
+    if(tagFilter)filtered=filtered.filter(p=>p.tag===tagFilter);
 
-    // Populare dropdown
+    // Populare dropdown clienți
     const clients=[...new Set(photos.map(p=>p.client).filter(Boolean))];
     const sel=document.getElementById('galFilter');
     const current=sel.value;
-    sel.innerHTML='<option value="">Toate</option>'+clients.map(c=>`<option value="${c}" ${c===current?'selected':''}>${c}</option>`).join('');
+    sel.innerHTML='<option value="">Toți clienții</option>'+clients.map(c=>`<option value="${c}" ${c===current?'selected':''}>${c}</option>`).join('');
 
-    let html=`<div class="gallery-upload" onclick="document.getElementById('photoInput').click()">
-        <div class="gu-icon">📷</div>
-        <div class="gu-text">Click pentru a adăuga poze<br><small>sau trage fișierele aici</small></div>
-        <input type="file" id="photoInput" accept="image/*" capture="environment" multiple onchange="uploadPhotos(this)" style="display:none;">
-    </div>`;
+    // Populare foto-client dropdown
+    const all=getAll();
+    const fotoSel=document.getElementById('foto-client');
+    if(fotoSel){
+        const fv=fotoSel.value;
+        fotoSel.innerHTML='<option value="">— Alege client —</option>'+all.map(o=>o.client).filter(Boolean).map(c=>`<option value="${c}" ${c===fv?'selected':''}>${c}</option>`).join('');
+    }
+
+    // Count
+    document.getElementById('galCount').textContent=filtered.length+' poze'+(filter?' — '+filter:'');
+
+    // Sort by date descending
+    filtered.sort((a,b)=>(b.id||0)-(a.id||0));
+
+    let html='';
+    if(!filtered.length){
+        html='<div style="text-align:center;padding:40px;color:#445;grid-column:1/-1;"><div style="font-size:48px;margin-bottom:12px;">📷</div><div style="font-size:14px;">Nicio poză încă.<br>Apasă <strong>FOTOGRAFIAZĂ</strong> pentru a adăuga poze de pe teren!</div></div>';
+    }
 
     filtered.forEach((p,i)=>{
         const realIdx=photos.indexOf(p);
         html+=`<div class="gallery-item" onclick="openLightbox(${realIdx})">
-            <img class="gallery-img" src="${p.thumb}" alt="${p.desc||''}">
+            <img class="gallery-img" src="${p.thumb}" alt="${p.desc||''}" loading="lazy">
             <div class="gallery-info">
-                <div class="gi-name">${p.client||'Fără client'}</div>
-                <div class="gi-desc">${p.desc||''} ${p.tag?'• '+p.tag:''}</div>
+                <div class="gi-name">${p.client||'Fără client'} <span class="foto-tag ${tagClass(p.tag)}">${tagIcon(p.tag)} ${p.tag||''}</span></div>
+                <div class="gi-desc">${p.desc||''}</div>
                 <div class="gi-date">${p.date||''}</div>
             </div>
         </div>`;
@@ -2511,72 +2595,98 @@ function renderGalerie(){
     document.getElementById('galleryGrid').innerHTML=html;
 }
 
-function uploadPhotos(input){
+function quickPhoto(input){
     const files=input.files;
     if(!files.length)return;
-
-    // Dialog client + descriere
-    const all=getAll();
-    const clientNames=all.map(o=>o.client).filter(Boolean);
-    const client=prompt('Client (ex: Dumitru Ghebaur):',clientNames[0]||'');
-    const desc=prompt('Descriere (ex: Înainte - terasă degradată):','');
-    const tag=prompt('Tag: înainte / după / proces:','');
-
-    const photos=getPhotos();
+    _pendingPhotos=[];
     let processed=0;
+    const preview=document.getElementById('quickPhotoPreview');
+    preview.innerHTML='<span style="color:#C9A84C;font-size:12px;">⏳ Se procesează...</span>';
 
     Array.from(files).forEach(file=>{
         const reader=new FileReader();
         reader.onload=function(e){
-            // Compress to thumbnail
             const img=new Image();
             img.onload=function(){
                 const canvas=document.createElement('canvas');
-                const maxW=600;
+                const maxW=800;
                 const scale=Math.min(maxW/img.width,1);
                 canvas.width=img.width*scale;
                 canvas.height=img.height*scale;
                 const ctx=canvas.getContext('2d');
                 ctx.drawImage(img,0,0,canvas.width,canvas.height);
-                const thumb=canvas.toDataURL('image/jpeg',0.6);
-
-                photos.push({
-                    id:Date.now()+Math.random(),
-                    client:client||'',
-                    desc:desc||'',
-                    tag:tag||'',
-                    date:dataAzi(),
-                    thumb
-                });
+                const thumb=canvas.toDataURL('image/jpeg',0.65);
+                _pendingPhotos.push(thumb);
                 processed++;
                 if(processed===files.length){
-                    try{
-                        savePhotos(photos);
-                        renderGalerie();
-                        toast(`✅ ${files.length} poze adăugate!`);
-                    }catch(e){
-                        toast('⚠️ Spațiu insuficient! Încercați cu mai puține poze.');
-                    }
+                    preview.innerHTML=_pendingPhotos.map((t,i)=>`<img src="${t}" class="qp-thumb">`).join('');
                 }
             };
             img.src=e.target.result;
         };
         reader.readAsDataURL(file);
     });
+
+    // Show form
+    document.getElementById('quickPhotoForm').style.display='block';
+    renderGalerie(); // refresh client dropdown
     input.value='';
+}
+
+function saveQuickPhotos(){
+    if(!_pendingPhotos.length){toast('⚠️ Nicio poză de salvat!');return;}
+    const client=document.getElementById('foto-client').value;
+    const tag=document.getElementById('foto-tag').value;
+    const desc=document.getElementById('foto-desc').value.trim();
+
+    const photos=getPhotos();
+    _pendingPhotos.forEach(thumb=>{
+        photos.push({
+            id:Date.now()+Math.round(Math.random()*9999),
+            client:client||'',
+            desc:desc||'',
+            tag:tag||'înainte',
+            date:dataAzi(),
+            thumb
+        });
+    });
+
+    try{
+        savePhotos(photos);
+        renderGalerie();
+        toast(`✅ ${_pendingPhotos.length} poze salvate!`);
+        _pendingPhotos=[];
+        document.getElementById('quickPhotoForm').style.display='none';
+        document.getElementById('quickPhotoPreview').innerHTML='';
+        document.getElementById('foto-desc').value='';
+        autoCloudPush();
+    }catch(e){
+        toast('⚠️ Spațiu insuficient! Ștergeți poze vechi sau reduceți numărul.');
+    }
+}
+
+function cancelQuickPhotos(){
+    _pendingPhotos=[];
+    document.getElementById('quickPhotoForm').style.display='none';
+    document.getElementById('quickPhotoPreview').innerHTML='';
 }
 
 function openLightbox(idx){
     const photos=getPhotos();
     const p=photos[idx];
+    const total=photos.length;
     document.getElementById('lightboxArea').innerHTML=`
         <div class="lightbox" onclick="closeLightbox(event)">
             <span class="lb-close" onclick="closeLightbox(event)">✕</span>
+            ${idx>0?'<div style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:36px;color:#fff;cursor:pointer;padding:10px;" onclick="event.stopPropagation();openLightbox('+(idx-1)+')">◀</div>':''}
+            ${idx<total-1?'<div style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:36px;color:#fff;cursor:pointer;padding:10px;" onclick="event.stopPropagation();openLightbox('+(idx+1)+')">▶</div>':''}
             <img src="${p.thumb}">
             <div class="lb-info">
-                <strong>${p.client||''}</strong> — ${p.desc||''} ${p.tag?'('+p.tag+')':''}<br>
-                ${p.date||''} &nbsp;
+                <strong>${p.client||''}</strong> <span class="foto-tag ${tagClass(p.tag)}">${tagIcon(p.tag)} ${p.tag||''}</span><br>
+                ${p.desc?p.desc+'<br>':''}
+                ${p.date||''} &nbsp; <span style="color:#556;">${idx+1}/${total}</span> &nbsp;
                 <button onclick="event.stopPropagation();deletePhoto(${idx})" style="background:#c0392b;color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;">🗑️ Șterge</button>
+                <button onclick="event.stopPropagation();sharePhoto(${idx})" style="background:#27ae60;color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;">📤 Trimite</button>
             </div>
         </div>`;
 }
@@ -2585,7 +2695,20 @@ function deletePhoto(idx){
     if(!confirm('Ștergi poza?'))return;
     const photos=getPhotos();photos.splice(idx,1);savePhotos(photos);
     document.getElementById('lightboxArea').innerHTML='';
-    renderGalerie();toast('🗑️ Poză ștearsă');
+    renderGalerie();toast('🗑️ Poză ștearsă');autoCloudPush();
+}
+function sharePhoto(idx){
+    const p=getPhotos()[idx];
+    if(navigator.share){
+        fetch(p.thumb).then(r=>r.blob()).then(blob=>{
+            const file=new File([blob],'foto_teren.jpg',{type:'image/jpeg'});
+            navigator.share({title:p.client+' — '+p.tag,text:p.desc||'Foto teren Hydro Concept',files:[file]}).catch(()=>{});
+        });
+    } else {
+        // Fallback: download
+        const a=document.createElement('a');a.href=p.thumb;a.download='foto_'+(p.client||'teren')+'_'+p.tag+'.jpg';a.click();
+        toast('📥 Poză descărcată!');
+    }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -3193,7 +3316,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.19';
+const APP_VERSION='2026.04.04.20';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
