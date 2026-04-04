@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hc-app-v7';
+const CACHE_NAME = 'hc-app-v8';
 const ASSETS = [
   './',
   './HydroConcept_App.html',
@@ -12,7 +12,9 @@ const ASSETS = [
   './testimoniale.html',
   'https://unpkg.com/docx@8.5.0/build/index.umd.js',
   'https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js',
-  'https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js'
+  'https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
 ];
 
 // Install — cache all assets
