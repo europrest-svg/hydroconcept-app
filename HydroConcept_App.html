@@ -55,6 +55,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a1420;color:#fff;min-h
 .ck-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:16px;background:#1a2a40;border:1px solid #334;color:#8899aa;font-size:12px;cursor:pointer;transition:.2s;user-select:none;}
 .ck-chip:has(input:checked){background:#1a3a2a;border-color:#2ecc71;color:#2ecc71;}
 .ck-chip input{display:none;}
+.ck-chip:has(input[type=radio]:checked){background:#1a2a3a;border-color:#C9A84C;color:#C9A84C;}
 .btn-red{background:#c0392b;color:#fff;font-size:11px;padding:6px 12px;}
 .btn-sm{padding:6px 14px;font-size:11px;}
 .btn-outline{background:transparent;border:1px solid #1B3A6B;color:#8899aa;}
@@ -513,6 +514,54 @@ body{background:#fff!important;color:#000!important;}
                 <label class="ck-chip"><input type="checkbox" value="necesită macara" onchange="genConstatare()"> Necesită macara</label>
                 <label class="ck-chip"><input type="checkbox" value="decopertare necesară" onchange="genConstatare()"> Decopertare necesară</label>
                 <label class="ck-chip"><input type="checkbox" value="evacuare moloz necesară" onchange="genConstatare()"> Evacuare moloz</label>
+            </div>
+        </div>
+        <!-- 7. Soluție tehnică propusă -->
+        <div style="margin-bottom:12px;padding-top:12px;border-top:1px solid #334;">
+            <label style="color:#C9A84C;font-weight:700;font-size:14px;">SOLUȚIE TEHNICĂ PROPUSĂ:</label>
+            <div style="margin-top:8px;margin-bottom:8px;">
+                <label style="color:#8899aa;font-size:12px;margin-right:10px;">Sistem:</label>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-sistem">
+                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="1 strat membrană bituminoasă SBS" onchange="genConstatare()"> 1 strat SBS</label>
+                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="2 straturi membrană bituminoasă SBS" onchange="genConstatare()"> 2 straturi SBS</label>
+                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="1 strat membrană PVC" onchange="genConstatare()"> 1 strat PVC</label>
+                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="2 straturi membrană PVC" onchange="genConstatare()"> 2 straturi PVC</label>
+                </div>
+            </div>
+            <div style="margin-bottom:8px;">
+                <label style="color:#8899aa;font-size:12px;">Material / Brand:</label>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-material">
+                    <label class="ck-chip"><input type="checkbox" value="Soprema" onchange="genConstatare()"> Soprema</label>
+                    <label class="ck-chip"><input type="checkbox" value="Novaglass" onchange="genConstatare()"> Novaglass</label>
+                    <label class="ck-chip"><input type="checkbox" value="Polygum" onchange="genConstatare()"> Polygum</label>
+                    <label class="ck-chip"><input type="checkbox" value="Izobit" onchange="genConstatare()"> Izobit</label>
+                    <label class="ck-chip"><input type="checkbox" value="Sika" onchange="genConstatare()"> Sika</label>
+                    <label class="ck-chip"><input type="checkbox" value="Mapei" onchange="genConstatare()"> Mapei</label>
+                </div>
+            </div>
+            <div style="margin-bottom:8px;">
+                <label style="color:#8899aa;font-size:12px;">Lucrări incluse:</label>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-lucrari">
+                    <label class="ck-chip"><input type="checkbox" value="decopertare hidroizolație existentă" onchange="genConstatare()"> Decopertare</label>
+                    <label class="ck-chip"><input type="checkbox" value="curățare și pregătire suport" onchange="genConstatare()"> Curățare suport</label>
+                    <label class="ck-chip"><input type="checkbox" value="aplicare strat amorsă (primer bituminos)" onchange="genConstatare()"> Amorsă/Primer</label>
+                    <label class="ck-chip"><input type="checkbox" value="montare membrană pe suprafață orizontală" onchange="genConstatare()"> Membrană orizontală</label>
+                    <label class="ck-chip"><input type="checkbox" value="montare membrană pe suprafață verticală (atice, racorduri)" onchange="genConstatare()"> Membrană verticală</label>
+                    <label class="ck-chip"><input type="checkbox" value="refacere racorduri la guri de scurgere" onchange="genConstatare()"> Racorduri scurgere</label>
+                    <label class="ck-chip"><input type="checkbox" value="montare tablă fălțuită pe atic" onchange="genConstatare()"> Tablă atic nouă</label>
+                    <label class="ck-chip"><input type="checkbox" value="hidroizolație casă lift" onchange="genConstatare()"> Casă lift</label>
+                    <label class="ck-chip"><input type="checkbox" value="evacuare moloz și pietriș" onchange="genConstatare()"> Evacuare moloz</label>
+                    <label class="ck-chip"><input type="checkbox" value="strat protecție (pietriș sau dale)" onchange="genConstatare()"> Protecție pietriș/dale</label>
+                </div>
+            </div>
+            <div>
+                <label style="color:#8899aa;font-size:12px;">Garanție:</label>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-garantie">
+                    <label class="ck-chip"><input type="radio" name="ck-gar" value="5 ani" onchange="genConstatare()"> 5 ani</label>
+                    <label class="ck-chip"><input type="radio" name="ck-gar" value="7 ani" onchange="genConstatare()"> 7 ani</label>
+                    <label class="ck-chip"><input type="radio" name="ck-gar" value="10 ani" onchange="genConstatare()"> 10 ani</label>
+                    <label class="ck-chip"><input type="radio" name="ck-gar" value="15 ani" onchange="genConstatare()"> 15 ani</label>
+                </div>
             </div>
         </div>
         <!-- Note extra -->
@@ -1400,6 +1449,20 @@ function genConstatare(){
     if(tabla.length) text+='TABLĂ ATIC / COPERTINE: '+tabla.join(', ')+'.\n\n';
     if(scurg.length) text+='GURI DE SCURGERE: '+scurg.join(', ')+'.\n\n';
     if(alte.length) text+='ALTE CONSTATĂRI: '+alte.join(', ')+'.\n\n';
+
+    // Soluție tehnică
+    const stratRadio=document.querySelector('input[name="ck-straturi"]:checked');
+    const materiale=getChecked('ck-material');
+    const lucrari=getChecked('ck-lucrari');
+    const garRadio=document.querySelector('input[name="ck-gar"]:checked');
+    if(stratRadio||materiale.length||lucrari.length||garRadio){
+        text+='SOLUȚIE TEHNICĂ PROPUSĂ:\n';
+        if(stratRadio) text+='Sistem: '+stratRadio.value+(materiale.length?' — '+materiale.join(', '):'')+'\n';
+        else if(materiale.length) text+='Material: '+materiale.join(', ')+'\n';
+        if(lucrari.length) text+='Lucrări: '+lucrari.join('; ')+'.\n';
+        if(garRadio) text+='Garanție lucrare: '+garRadio.value+'.\n';
+        text+='\n';
+    }
     if(extra) text+='NOTE SUPLIMENTARE: '+extra+'\n';
 
     const prev=document.getElementById('constatarePreview');
@@ -1420,7 +1483,7 @@ function aplicaConstatare(){
     document.getElementById('constatareBody').classList.add('hidden');
 }
 function resetConstatare(){
-    document.querySelectorAll('#constatareBody input[type=checkbox]').forEach(c=>c.checked=false);
+    document.querySelectorAll('#constatareBody input[type=checkbox],#constatareBody input[type=radio]').forEach(c=>c.checked=false);
     const extra=document.getElementById('constatareExtra');
     if(extra)extra.value='';
     const prev=document.getElementById('constatarePreview');
@@ -2667,7 +2730,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.6';
+const APP_VERSION='2026.04.04.7';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
