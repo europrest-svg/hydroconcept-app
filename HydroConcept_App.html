@@ -433,6 +433,12 @@ body{background:#fff!important;color:#000!important;}
     <button class="btn btn-blue btn-sm" onclick="genPV()">✅ PV Recepție</button>
     <button class="btn btn-outline" onclick="reseteazaForm()">🗑️ Resetează</button>
 </div>
+<!-- Upload documente pentru oferta curentă -->
+<div class="card mt10" id="ofertaDocsCard">
+    <div class="section-title">📎 Documente atașate</div>
+    <div id="ofertaDocsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;"></div>
+    <div class="text-muted mt10" style="font-size:11px;">Salvează oferta mai întâi, apoi atașează documente clientului.</div>
+</div>
 <div id="previewArea" class="hidden mt20">
     <div class="section-title">Previzualizare ofertă</div>
     <div class="oferta-preview" id="previewContent"></div>
@@ -705,6 +711,7 @@ function showPage(name){
     event.target.closest('.tab').classList.add('active');
     if(name==='centralizator') renderCentral();
     if(name==='dashboard') renderDashboard();
+    if(name==='oferte') renderOfertaDocs(null);
     if(name==='calendar') renderCalendar();
     if(name==='galerie') renderGalerie();
     if(name==='profit') renderProfit();
@@ -774,6 +781,61 @@ function salveazaOferta(){
     };
     all.unshift(o);saveAll(all);populateAuto();
     toast('✅ Ofertă salvată! (#'+all.length+')');
+    renderOfertaDocs(0); // index 0 because unshift
+}
+
+// Render doc cards for current offer page
+async function renderOfertaDocs(clientIdx){
+    if(clientIdx===null||clientIdx===undefined){
+        // Try to find by client name
+        const name=document.getElementById('of-client')?.value?.trim();
+        if(!name){document.getElementById('ofertaDocsGrid').innerHTML='<div class="text-muted">Completează numele clientului</div>';return;}
+        const all=getAll();
+        clientIdx=all.findIndex(o=>o.client===name);
+        if(clientIdx<0){document.getElementById('ofertaDocsGrid').innerHTML='<div class="text-muted">Salvează oferta mai întâi</div>';return;}
+    }
+    const all=getAll();
+    const name=all[clientIdx]?.client||'Client';
+    const types=[
+        {key:'deviz',label:'📝 Deviz',color:'#C9A84C'},
+        {key:'contract',label:'📋 Contract',color:'#2563A8'},
+        {key:'pv',label:'✅ PV Recepție',color:'#27ae60'},
+        {key:'factura',label:'🧾 Factură',color:'#E87722'}
+    ];
+    let html='';
+    for(const t of types){
+        const doc=await getDoc(clientIdx,t.key);
+        if(doc){
+            html+=`<div style="background:#0a1420;border:1px solid ${t.color};border-radius:10px;padding:14px;">
+                <div style="font-size:13px;font-weight:700;color:${t.color};margin-bottom:6px;">${t.label}</div>
+                <div style="font-size:11px;color:#8899aa;margin-bottom:4px;">📄 ${doc.name}</div>
+                <div style="font-size:10px;color:#556;margin-bottom:8px;">${(doc.size/1024).toFixed(0)} KB — ${doc.date}</div>
+                <div style="display:flex;gap:6px;">
+                    <button class="btn btn-blue btn-sm" onclick="downloadDoc(${clientIdx},'${t.key}')">📥 Descarcă</button>
+                    <button class="btn btn-red btn-sm" onclick="deleteDoc(${clientIdx},'${t.key}');renderOfertaDocs(${clientIdx});">🗑️</button>
+                </div>
+            </div>`;
+        } else {
+            html+=`<div style="background:#0a1420;border:1px dashed #1B3A6B;border-radius:10px;padding:14px;text-align:center;">
+                <div style="font-size:13px;font-weight:700;color:#6688aa;margin-bottom:8px;">${t.label}</div>
+                <button class="btn btn-gold btn-sm" onclick="uploadDocForOffer(${clientIdx},'${t.key}')">📎 Atașează</button>
+            </div>`;
+        }
+    }
+    document.getElementById('ofertaDocsGrid').innerHTML=html;
+}
+
+function uploadDocForOffer(clientIdx,docType){
+    const inp=document.createElement('input');
+    inp.type='file';
+    inp.accept='.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png';
+    inp.onchange=async()=>{
+        if(inp.files[0]){
+            await saveDoc(clientIdx,docType,inp.files[0]);
+            renderOfertaDocs(clientIdx);
+        }
+    };
+    inp.click();
 }
 
 // ═══════════════════════════════════════════════════════
