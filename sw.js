@@ -1,10 +1,15 @@
-const CACHE_NAME = 'hc-app-v3';
+const CACHE_NAME = 'hc-app-v6';
 const ASSETS = [
   './',
   './HydroConcept_App.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
+  './icon-192.svg',
+  './icon-512.svg',
+  './logo-white.png',
+  './logo-black.png',
+  './cerere.html',
+  './portofoliu.html',
+  './testimoniale.html',
   'https://unpkg.com/docx@8.5.0/build/index.umd.js',
   'https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js'
 ];
@@ -27,9 +32,13 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// Fetch — cache first, then network
+// Fetch — network first, fallback to cache (offline support)
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request).then(response => {
+      const clone = response.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+      return response;
+    }).catch(() => caches.match(e.request))
   );
 });
