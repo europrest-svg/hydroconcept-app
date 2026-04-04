@@ -756,7 +756,7 @@ function showPage(name){
 // STORAGE — totul în localStorage, editabil
 // ═══════════════════════════════════════════════════════
 function getAll(){return JSON.parse(localStorage.getItem('hc_data')||'[]');}
-function saveAll(arr){localStorage.setItem('hc_data',JSON.stringify(arr));updateBadge();}
+function saveAll(arr){localStorage.setItem('hc_data',JSON.stringify(arr));updateBadge();autoCloudPush();}
 function updateBadge(){document.getElementById('badgeCount').textContent=getAll().length;}
 
 // Seed: la prima deschidere, importăm clienții istorici
@@ -2272,6 +2272,34 @@ if(localStorage.getItem('hc_gh_token')){
     setTimeout(()=>{const ts=document.getElementById('tokenSetup');if(ts)ts.innerHTML='<span style="color:#2ecc71;font-size:12px;">✅ Token configurat</span>';},100);
 }
 
+// Auto-push cu debounce (5 secunde după ultima modificare)
+let _pushTimer=null;
+let _pushing=false;
+function autoCloudPush(){
+    if(!getGHToken())return;
+    if(_pushTimer)clearTimeout(_pushTimer);
+    _pushTimer=setTimeout(()=>cloudPushSilent(),5000);
+}
+
+async function cloudPushSilent(){
+    if(_pushing)return;
+    const token=getGHToken();
+    if(!token)return;
+    _pushing=true;
+    try{
+        const syncData={oferte:getAll(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
+        const content=btoa(unescape(encodeURIComponent(JSON.stringify(syncData))));
+        let sha='';
+        try{const r=await fetch(GH_API,{headers:{'Authorization':'Bearer '+token}});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
+        const body={message:'auto-sync: '+syncData.date,content:content};
+        if(sha)body.sha=sha;
+        await fetch(GH_API,{method:'PUT',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+        localStorage.setItem('hc_sync_ts',String(syncData.sync_ts));
+        console.log('☁️ Auto-sync push OK');
+    }catch(e){console.log('☁️ Auto-sync push fail:',e.message);}
+    _pushing=false;
+}
+
 async function cloudPush(){
     const st=document.getElementById('cloudStatus');
     const token=getGHToken();
@@ -2280,7 +2308,6 @@ async function cloudPush(){
     const syncData={oferte:getAll(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
     const content=btoa(unescape(encodeURIComponent(JSON.stringify(syncData))));
     try{
-        // Get current file SHA (needed for update)
         let sha='';
         try{const r=await fetch(GH_API,{headers:{'Authorization':'Bearer '+token}});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
         const body={message:'sync: '+syncData.date,content:content};
@@ -2296,24 +2323,36 @@ async function cloudPush(){
 
 async function cloudPull(){
     const st=document.getElementById('cloudStatus');
-    st.innerHTML='<span style="color:#C9A84C;">⏳ Se preiau datele...</span>';
+    if(st)st.innerHTML='<span style="color:#C9A84C;">⏳ Se preiau datele...</span>';
     try{
         const res=await fetch(GH_API);
         if(!res.ok)throw new Error('HTTP '+res.status);
         const d=await res.json();
         const json=JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))));
         if(!json.oferte||!json.oferte.length){
-            st.innerHTML='<span style="color:#E87722;">⚠️ Nu sunt date în cloud. Trimite mai întâi de pe celălalt dispozitiv.</span>';
+            if(st)st.innerHTML='<span style="color:#E87722;">⚠️ Nu sunt date în cloud.</span>';
             return;
         }
-        saveAll(json.oferte);
-        localStorage.setItem('hc_sync_ts',String(json.sync_ts||Date.now()));
-        renderCentral();renderDashboard();updateBadge();
-        st.innerHTML='<span style="color:#2ecc71;">✅ '+json.oferte.length+' clienți preluați din cloud!</span>';
-        document.getElementById('cloudLastSync').innerHTML='Date din cloud de la: '+(json.date||'—');
-        toast('☁️ '+json.oferte.length+' clienți preluați din cloud!');
-    }catch(e){st.innerHTML='<span style="color:#e74c3c;">❌ Eroare: '+e.message+'</span>';}
+        const localTs=parseInt(localStorage.getItem('hc_sync_ts')||'0');
+        if(json.sync_ts>localTs){
+            // Cloud e mai nou — preluăm
+            localStorage.setItem('hc_data',JSON.stringify(json.oferte));
+            updateBadge();
+            localStorage.setItem('hc_sync_ts',String(json.sync_ts));
+            renderCentral();renderDashboard();
+            if(st){st.innerHTML='<span style="color:#2ecc71;">✅ '+json.oferte.length+' clienți preluați din cloud!</span>';
+            document.getElementById('cloudLastSync').innerHTML='Date din cloud de la: '+(json.date||'—');}
+            toast('☁️ '+json.oferte.length+' clienți sincronizați!');
+        } else {
+            if(st)st.innerHTML='<span style="color:#2ecc71;">✅ Datele sunt la zi.</span>';
+        }
+    }catch(e){if(st)st.innerHTML='<span style="color:#e74c3c;">❌ Eroare: '+e.message+'</span>';}
 }
+
+// Auto-pull la deschiderea aplicației
+setTimeout(()=>{if(getGHToken())cloudPull();},2000);
+// Auto-pull periodic (la fiecare 60 secunde)
+setInterval(()=>{if(getGHToken()&&!_pushing)cloudPull();},60000);
 
 // ═══════════════════════════════════════════════════════
 // QR CODE GENERATOR (simple canvas-based)
@@ -2456,7 +2495,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.3';
+const APP_VERSION='2026.04.04.4';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
