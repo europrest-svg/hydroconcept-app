@@ -365,6 +365,7 @@ body{background:#fff!important;color:#000!important;}
 <div class="app-header">
 <div class="brand"><img src="logo-white.png" alt="Hydro Concept" class="hc-logo" style="height:48px;"> <small>— Aplicație de Lucru v3.7</small></div>
 <div style="display:flex;align-items:center;gap:12px;">
+<button class="theme-toggle" onclick="forceUpdate()" title="Actualizează aplicația" style="font-size:14px;cursor:pointer;background:none;border:1px solid #334;border-radius:6px;padding:4px 8px;color:#8899aa;">🔄</button>
 <button class="theme-toggle" onclick="toggleTheme()" title="Dark/Light">🌓</button>
 <span style="font-size:12px;color:#C9A84C;font-weight:700;">📞 0720 139 220</span>
 </div>
@@ -649,6 +650,7 @@ body{background:#fff!important;color:#000!important;}
         <p>Salvare automată la fiecare modificare</p>
         <div style="font-size:12px;color:#2ecc71;font-weight:700;margin:10px 0;">✅ Activ — localStorage</div>
         <div class="sync-info">Ultimul backup: <span id="lastBackupTime">—</span></div>
+        <button class="btn btn-blue btn-sm mt10" onclick="forceUpdate()">🔄 Forțează actualizare</button>
         <button class="btn btn-outline btn-sm mt10" onclick="resetApp()">⚠️ Resetează aplicația</button>
     </div>
 </div>
@@ -2509,9 +2511,36 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 (()=>{const cfg=JSON.parse(localStorage.getItem('hc_firebase')||'null');if(cfg&&cfg.apiKey)initFirebase(cfg);})();
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
-// PWA — Service Worker registration
+// PWA — Service Worker registration with auto-update
 if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('./sw.js').then(()=>console.log('SW OK')).catch(e=>console.log('SW fail',e));
+    navigator.serviceWorker.register('./sw.js').then(reg=>{
+        console.log('SW OK');
+        // Check for updates every 60 seconds
+        setInterval(()=>reg.update(),60000);
+        reg.addEventListener('updatefound',()=>{
+            const nw=reg.installing;
+            nw.addEventListener('statechange',()=>{
+                if(nw.state==='installed'&&navigator.serviceWorker.controller){
+                    // New version available — auto-refresh
+                    toast('🔄 Versiune nouă disponibilă! Se actualizează...');
+                    setTimeout(()=>location.reload(),1500);
+                }
+            });
+        });
+    }).catch(e=>console.log('SW fail',e));
+}
+
+function forceUpdate(){
+    if(!('serviceWorker' in navigator)){location.reload();return;}
+    navigator.serviceWorker.getRegistrations().then(regs=>{
+        const promises=regs.map(r=>r.unregister());
+        Promise.all(promises).then(()=>{
+            caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>{
+                toast('✅ Cache șters! Se reîncarcă...');
+                setTimeout(()=>location.reload(true),1000);
+            });
+        });
+    });
 }
 </script>
 </body>
