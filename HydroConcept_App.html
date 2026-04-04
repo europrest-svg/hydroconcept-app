@@ -862,7 +862,7 @@ function renderCentral(){
             <td class="col-center">${docCell(realIdx,'factura',o.factura)}</td>
             <td class="editable col-center" ondblclick="editCell(this,${realIdx},'statusPlata','select')">${stBadge(o.statusPlata)}</td>
             <td class="editable" style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}" ondblclick="editCell(this,${realIdx},'obs','text')">${o.obs||'—'}</td>
-            <td style="white-space:nowrap;"><button class="btn-whatsapp" onclick="openWA(${realIdx})" title="WhatsApp">📲</button> <button class="btn btn-red btn-sm" onclick="stergeOferta(${realIdx})">✕</button></td>
+            <td style="white-space:nowrap;"><button class="btn-whatsapp" onclick="openWA(${realIdx})" title="WhatsApp">📲</button> <button class="btn btn-blue btn-sm" onclick="showUploadMenu(${realIdx})" title="Atașează document">📎</button> <button class="btn btn-red btn-sm" onclick="stergeOferta(${realIdx})">✕</button></td>
         </tr>`;
     });
     document.getElementById('centralTbody').innerHTML=html||'<tr><td colspan="14" class="text-center text-muted">Nicio ofertă.</td></tr>';
@@ -2014,6 +2014,40 @@ async function downloadDoc(clientIdx,docType){
 async function deleteDoc(clientIdx,docType){
     if(!confirm('Ștergi documentul atașat?'))return;
     await delDoc(clientIdx,docType);
+}
+
+// Upload menu — shows popup to choose doc type
+function showUploadMenu(clientIdx){
+    const all=getAll();
+    const name=all[clientIdx]?.client||'Client';
+    // Check which docs already exist
+    const types=[
+        {key:'deviz',label:'Deviz',has:_cachedDocKeys.includes(docKey(clientIdx,'deviz'))},
+        {key:'contract',label:'Contract',has:_cachedDocKeys.includes(docKey(clientIdx,'contract'))},
+        {key:'pv',label:'PV Recepție',has:_cachedDocKeys.includes(docKey(clientIdx,'pv'))},
+        {key:'factura',label:'Factură',has:_cachedDocKeys.includes(docKey(clientIdx,'factura'))}
+    ];
+    let html=`<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:center;justify-content:center;" onclick="if(event.target===this)this.remove()">
+    <div style="background:#111f35;border:2px solid #C9A84C;border-radius:14px;padding:24px;width:320px;">
+    <h3 style="color:#C9A84C;font-size:15px;margin-bottom:4px;">📎 Atașează document</h3>
+    <p style="color:#6688aa;font-size:12px;margin-bottom:16px;">${name}</p>`;
+    types.forEach(t=>{
+        if(t.has){
+            html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #1a2a40;">
+                <span style="flex:1;color:#fff;font-size:13px;">${t.label}</span>
+                <button class="doc-file-btn" onclick="downloadDoc(${clientIdx},'${t.key}')">📥 Descarcă</button>
+                <button class="doc-del-btn" style="color:#e74c3c;font-size:12px;background:none;border:1px solid #e74c3c;border-radius:4px;padding:2px 8px;cursor:pointer;" onclick="deleteDoc(${clientIdx},'${t.key}');this.closest('[style*=position]').remove();">🗑️</button>
+            </div>`;
+        } else {
+            html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #1a2a40;">
+                <span style="flex:1;color:#8899aa;font-size:13px;">${t.label}</span>
+                <button class="btn btn-gold btn-sm" onclick="uploadDoc(${clientIdx},'${t.key}');this.closest('[style*=position]').remove();">📎 Upload</button>
+            </div>`;
+        }
+    });
+    html+=`<button style="width:100%;margin-top:14px;padding:8px;background:#1B3A6B;border:none;border-radius:8px;color:#8899aa;font-size:12px;cursor:pointer;" onclick="this.closest('[style*=position]').remove();">Închide</button>
+    </div></div>`;
+    document.body.insertAdjacentHTML('beforeend',html);
 }
 
 // Cached doc keys for rendering
