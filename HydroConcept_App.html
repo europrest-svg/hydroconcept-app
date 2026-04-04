@@ -438,6 +438,28 @@ body{background:#fff!important;color:#000!important;}
     <div class="form-row"><div class="form-group"><label>Observații</label><textarea id="of-obs" placeholder="ex: Decopertare necesară, acces dificil, etc."></textarea></div></div>
 </div>
 
+<!-- CALCULATOR SUPRAFAȚĂ -->
+<div class="card" style="border-color:#2ecc71;">
+    <div class="section-title" style="cursor:pointer;" onclick="document.getElementById('calcMpBody').classList.toggle('hidden')">📐 Calculator suprafață <span style="font-size:11px;color:#6688aa;">(click pentru expandare)</span></div>
+    <div id="calcMpBody" class="hidden">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <button class="btn btn-sm btn-blue" onclick="addZona('dreptunghi')">▭ Dreptunghi</button>
+            <button class="btn btn-sm btn-green" onclick="addZona('triunghi')">△ Triunghi</button>
+            <button class="btn btn-sm btn-gold" onclick="addZona('trapez')">⏢ Trapez</button>
+            <button class="btn btn-sm" style="background:#9b59b6;color:#fff;" onclick="addZona('cerc')">○ Cerc</button>
+            <button class="btn btn-sm" style="background:#e67e22;color:#fff;" onclick="addZona('l-shape')">⌐ Formă L</button>
+        </div>
+        <div id="zoneList"></div>
+        <div style="margin-top:12px;padding:10px;background:#0a1525;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:16px;font-weight:700;color:#2ecc71;">TOTAL: <span id="totalMpCalc">0</span> mp</span>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-green btn-sm" onclick="aplicaTotalMp()">✅ Aplică în formular</button>
+                <button class="btn btn-outline btn-sm" onclick="resetZone()">🗑️ Resetează</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- CONSTATARE TEREN -->
 <div class="card" style="border-color:#C9A84C;">
     <div class="section-title" style="cursor:pointer;" onclick="document.getElementById('constatareBody').classList.toggle('hidden')">📋 Constatare teren <span style="font-size:11px;color:#6688aa;">(click pentru expandare)</span></div>
@@ -1523,6 +1545,123 @@ function resetConstatare(){
     if(extra)extra.value='';
     const prev=document.getElementById('constatarePreview');
     if(prev){prev.style.display='none';prev.textContent='';}
+}
+
+// ═══════════════════════════════════════════════════════
+// CALCULATOR SUPRAFAȚĂ — zone multiple cu forme diferite
+// ═══════════════════════════════════════════════════════
+let _zone=[];
+let _zonaCounter=0;
+
+function addZona(tip){
+    _zonaCounter++;
+    const id=_zonaCounter;
+    _zone.push({id,tip,vals:{}});
+    renderZone();
+}
+
+function removeZona(id){
+    _zone=_zone.filter(z=>z.id!==id);
+    renderZone();
+    calcTotalMp();
+}
+
+function renderZone(){
+    const container=document.getElementById('zoneList');
+    let html='';
+    _zone.forEach((z,i)=>{
+        const nr=i+1;
+        const colors={dreptunghi:'#2563A8',triunghi:'#27ae60',trapez:'#C9A84C',cerc:'#9b59b6','l-shape':'#e67e22'};
+        const icons={dreptunghi:'▭',triunghi:'△',trapez:'⏢',cerc:'○','l-shape':'⌐'};
+        const names={dreptunghi:'Dreptunghi',triunghi:'Triunghi',trapez:'Trapez',cerc:'Cerc/Semiccerc','l-shape':'Formă L'};
+        const c=colors[z.tip]||'#2563A8';
+        html+=`<div style="background:#0d1f35;border:1px solid ${c};border-radius:8px;padding:10px;margin-bottom:8px;">`;
+        html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="color:${c};font-weight:700;font-size:13px;">${icons[z.tip]} Zona ${nr} — ${names[z.tip]}</span><button onclick="removeZona(${z.id})" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:16px;">✕</button></div>`;
+        html+=`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">`;
+
+        if(z.tip==='dreptunghi'){
+            html+=inputField(z.id,'L','Lungime (m)','lung');
+            html+=inputField(z.id,'l','Lățime (m)','lat');
+        } else if(z.tip==='triunghi'){
+            html+=inputField(z.id,'b','Baza (m)','baza');
+            html+=inputField(z.id,'h','Înălțime (m)','h');
+        } else if(z.tip==='trapez'){
+            html+=inputField(z.id,'B','Baza mare (m)','B');
+            html+=inputField(z.id,'b','Baza mică (m)','b');
+            html+=inputField(z.id,'h','Înălțime (m)','h');
+        } else if(z.tip==='cerc'){
+            html+=inputField(z.id,'r','Raza (m)','r');
+            html+=`<label style="color:#8899aa;font-size:11px;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="zs_${z.id}_semi" onchange="calcTotalMp()"> Semicerc</label>`;
+        } else if(z.tip==='l-shape'){
+            html+=inputField(z.id,'L1','L1 (m)','L1');
+            html+=inputField(z.id,'l1','l1 (m)','l1');
+            html+=inputField(z.id,'L2','L2 (m)','L2');
+            html+=inputField(z.id,'l2','l2 (m)','l2');
+        }
+
+        const mp=calcZona(z);
+        html+=`<span style="color:${c};font-weight:700;font-size:14px;min-width:80px;text-align:right;">${mp.toFixed(1)} mp</span>`;
+        html+=`</div></div>`;
+    });
+    container.innerHTML=html||'<p style="color:#445;font-size:12px;text-align:center;">Adaugă zone cu butoanele de mai sus</p>';
+}
+
+function inputField(zid,label,placeholder,key){
+    return `<div style="flex:0 0 auto;"><label style="font-size:10px;color:#6688aa;">${label}</label><input type="number" id="zi_${zid}_${key}" placeholder="${placeholder}" step="0.1" oninput="calcTotalMp()" style="width:80px;padding:6px;border-radius:6px;border:1px solid #334;background:#1a2233;color:#ddd;font-size:13px;display:block;"></div>`;
+}
+
+function getZVal(zid,key){return parseFloat(document.getElementById('zi_'+zid+'_'+key)?.value)||0;}
+
+function calcZona(z){
+    if(z.tip==='dreptunghi'){
+        return getZVal(z.id,'lung')*getZVal(z.id,'lat');
+    } else if(z.tip==='triunghi'){
+        return (getZVal(z.id,'baza')*getZVal(z.id,'h'))/2;
+    } else if(z.tip==='trapez'){
+        return ((getZVal(z.id,'B')+getZVal(z.id,'b'))*getZVal(z.id,'h'))/2;
+    } else if(z.tip==='cerc'){
+        const r=getZVal(z.id,'r');
+        const isSemi=document.getElementById('zs_'+z.id+'_semi')?.checked;
+        return isSemi?Math.PI*r*r/2:Math.PI*r*r;
+    } else if(z.tip==='l-shape'){
+        return (getZVal(z.id,'L1')*getZVal(z.id,'l1'))+(getZVal(z.id,'L2')*getZVal(z.id,'l2'));
+    }
+    return 0;
+}
+
+function calcTotalMp(){
+    // Save current values before re-render
+    _zone.forEach(z=>{
+        if(z.tip==='dreptunghi'){z.vals={lung:getZVal(z.id,'lung'),lat:getZVal(z.id,'lat')};}
+        else if(z.tip==='triunghi'){z.vals={baza:getZVal(z.id,'baza'),h:getZVal(z.id,'h')};}
+        else if(z.tip==='trapez'){z.vals={B:getZVal(z.id,'B'),b:getZVal(z.id,'b'),h:getZVal(z.id,'h')};}
+        else if(z.tip==='cerc'){z.vals={r:getZVal(z.id,'r'),semi:document.getElementById('zs_'+z.id+'_semi')?.checked||false};}
+        else if(z.tip==='l-shape'){z.vals={L1:getZVal(z.id,'L1'),l1:getZVal(z.id,'l1'),L2:getZVal(z.id,'L2'),l2:getZVal(z.id,'l2')};}
+    });
+    renderZone();
+    // Restore values after render
+    _zone.forEach(z=>{
+        Object.entries(z.vals).forEach(([k,v])=>{
+            if(k==='semi'){const el=document.getElementById('zs_'+z.id+'_semi');if(el)el.checked=v;}
+            else{const el=document.getElementById('zi_'+z.id+'_'+k);if(el&&v)el.value=v;}
+        });
+    });
+    const total=_zone.reduce((s,z)=>s+calcZona(z),0);
+    document.getElementById('totalMpCalc').textContent=Math.round(total*10)/10;
+}
+
+function aplicaTotalMp(){
+    const total=_zone.reduce((s,z)=>s+calcZona(z),0);
+    if(total<=0){toast('⚠️ Adaugă cel puțin o zonă!');return;}
+    document.getElementById('of-mp').value=Math.round(total);
+    calculeazaPreturi();
+    toast('✅ '+Math.round(total)+' mp aplicați în formular!');
+}
+
+function resetZone(){
+    _zone=[];_zonaCounter=0;
+    renderZone();
+    document.getElementById('totalMpCalc').textContent='0';
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2797,7 +2936,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.14';
+const APP_VERSION='2026.04.04.15';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
