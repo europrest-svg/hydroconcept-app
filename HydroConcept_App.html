@@ -1443,6 +1443,7 @@ function getChecked(containerId){
 }
 function genConstatare(){
     const adresa=document.getElementById('of-adresa').value||'____________________';
+    const mp=document.getElementById('of-mp').value;
     const hidro=getChecked('ck-hidro');
     const oriz=getChecked('ck-orizontal');
     const vert=getChecked('ck-vertical');
@@ -1450,43 +1451,59 @@ function genConstatare(){
     const scurg=getChecked('ck-scurgere');
     const alte=getChecked('ck-alte');
     const extra=(document.getElementById('constatareExtra').value||'').trim();
-
-    let text='În urma vizitei efectuate la imobilul din '+adresa+', în vederea stabilirii soluției tehnice pentru refacerea hidroizolației acoperișului, am constatat următoarele:\n\n';
-
-    if(hidro.length) text+='HIDROIZOLAȚIE EXISTENTĂ: Acoperișul/terasa prezintă o hidroizolație inițială formată din '+hidro.join(', ')+'.\n\n';
-    if(oriz.length) text+='STARE SUPRAFAȚĂ ORIZONTALĂ: Hidroizolația pe suprafața orizontală prezintă '+oriz.join(', ')+'.\n\n';
-    if(vert.length) text+='STARE SUPRAFAȚĂ VERTICALĂ: Pe suprafața verticală (atice, racorduri) — '+vert.join(', ')+'.\n\n';
-    if(tabla.length) text+='TABLĂ ATIC / COPERTINE: '+tabla.join(', ')+'.\n\n';
-    if(scurg.length) text+='GURI DE SCURGERE: '+scurg.join(', ')+'.\n\n';
-    if(alte.length) text+='ALTE CONSTATĂRI: '+alte.join(', ')+'.\n\n';
-
-    // Tip lucrare / Pachet
     const pachetRadio=document.querySelector('input[name="ck-pachet"]:checked');
-    if(pachetRadio) text+='TIP LUCRARE: '+pachetRadio.value+'.\n\n';
-
-    // Soluție tehnică
     const stratRadio=document.querySelector('input[name="ck-straturi"]:checked');
     const materiale=getChecked('ck-material');
     const lucrari=getChecked('ck-lucrari');
     const garRadio=document.querySelector('input[name="ck-gar"]:checked');
-    if(stratRadio||materiale.length||lucrari.length||garRadio){
-        text+='SOLUȚIE TEHNICĂ PROPUSĂ:\n';
-        if(stratRadio) text+='Sistem: '+stratRadio.value+(materiale.length?' — '+materiale.join(', '):'')+'\n';
-        else if(materiale.length) text+='Material: '+materiale.join(', ')+'\n';
-        if(lucrari.length) text+='Lucrări: '+lucrari.join('; ')+'.\n';
-        if(garRadio) text+='Garanție lucrare: '+garRadio.value+'.\n';
-        text+='\n';
-    }
-    if(extra) text+='NOTE SUPLIMENTARE: '+extra+'\n';
 
+    let p=[];
+
+    // Paragraf 1 — Introducere
+    let intro='În urma vizitei efectuate la imobilul din '+adresa;
+    if(mp) intro+=', pe o suprafață de aproximativ '+mp+' mp';
+    intro+=', în vederea stabilirii soluției tehnice pentru refacerea hidroizolației acoperișului, am constatat următoarele:';
+    p.push(intro);
+
+    // Paragraf 2 — Stare existentă
+    let stare='';
+    if(hidro.length) stare+='Acoperișul/terasa prezintă o hidroizolație inițială formată din '+hidro.join(', ')+'.';
+    if(oriz.length) stare+=(stare?' ':'')+'Pe suprafața orizontală, hidroizolația prezintă '+oriz.join(', ')+'.';
+    if(vert.length) stare+=(stare?' ':'')+'Pe suprafața verticală (atice, racorduri): '+vert.join(', ')+'.';
+    if(stare) p.push(stare);
+
+    // Paragraf 3 — Elemente conexe
+    let elemente='';
+    if(tabla.length) elemente+='Tabla de pe atic: '+tabla.join(', ')+'.';
+    if(scurg.length) elemente+=(elemente?' ':'')+'Gurile de scurgere: '+scurg.join(', ')+'.';
+    if(alte.length) elemente+=(elemente?' ':'')+'De asemenea, '+alte.join(', ')+'.';
+    if(elemente) p.push(elemente);
+
+    // Paragraf 4 — Tip lucrare
+    if(pachetRadio) p.push('Tipul lucrării recomandate: '+pachetRadio.value+'.');
+
+    // Paragraf 5 — Soluție tehnică
+    if(stratRadio||materiale.length||lucrari.length||garRadio){
+        let sol='Soluția tehnică propusă: ';
+        if(stratRadio) sol+=stratRadio.value+(materiale.length?' ('+materiale.join(', ')+')':'')+'.';
+        else if(materiale.length) sol+='sistem '+materiale.join(', ')+'.';
+        if(lucrari.length) sol+=' Lucrările includ: '+lucrari.join('; ')+'.';
+        if(garRadio) sol+=' Garanția oferită pentru lucrare: '+garRadio.value+'.';
+        p.push(sol);
+    }
+
+    // Paragraf 6 — Note
+    if(extra) p.push('Note suplimentare: '+extra);
+
+    const text=p.join('\n\n');
     const prev=document.getElementById('constatarePreview');
-    if(hidro.length||oriz.length||vert.length||tabla.length||scurg.length||alte.length||extra){
+    if(p.length>1){
         prev.style.display='block';
-        prev.textContent=text.trim();
+        prev.textContent=text;
     } else {
         prev.style.display='none';
     }
-    return text.trim();
+    return text;
 }
 function aplicaConstatare(){
     const text=genConstatare();
@@ -2744,7 +2761,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.10';
+const APP_VERSION='2026.04.04.11';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
