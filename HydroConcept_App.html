@@ -783,11 +783,14 @@ function salveazaOferta(){
     const pS=Math.round(P.soprema.p*mult)*mp;
     const valStr=mon==='euro'?nr(Math.round(pS/curs))+' €':nr(pS)+' lei';
     const all=getAll();
+    // If imported DOCX had a value, use it; otherwise use calculated
+    const importedVal=_importedData?.valoare;
+    const importedDate=_importedData?.dataOferta;
     const o={
         nr:all.length+1,id:Date.now(),
         client,obiectiv:v('of-tip')+' — '+v('of-adresa'),
-        suprafata:mp+' mp',valoare:valStr,
-        dataOferta:dataAzi(),
+        suprafata:mp+' mp',valoare:importedVal||valStr,
+        dataOferta:importedDate||dataAzi(),
         oferta:'Trimisă',contract:'—',deviz:'—',pv:'—',factura:'—',
         statusPlata:'Neplătit',obs:v('of-obs')
     };
@@ -798,7 +801,7 @@ function salveazaOferta(){
             renderOfertaDocs(0);
             toast('✅ Ofertă salvată + DOCX atașat ca deviz! (#'+all.length+')');
         });
-        _importedFile=null;_importedClientIdx=null;
+        _importedFile=null;_importedData=null;_importedClientIdx=null;
     } else {
         toast('✅ Ofertă salvată! (#'+all.length+')');
         renderOfertaDocs(0);
@@ -892,16 +895,20 @@ async function importOfertaFromDoc(input){
         // Show summary
         let summary='<span style="color:#2ecc71;">✅ Date extrase din '+file.name+':</span><br>';
         if(data.client) summary+='<b>Client:</b> '+data.client+'<br>';
-        if(data.adresa) summary+='<b>Adresă:</b> '+data.adresa+'<br>';
         if(data.suprafata) summary+='<b>Suprafață:</b> '+data.suprafata+' mp<br>';
-        if(data.valoare) summary+='<b>Valoare:</b> '+data.valoare+'<br>';
+        if(data.valoare) summary+='<b>Valoare (Soprema):</b> '+data.valoare+'<br>';
+        if(data.straturi) summary+='<b>Straturi:</b> '+data.straturi+'<br>';
+        if(data.dataOferta) summary+='<b>Data ofertei:</b> '+data.dataOferta+'<br>';
+        if(data.adresa) summary+='<b>Adresă:</b> '+data.adresa+'<br>';
         if(data.telefon) summary+='<b>Telefon:</b> '+data.telefon+'<br>';
         if(data.email) summary+='<b>Email:</b> '+data.email+'<br>';
+        if(data.tipLucrare) summary+='<b>Tip:</b> '+data.tipLucrare+'<br>';
         if(!data.client&&!data.suprafata) summary+='<span style="color:#E87722;">⚠️ Nu am reușit să extrag date. Completează manual.</span>';
         statusEl.innerHTML=summary;
 
-        // Also store the DOCX file for later
+        // Store DOCX file + extracted data for later
         _importedFile=file;
+        _importedData=data;
         _importedClientIdx=null;
     } catch(e){
         statusEl.innerHTML='<span style="color:#e74c3c;">❌ Eroare la procesare: '+e.message+'</span>';
@@ -909,87 +916,107 @@ async function importOfertaFromDoc(input){
     input.value='';
 }
 let _importedFile=null;
+let _importedData=null;
 let _importedClientIdx=null;
 
 function parseOfertaText(text){
     const data={};
     const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
 
-    // Find BENEFICIAR → next non-empty line is client name
+    // 1. BENEFICIAR — can be "Beneficiar: Name" on same line or on next line
     for(let i=0;i<lines.length;i++){
-        if(lines[i].toUpperCase().includes('BENEFICIAR')){
-            for(let j=i+1;j<Math.min(i+5,lines.length);j++){
-                const line=lines[j];
-                if(line.length>2 && !line.includes('PRESTATOR') && !line.includes('Euro-Prest') && !line.includes('Hydro') && !line.includes('OBIECTIV')){
-                    if(!line.match(/^[\d\+\(]/) && !line.includes('@') && !line.match(/^\d+\s*mp/i)){
-                        data.client=line;break;
-                    }
+        const line=lines[i];
+        // Same line: "Beneficiar: Mihai Popescu"
+        const sameLine=line.match(/[Bb]eneficiar[:\s]+(.{2,})/);
+        if(sameLine){
+            const name=sameLine[1].trim();
+            if(name.length>1 && !name.match(/^[\d\+\(]/) && !name.includes('Euro-Prest')){
+                data.client=name; break;
+            }
+        }
+        // Next line
+        if(line.toUpperCase()==='BENEFICIAR'){
+            for(let j=i+1;j<Math.min(i+4,lines.length);j++){
+                const nl=lines[j];
+                if(nl.length>2 && !nl.includes('PRESTATOR') && !nl.includes('Euro-Prest') && !nl.includes('Data') && !nl.match(/^[\d\+\(]/)){
+                    data.client=nl; break;
                 }
             }
+            break;
         }
     }
 
-    // Find subtitle line: "Client Name • XXX mp • N variante"
-    const subtitleMatch=text.match(/(.+?)\s*[•·]\s*(\d+)\s*mp\s*[•·]/);
-    if(subtitleMatch){
-        if(!data.client && subtitleMatch[1].length>3) data.client=subtitleMatch[1].trim();
-        if(!data.suprafata) data.suprafata=parseInt(subtitleMatch[2]);
-    }
-
-    // Find phone — skip HC's own number 0720 139 220
-    const phonePatterns=text.match(/\b(0\d{2,3}[\s\.\-]?\d{3}[\s\.\-]?\d{3,4})\b/g)||[];
-    const clientPhone=phonePatterns.find(p=>!p.replace(/[\s\.\-]/g,'').includes('0720139220'));
-    if(clientPhone) data.telefon=clientPhone.trim();
-
-    // Find email — skip HC's own emails
-    const emailMatches=text.match(/[\w\.\-]+@[\w\.\-]+\.\w+/g)||[];
-    const clientEmail=emailMatches.find(e=>!e.includes('europrest')&&!e.includes('yahoo.com'));
-    if(clientEmail) data.email=clientEmail;
-
-    // Find suprafata (if not found from subtitle)
+    // 2. SUPRAFATA — from "Suprafata: XXX mp" line (most reliable)
+    const supLineMatch=text.match(/[Ss]uprafat[aă]\s*:\s*(\d+)\s*mp/);
+    if(supLineMatch) data.suprafata=parseInt(supLineMatch[1]);
+    // Fallback: subtitle "XXX mp • N strat"
     if(!data.suprafata){
-        const supMatch=text.match(/[Ss]uprafat[aă][:\s]*(\d+[\.\d]*)\s*mp/i) ||
-                       text.match(/(\d+)\s*mp\s*[\(—\-–•]/);
-        if(supMatch) data.suprafata=parseInt(supMatch[1]);
+        const subMatch=text.match(/(\d+)\s*mp\s*[•·]\s*\d+\s*strat/);
+        if(subMatch) data.suprafata=parseInt(subMatch[1]);
     }
 
-    // Find straturi
+    // 3. DATA OFERTEI
+    const dataMatch=text.match(/[Dd]ata\s+oferte[i]?\s*:\s*(\d{1,2}[\.\-\/]\d{1,2}[\.\-\/]\d{2,4})/);
+    if(dataMatch) data.dataOferta=dataMatch[1];
+
+    // 4. STRATURI — from subtitle or text
     if(text.match(/2\s*strat/i)) data.straturi='2';
     else data.straturi='1';
 
-    // Find address
-    const addrMatch=text.match(/(Str\.\s*[^\n•]+)/i) ||
-                    text.match(/(Bd\.\s*[^\n•]+)/i) ||
-                    text.match(/(Calea\s*[^\n•]+)/i) ||
-                    text.match(/(Aleea\s*[^\n•]+)/i);
+    // 5. PHONE — skip HC's own 0720 139 220
+    const phoneAll=text.match(/\b(0\d{2,3}[\s\.\-]?\d{3}[\s\.\-]?\d{3,4})\b/g)||[];
+    const clientPhone=phoneAll.find(p=>!p.replace(/[\s\.\-]/g,'').includes('0720139220'));
+    if(clientPhone) data.telefon=clientPhone.trim();
+
+    // 6. EMAIL — skip HC's own
+    const emailAll=text.match(/[\w\.\-]+@[\w\.\-]+\.\w+/g)||[];
+    const clientEmail=emailAll.find(e=>!e.includes('europrest')&&!e.includes('yahoo'));
+    if(clientEmail) data.email=clientEmail;
+
+    // 7. ADDRESS
+    const addrMatch=text.match(/(Str\.\s*[^\n•·]+)/i) ||
+                    text.match(/(Bd\.\s*[^\n•·]+)/i) ||
+                    text.match(/(Calea\s*[^\n•·]+)/i) ||
+                    text.match(/(Aleea\s*[^\n•·]+)/i);
     if(addrMatch) data.adresa=addrMatch[1].trim().replace(/\s*[•·].*$/,'');
-
     if(!data.adresa){
-        const sectorMatch=text.match(/(Sector\s*\d)/i);
-        if(sectorMatch) data.adresa='București, '+sectorMatch[1];
+        const secMatch=text.match(/[Ss]ector\s*\d/);
+        if(secMatch) data.adresa='București, '+secMatch[0];
     }
 
-    // Find total value — "= XX.XXX lei" or "= XX.XXX €"
-    const valMatchesLei=text.match(/=\s*([\d\.]+)\s*lei/g)||[];
-    const valMatchesEur=text.match(/=\s*([\d\.]+)\s*[€]/g)||[];
-    const valMatches=valMatchesLei.length>0?valMatchesLei:valMatchesEur;
-    const currency=valMatchesLei.length>0?' lei':' €';
-    if(valMatches.length>0){
-        const vals=valMatches.map(m=>{
+    // 8. PRICES — detect format: "X.XXX Euro" or "X.XXX lei" or "= X.XXX lei"
+    // Format A: "2.635 Euro" (from DOCX offers)
+    const euroMatches=text.match(/\b(\d[\d\.]+)\s*Euro\b/gi)||[];
+    // Format B: "= XX.XXX lei"
+    const leiMatches=text.match(/=\s*([\d\.]+)\s*lei/gi)||[];
+
+    if(euroMatches.length>0){
+        const vals=euroMatches.map(m=>{
+            const n=m.match(/([\d\.]+)\s*Euro/i);
+            return n?parseFloat(n[1].replace(/\./g,'')):0;
+        }).filter(n=>n>0).sort((a,b)=>a-b);
+        // Remove duplicates (same value appears in table and card)
+        const unique=[...new Set(vals)];
+        if(unique.length>=2) data.valoare=nr(unique[1])+' €'; // Soprema (middle)
+        else if(unique.length===1) data.valoare=nr(unique[0])+' €';
+    } else if(leiMatches.length>0){
+        const vals=leiMatches.map(m=>{
             const n=m.match(/=\s*([\d\.]+)/);
-            return n?n[1].replace(/\./g,''):'0';
-        }).map(Number).filter(n=>n>0).sort((a,b)=>a-b);
-        if(vals.length>=2) data.valoare=nr(vals[1])+currency; // Soprema (middle)
-        else if(vals.length===1) data.valoare=nr(vals[0])+currency;
+            return n?parseFloat(n[1].replace(/\./g,'')):0;
+        }).filter(n=>n>0).sort((a,b)=>a-b);
+        const unique=[...new Set(vals)];
+        if(unique.length>=2) data.valoare=nr(unique[1])+' lei';
+        else if(unique.length===1) data.valoare=nr(unique[0])+' lei';
     }
 
-    // Detect tip lucrare
+    // 9. TIP LUCRARE
     const lower=text.toLowerCase();
-    if(lower.includes('terasă bloc')||lower.includes('terasa bloc')||lower.match(/\bbloc\b/)) data.tipLucrare='bloc';
-    else if(lower.includes('vilă')||lower.includes('vila')||lower.includes('casă')||lower.includes('casa')) data.tipLucrare='casă';
-    else if(lower.includes('hală')||lower.includes('hala')||lower.includes('industrial')) data.tipLucrare='hală';
+    if(lower.match(/teras[aă]\s+bloc/)) data.tipLucrare='bloc';
+    else if(lower.match(/teras[aă]\s+(cas[aă]|vil[aă])/)||lower.match(/\b(vil[aă]|cas[aă])\b/)) data.tipLucrare='casă';
+    else if(lower.match(/\b(hal[aă]|industrial[aă]?)\b/)) data.tipLucrare='hală';
     else if(lower.includes('balcon')) data.tipLucrare='balcon';
-    else if(lower.includes('fundație')||lower.includes('fundatie')||lower.includes('soclu')) data.tipLucrare='fundație';
+    else if(lower.match(/\b(funda[tț]ie|soclu|subsol)\b/)) data.tipLucrare='fundație';
+    else if(lower.match(/teras[aă]/)) data.tipLucrare='terasă';
 
     return data;
 }
