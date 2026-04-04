@@ -468,9 +468,11 @@ body{background:#fff!important;color:#000!important;}
 <div class="page" id="page-centralizator">
 <div class="section-title">Centralizator clienți & documente</div>
 <div class="stats-grid" id="statsGrid"></div>
-<div class="search-bar">
-    <input type="text" id="searchInput" placeholder="🔍 Caută client, adresă..." oninput="renderCentral()">
-    <select id="filterStatus" onchange="renderCentral()"><option value="">Toate</option><option value="Trimisă">Trimisă</option><option value="În așteptare">În așteptare</option><option value="Acceptată">Acceptată</option><option value="Respinsă">Respinsă</option></select>
+<div class="search-bar" style="flex-wrap:wrap;gap:8px;">
+    <input type="text" id="searchInput" placeholder="🔍 Caută client, telefon, adresă..." oninput="renderCentral()" style="min-width:200px;flex:1;">
+    <select id="filterStatus" onchange="renderCentral()"><option value="">Toate statusurile</option><option value="Trimisă">Trimisă</option><option value="În așteptare">În așteptare</option><option value="Acceptată">Acceptată</option><option value="Respinsă">Respinsă</option></select>
+    <select id="filterPlata" onchange="renderCentral()"><option value="">Toate plățile</option><option value="Neplătit">Neplătit</option><option value="Plătit">Plătit</option><option value="Parțial">Parțial</option></select>
+    <select id="filterPeriod" onchange="renderCentral()"><option value="">Orice perioadă</option><option value="7">Ultimele 7 zile</option><option value="30">Ultima lună</option><option value="90">Ultimele 3 luni</option><option value="365">Ultimul an</option></select>
     <button class="btn btn-outline btn-sm" onclick="exportCSV()">📥 Export CSV</button>
 </div>
 <div class="tbl-wrap" style="max-height:70vh;overflow:auto;">
@@ -1096,24 +1098,44 @@ const FIELDS=[
     {key:'obs',label:'Obs',type:'text'},
 ];
 
+function parseRoDate(s){
+    if(!s||s==='—')return null;
+    const p=s.split('.');
+    if(p.length!==3)return null;
+    return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));
+}
+function daysAgo(dateStr){
+    const d=parseRoDate(dateStr);
+    if(!d)return 999;
+    return Math.floor((Date.now()-d.getTime())/(1000*60*60*24));
+}
+
 function renderCentral(){
     const all=getAll();
     const search=(document.getElementById('searchInput').value||'').toLowerCase();
     const statusF=document.getElementById('filterStatus').value;
+    const plataF=document.getElementById('filterPlata').value;
+    const periodF=parseInt(document.getElementById('filterPeriod').value||'0');
+    const now=Date.now();
+
     const filtered=all.filter(o=>{
-        const ms=!search||(o.client||'').toLowerCase().includes(search)||(o.obiectiv||'').toLowerCase().includes(search)||(o.obs||'').toLowerCase().includes(search);
+        const ms=!search||(o.client||'').toLowerCase().includes(search)||(o.obiectiv||'').toLowerCase().includes(search)||(o.obs||'').toLowerCase().includes(search)||(o.telefon||'').toLowerCase().includes(search)||(o.email||'').toLowerCase().includes(search)||(o.valoare||'').toLowerCase().includes(search);
         const mst=!statusF||o.oferta===statusF;
-        return ms&&mst;
+        const mpl=!plataF||o.statusPlata===plataF;
+        let mper=true;
+        if(periodF){const d=parseRoDate(o.dataOferta);mper=d&&(now-d.getTime())<periodF*86400000;}
+        return ms&&mst&&mpl&&mper;
     });
 
     // Stats
-    const st={total:all.length,trimise:0,asteptare:0,acceptate:0,respinse:0,contracte:0};
+    const st={total:all.length,trimise:0,asteptare:0,acceptate:0,respinse:0,contracte:0,alerte:0};
     all.forEach(o=>{
         if(o.oferta==='Trimisă')st.trimise++;
         if(o.oferta==='În așteptare')st.asteptare++;
         if(o.oferta==='Acceptată')st.acceptate++;
         if(o.oferta==='Respinsă')st.respinse++;
         if(o.contract&&o.contract!=='—')st.contracte++;
+        if((o.oferta==='Trimisă'||o.oferta==='În așteptare')&&daysAgo(o.dataOferta)>7)st.alerte++;
     });
     document.getElementById('statsGrid').innerHTML=`
         <div class="stat-card"><div class="num">${st.total}</div><div class="lbl">Total clienți</div></div>
@@ -1122,6 +1144,7 @@ function renderCentral(){
         <div class="stat-card"><div class="num" style="color:#2ecc71;">${st.acceptate}</div><div class="lbl">Acceptate</div></div>
         <div class="stat-card"><div class="num" style="color:#e74c3c;">${st.respinse}</div><div class="lbl">Respinse</div></div>
         <div class="stat-card"><div class="num" style="color:#27ae60;">${st.contracte}</div><div class="lbl">Contracte</div></div>
+        ${st.alerte?`<div class="stat-card" style="border:1px solid #e74c3c;"><div class="num" style="color:#e74c3c;">⚠️ ${st.alerte}</div><div class="lbl">Fără răspuns >7 zile</div></div>`:''}
     `;
 
     // Status badge helper
@@ -1149,7 +1172,9 @@ function renderCentral(){
     let html='';
     filtered.forEach((o,idx)=>{
         const realIdx=all.indexOf(o);
-        html+=`<tr>
+        const aging=(o.oferta==='Trimisă'||o.oferta==='În așteptare')&&daysAgo(o.dataOferta)>7;
+        const ageDays=daysAgo(o.dataOferta);
+        html+=`<tr style="${aging?'border-left:3px solid #e74c3c;':''}"
             <td class="col-center">${o.nr||idx+1}</td>
             <td class="editable" ondblclick="editCell(this,${realIdx},'client','text')"><strong>${o.client||'—'}</strong></td>
             <td class="editable" style="font-size:12px;" ondblclick="editCell(this,${realIdx},'telefon','text')">${o.telefon?`<a href="tel:${o.telefon}" style="color:#2ecc71;text-decoration:none;">${o.telefon}</a>`:'<span style="color:#445;">—</span>'}</td>
@@ -1157,7 +1182,7 @@ function renderCentral(){
             <td class="editable" ondblclick="editCell(this,${realIdx},'obiectiv','text')">${o.obiectiv||'—'}</td>
             <td class="editable col-center" ondblclick="editCell(this,${realIdx},'suprafata','text')">${o.suprafata||'—'}</td>
             <td class="editable text-right" style="font-weight:700;color:#C9A84C;" ondblclick="editCell(this,${realIdx},'valoare','text')">${o.valoare||'—'}</td>
-            <td class="editable col-center" ondblclick="editCell(this,${realIdx},'dataOferta','text')">${o.dataOferta||'—'}</td>
+            <td class="editable col-center" ondblclick="editCell(this,${realIdx},'dataOferta','text')">${o.dataOferta||'—'}${aging?`<br><span style="font-size:10px;color:#e74c3c;">⚠️ ${ageDays} zile</span>`:''}</td>
             <td class="editable col-center" ondblclick="editCell(this,${realIdx},'oferta','select')">${stBadge(o.oferta)}</td>
             <td class="col-center">${docCell(realIdx,'contract',o.contract)}</td>
             <td class="col-center">${docCell(realIdx,'deviz',o.deviz)}</td>
@@ -2495,7 +2520,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.4';
+const APP_VERSION='2026.04.04.5';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hc-app-v14';
+const CACHE_NAME = 'hc-app-v15';
 const ASSETS = [
   './',
   './HydroConcept_App.html',
