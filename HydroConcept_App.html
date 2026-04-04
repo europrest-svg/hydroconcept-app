@@ -758,16 +758,9 @@ function updateBadge(){document.getElementById('badgeCount').textContent=getAll(
 // Seed: la prima deschidere, importăm clienții istorici
 function seedData(){
     if(localStorage.getItem('hc_seeded_v5'))return;
-    // v5 — 22 clienți activi din XLSX, înlocuiește tot
-    const existing=JSON.parse(localStorage.getItem('hc_data')||'[]');
+    // v5 — 22 clienți activi, înlocuiește TOTUL (fără merge)
     const seeded=HC.map((c,i)=>({...c,id:1000000+i}));
-    // Merge: keep existing clients that aren't in seed (manually added)
-    const seedNames=new Set(seeded.map(s=>s.client));
-    const extra=existing.filter(e=>!seedNames.has(e.client));
-    // Renumber extras
-    extra.forEach((e,i)=>{e.nr=seeded.length+i+1;});
-    const merged=[...seeded,...extra];
-    saveAll(merged);
+    saveAll(seeded);
     localStorage.setItem('hc_seeded_v5','1');
 }
 
