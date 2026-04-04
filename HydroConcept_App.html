@@ -522,20 +522,20 @@ body{background:#fff!important;color:#000!important;}
             <div style="margin-top:8px;margin-bottom:8px;">
                 <label style="color:#8899aa;font-size:12px;margin-right:10px;">Sistem:</label>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-sistem">
-                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="1 strat membrană bituminoasă SBS" onchange="genConstatare()"> 1 strat SBS</label>
-                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="2 straturi membrană bituminoasă SBS" onchange="genConstatare()"> 2 straturi SBS</label>
-                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="1 strat membrană PVC" onchange="genConstatare()"> 1 strat PVC</label>
+                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="1 strat membrană bituminoasă Novaglass" onchange="genConstatare()"> 1 strat Novaglass</label>
+                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="2 straturi membrană bituminoasă Novaglass" onchange="genConstatare()"> 2 straturi Novaglass</label>
+                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="1 strat membrană bituminoasă Soprema" onchange="genConstatare()"> 1 strat Soprema</label>
+                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="2 straturi membrană bituminoasă Soprema" onchange="genConstatare()"> 2 straturi Soprema</label>
+                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="1 strat membrană bituminoasă Izobit" onchange="genConstatare()"> 1 strat Izobit</label>
+                    <label class="ck-chip"><input type="radio" name="ck-straturi" value="2 straturi membrană bituminoasă Izobit" onchange="genConstatare()"> 2 straturi Izobit</label>
                 </div>
             </div>
             <div style="margin-bottom:8px;">
                 <label style="color:#8899aa;font-size:12px;">Material / Brand:</label>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-material">
-                    <label class="ck-chip"><input type="checkbox" value="Soprema" onchange="genConstatare()"> Soprema</label>
                     <label class="ck-chip"><input type="checkbox" value="Novaglass" onchange="genConstatare()"> Novaglass</label>
-                    <label class="ck-chip"><input type="checkbox" value="Polygum" onchange="genConstatare()"> Polygum</label>
+                    <label class="ck-chip"><input type="checkbox" value="Soprema" onchange="genConstatare()"> Soprema</label>
                     <label class="ck-chip"><input type="checkbox" value="Izobit" onchange="genConstatare()"> Izobit</label>
-                    <label class="ck-chip"><input type="checkbox" value="Sika" onchange="genConstatare()"> Sika</label>
-                    <label class="ck-chip"><input type="checkbox" value="Mapei" onchange="genConstatare()"> Mapei</label>
                 </div>
             </div>
             <div style="margin-bottom:8px;">
@@ -2729,7 +2729,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.8';
+const APP_VERSION='2026.04.04.9';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
