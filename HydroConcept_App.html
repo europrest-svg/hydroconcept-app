@@ -790,6 +790,7 @@ function salveazaOferta(){
     const o={
         nr:all.length+1,id:Date.now(),
         client,obiectiv:v('of-tip')+' — '+v('of-adresa'),
+        telefon:v('of-telefon'),email:v('of-email'),
         suprafata:mp+' mp',valoare:importedVal||valStr,
         dataOferta:importedDate||dataAzi(),
         oferta:'Trimisă',contract:'—',deviz:'—',pv:'—',factura:'—',
@@ -1059,6 +1060,8 @@ function uploadDocForOffer(clientIdx,docType){
 // Câmpurile editabile + tipul lor
 const FIELDS=[
     {key:'client',label:'Client',type:'text'},
+    {key:'telefon',label:'Telefon',type:'text'},
+    {key:'email',label:'Email',type:'text'},
     {key:'obiectiv',label:'Obiectiv',type:'text'},
     {key:'suprafata',label:'Suprafață',type:'text'},
     {key:'valoare',label:'Valoare',type:'text'},
@@ -1139,7 +1142,7 @@ function renderCentral(){
             <td class="col-center">${docCell(realIdx,'factura',o.factura)}</td>
             <td class="editable col-center" ondblclick="editCell(this,${realIdx},'statusPlata','select')">${stBadge(o.statusPlata)}</td>
             <td class="editable" style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}" ondblclick="editCell(this,${realIdx},'obs','text')">${o.obs||'—'}</td>
-            <td style="white-space:nowrap;"><button class="btn-whatsapp" onclick="openWA(${realIdx})" title="WhatsApp">📲</button> <button class="btn btn-blue btn-sm" onclick="showUploadMenu(${realIdx})" title="Atașează document">📎</button> <button class="btn btn-red btn-sm" onclick="stergeOferta(${realIdx})">✕</button></td>
+            <td style="white-space:nowrap;"><button class="btn btn-sm" style="background:${o.telefon?'#27ae60':'#334'};color:#fff;padding:4px 6px;border-radius:6px;border:none;cursor:pointer;" onclick="quickCall(${realIdx})" title="${o.telefon||'Adaugă telefon'}">📞</button> <button class="btn btn-sm" style="background:${o.email?'#2563A8':'#334'};color:#fff;padding:4px 6px;border-radius:6px;border:none;cursor:pointer;" onclick="quickEmail(${realIdx})" title="${o.email||'Adaugă email'}">📧</button> <button class="btn-whatsapp" onclick="openWA(${realIdx})" title="WhatsApp">📲</button> <button class="btn btn-blue btn-sm" onclick="showUploadMenu(${realIdx})" title="Atașează document">📎</button> <button class="btn btn-red btn-sm" onclick="stergeOferta(${realIdx})">✕</button></td>
         </tr>`;
     });
     document.getElementById('centralTbody').innerHTML=html||'<tr><td colspan="14" class="text-center text-muted">Nicio ofertă.</td></tr>';
@@ -1638,6 +1641,25 @@ function openWA(idx){
             const msg=encodeURIComponent(`Bună ziua! Sunt ${F.admin} de la ${F.nume}. Revin cu privire la oferta pentru ${o.obiectiv||'lucrarea discutată'}. Când putem stabili o întâlnire? Mulțumesc!`);
             window.open(`https://wa.me/${ph}?text=${msg}`,'_blank');
         }
+    }
+}
+
+function quickCall(idx){
+    const all=getAll();const o=all[idx];
+    if(o.telefon){
+        window.open('tel:'+o.telefon);
+    } else {
+        const tel=prompt('Telefon client '+o.client+':');
+        if(tel){o.telefon=tel.trim();saveAll(all);renderCentral();toast('📞 Telefon salvat: '+tel.trim());}
+    }
+}
+function quickEmail(idx){
+    const all=getAll();const o=all[idx];
+    if(o.email){
+        window.open('mailto:'+o.email);
+    } else {
+        const em=prompt('Email client '+o.client+':');
+        if(em){o.email=em.trim();saveAll(all);renderCentral();toast('📧 Email salvat: '+em.trim());}
     }
 }
 
