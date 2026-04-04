@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hc-app-v6';
+const CACHE_NAME = 'hc-app-v7';
 const ASSETS = [
   './',
   './HydroConcept_App.html',
@@ -11,7 +11,8 @@ const ASSETS = [
   './portofoliu.html',
   './testimoniale.html',
   'https://unpkg.com/docx@8.5.0/build/index.umd.js',
-  'https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js'
+  'https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js',
+  'https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js'
 ];
 
 // Install — cache all assets

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Hydro Concept — Aplicație de Lucru v3.3</title>
+<title>Hydro Concept — Aplicație de Lucru v3.7</title>
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -17,6 +17,7 @@
 
 <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<script src="https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0a1420;color:#fff;min-height:100vh;}
@@ -359,7 +360,7 @@ body{background:#fff!important;color:#000!important;}
 <body>
 
 <div class="app-header">
-<div class="brand"><img src="logo-white.png" alt="Hydro Concept" class="hc-logo" style="height:48px;"> <small>— Aplicație de Lucru v3.4</small></div>
+<div class="brand"><img src="logo-white.png" alt="Hydro Concept" class="hc-logo" style="height:48px;"> <small>— Aplicație de Lucru v3.7</small></div>
 <div style="display:flex;align-items:center;gap:12px;">
 <button class="theme-toggle" onclick="toggleTheme()" title="Dark/Light">🌓</button>
 <span style="font-size:12px;color:#C9A84C;font-weight:700;">📞 0720 139 220</span>
@@ -395,6 +396,17 @@ body{background:#fff!important;color:#000!important;}
 <!-- ═══════ PAGE 1: OFERTĂ NOUĂ ═══════ -->
 <div class="page" id="page-oferte">
 <div class="section-title">Crează ofertă nouă</div>
+<div class="card" style="background:linear-gradient(135deg,#1a2a45,#111f35);border-color:#C9A84C;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+            <div style="font-size:15px;font-weight:700;color:#C9A84C;margin-bottom:4px;">📎 Importă ofertă din document</div>
+            <div style="font-size:12px;color:#6688aa;">Uploadează DOCX și datele se completează automat (client, suprafață, valoare, adresă)</div>
+        </div>
+        <button class="btn btn-gold" onclick="document.getElementById('importOfertaFile').click()">📄 Alege fișier DOCX</button>
+        <input type="file" id="importOfertaFile" accept=".docx" onchange="importOfertaFromDoc(this)" style="display:none;">
+    </div>
+    <div id="importStatus" style="margin-top:8px;font-size:12px;display:none;"></div>
+</div>
 <div class="card">
     <div class="form-row">
         <div class="form-group"><label>Nume client *</label><input type="text" id="of-client" placeholder="ex: Ion Popescu" list="clientiList"><datalist id="clientiList"></datalist></div>
@@ -780,8 +792,17 @@ function salveazaOferta(){
         statusPlata:'Neplătit',obs:v('of-obs')
     };
     all.unshift(o);saveAll(all);populateAuto();
-    toast('✅ Ofertă salvată! (#'+all.length+')');
-    renderOfertaDocs(0); // index 0 because unshift
+    // Auto-attach imported DOCX file as deviz
+    if(_importedFile){
+        saveDoc(0,'deviz',_importedFile).then(()=>{
+            renderOfertaDocs(0);
+            toast('✅ Ofertă salvată + DOCX atașat ca deviz! (#'+all.length+')');
+        });
+        _importedFile=null;_importedClientIdx=null;
+    } else {
+        toast('✅ Ofertă salvată! (#'+all.length+')');
+        renderOfertaDocs(0);
+    }
 }
 
 // Render doc cards for current offer page
@@ -823,6 +844,154 @@ async function renderOfertaDocs(clientIdx){
         }
     }
     document.getElementById('ofertaDocsGrid').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// IMPORT OFERTĂ DIN DOCX — extrage date automat
+// ═══════════════════════════════════════════════════════
+async function importOfertaFromDoc(input){
+    if(!input.files[0])return;
+    const file=input.files[0];
+    const statusEl=document.getElementById('importStatus');
+    statusEl.style.display='block';
+    statusEl.innerHTML='<span style="color:#C9A84C;">⏳ Se procesează '+file.name+'...</span>';
+
+    try {
+        const arrayBuf=await file.arrayBuffer();
+        const result=await mammoth.extractRawText({arrayBuffer:arrayBuf});
+        const text=result.value;
+
+        // Extract data using patterns
+        const data=parseOfertaText(text);
+
+        // Fill form fields
+        if(data.client) document.getElementById('of-client').value=data.client;
+        if(data.telefon) document.getElementById('of-telefon').value=data.telefon;
+        if(data.email) document.getElementById('of-email').value=data.email;
+        if(data.adresa) document.getElementById('of-adresa').value=data.adresa;
+        if(data.suprafata){
+            document.getElementById('of-mp').value=data.suprafata;
+            calculeazaPreturi();
+        }
+        if(data.straturi){
+            document.getElementById('of-straturi').value=data.straturi;
+            calculeazaPreturi();
+        }
+        if(data.obs) document.getElementById('of-obs').value=data.obs;
+
+        // Try to detect tip lucrare
+        if(data.tipLucrare){
+            const sel=document.getElementById('of-tip');
+            for(let i=0;i<sel.options.length;i++){
+                if(sel.options[i].text.toLowerCase().includes(data.tipLucrare.toLowerCase())){
+                    sel.selectedIndex=i;break;
+                }
+            }
+        }
+
+        // Show summary
+        let summary='<span style="color:#2ecc71;">✅ Date extrase din '+file.name+':</span><br>';
+        if(data.client) summary+='<b>Client:</b> '+data.client+'<br>';
+        if(data.adresa) summary+='<b>Adresă:</b> '+data.adresa+'<br>';
+        if(data.suprafata) summary+='<b>Suprafață:</b> '+data.suprafata+' mp<br>';
+        if(data.valoare) summary+='<b>Valoare:</b> '+data.valoare+'<br>';
+        if(data.telefon) summary+='<b>Telefon:</b> '+data.telefon+'<br>';
+        if(data.email) summary+='<b>Email:</b> '+data.email+'<br>';
+        if(!data.client&&!data.suprafata) summary+='<span style="color:#E87722;">⚠️ Nu am reușit să extrag date. Completează manual.</span>';
+        statusEl.innerHTML=summary;
+
+        // Also store the DOCX file for later
+        _importedFile=file;
+        _importedClientIdx=null;
+    } catch(e){
+        statusEl.innerHTML='<span style="color:#e74c3c;">❌ Eroare la procesare: '+e.message+'</span>';
+    }
+    input.value='';
+}
+let _importedFile=null;
+let _importedClientIdx=null;
+
+function parseOfertaText(text){
+    const data={};
+    const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
+
+    // Find BENEFICIAR → next non-empty line is client name
+    for(let i=0;i<lines.length;i++){
+        if(lines[i].toUpperCase().includes('BENEFICIAR')){
+            for(let j=i+1;j<Math.min(i+5,lines.length);j++){
+                const line=lines[j];
+                if(line.length>2 && !line.includes('PRESTATOR') && !line.includes('Euro-Prest') && !line.includes('Hydro') && !line.includes('OBIECTIV')){
+                    if(!line.match(/^[\d\+\(]/) && !line.includes('@') && !line.match(/^\d+\s*mp/i)){
+                        data.client=line;break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Find subtitle line: "Client Name • XXX mp • N variante"
+    const subtitleMatch=text.match(/(.+?)\s*[•·]\s*(\d+)\s*mp\s*[•·]/);
+    if(subtitleMatch){
+        if(!data.client && subtitleMatch[1].length>3) data.client=subtitleMatch[1].trim();
+        if(!data.suprafata) data.suprafata=parseInt(subtitleMatch[2]);
+    }
+
+    // Find phone — skip HC's own number 0720 139 220
+    const phonePatterns=text.match(/\b(0\d{2,3}[\s\.\-]?\d{3}[\s\.\-]?\d{3,4})\b/g)||[];
+    const clientPhone=phonePatterns.find(p=>!p.replace(/[\s\.\-]/g,'').includes('0720139220'));
+    if(clientPhone) data.telefon=clientPhone.trim();
+
+    // Find email — skip HC's own emails
+    const emailMatches=text.match(/[\w\.\-]+@[\w\.\-]+\.\w+/g)||[];
+    const clientEmail=emailMatches.find(e=>!e.includes('europrest')&&!e.includes('yahoo.com'));
+    if(clientEmail) data.email=clientEmail;
+
+    // Find suprafata (if not found from subtitle)
+    if(!data.suprafata){
+        const supMatch=text.match(/[Ss]uprafat[aă][:\s]*(\d+[\.\d]*)\s*mp/i) ||
+                       text.match(/(\d+)\s*mp\s*[\(—\-–•]/);
+        if(supMatch) data.suprafata=parseInt(supMatch[1]);
+    }
+
+    // Find straturi
+    if(text.match(/2\s*strat/i)) data.straturi='2';
+    else data.straturi='1';
+
+    // Find address
+    const addrMatch=text.match(/(Str\.\s*[^\n•]+)/i) ||
+                    text.match(/(Bd\.\s*[^\n•]+)/i) ||
+                    text.match(/(Calea\s*[^\n•]+)/i) ||
+                    text.match(/(Aleea\s*[^\n•]+)/i);
+    if(addrMatch) data.adresa=addrMatch[1].trim().replace(/\s*[•·].*$/,'');
+
+    if(!data.adresa){
+        const sectorMatch=text.match(/(Sector\s*\d)/i);
+        if(sectorMatch) data.adresa='București, '+sectorMatch[1];
+    }
+
+    // Find total value — "= XX.XXX lei" or "= XX.XXX €"
+    const valMatchesLei=text.match(/=\s*([\d\.]+)\s*lei/g)||[];
+    const valMatchesEur=text.match(/=\s*([\d\.]+)\s*[€]/g)||[];
+    const valMatches=valMatchesLei.length>0?valMatchesLei:valMatchesEur;
+    const currency=valMatchesLei.length>0?' lei':' €';
+    if(valMatches.length>0){
+        const vals=valMatches.map(m=>{
+            const n=m.match(/=\s*([\d\.]+)/);
+            return n?n[1].replace(/\./g,''):'0';
+        }).map(Number).filter(n=>n>0).sort((a,b)=>a-b);
+        if(vals.length>=2) data.valoare=nr(vals[1])+currency; // Soprema (middle)
+        else if(vals.length===1) data.valoare=nr(vals[0])+currency;
+    }
+
+    // Detect tip lucrare
+    const lower=text.toLowerCase();
+    if(lower.includes('terasă bloc')||lower.includes('terasa bloc')||lower.match(/\bbloc\b/)) data.tipLucrare='bloc';
+    else if(lower.includes('vilă')||lower.includes('vila')||lower.includes('casă')||lower.includes('casa')) data.tipLucrare='casă';
+    else if(lower.includes('hală')||lower.includes('hala')||lower.includes('industrial')) data.tipLucrare='hală';
+    else if(lower.includes('balcon')) data.tipLucrare='balcon';
+    else if(lower.includes('fundație')||lower.includes('fundatie')||lower.includes('soclu')) data.tipLucrare='fundație';
+
+    return data;
 }
 
 function uploadDocForOffer(clientIdx,docType){
