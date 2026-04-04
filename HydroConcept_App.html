@@ -516,7 +516,18 @@ body{background:#fff!important;color:#000!important;}
                 <label class="ck-chip"><input type="checkbox" value="evacuare moloz necesară" onchange="genConstatare()"> Evacuare moloz</label>
             </div>
         </div>
-        <!-- 7. Soluție tehnică propusă -->
+        <!-- 7. Tip lucrare / Pachet -->
+        <div style="margin-bottom:12px;">
+            <label style="color:#C9A84C;font-weight:700;font-size:13px;">Tip lucrare:</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="ck-pachet">
+                <label class="ck-chip"><input type="radio" name="ck-pachet" value="Refacere completă hidroizolație (decopertare + montaj nou)" onchange="genConstatare()"> Refacere completă</label>
+                <label class="ck-chip"><input type="radio" name="ck-pachet" value="Reparație locală / parțială pe zona afectată" onchange="genConstatare()"> Reparație locală</label>
+                <label class="ck-chip"><input type="radio" name="ck-pachet" value="Construcție nouă — hidroizolație pe suport nou" onchange="genConstatare()"> Construcție nouă</label>
+                <label class="ck-chip"><input type="radio" name="ck-pachet" value="Supraetajare / aplicare peste hidroizolația existentă" onchange="genConstatare()"> Supraetajare</label>
+                <label class="ck-chip"><input type="radio" name="ck-pachet" value="Întreținere / revizie anuală" onchange="genConstatare()"> Întreținere</label>
+            </div>
+        </div>
+        <!-- 8. Soluție tehnică propusă -->
         <div style="margin-bottom:12px;padding-top:12px;border-top:1px solid #334;">
             <label style="color:#C9A84C;font-weight:700;font-size:14px;">SOLUȚIE TEHNICĂ PROPUSĂ:</label>
             <div style="margin-top:8px;margin-bottom:8px;">
@@ -1448,6 +1459,10 @@ function genConstatare(){
     if(tabla.length) text+='TABLĂ ATIC / COPERTINE: '+tabla.join(', ')+'.\n\n';
     if(scurg.length) text+='GURI DE SCURGERE: '+scurg.join(', ')+'.\n\n';
     if(alte.length) text+='ALTE CONSTATĂRI: '+alte.join(', ')+'.\n\n';
+
+    // Tip lucrare / Pachet
+    const pachetRadio=document.querySelector('input[name="ck-pachet"]:checked');
+    if(pachetRadio) text+='TIP LUCRARE: '+pachetRadio.value+'.\n\n';
 
     // Soluție tehnică
     const stratRadio=document.querySelector('input[name="ck-straturi"]:checked');
@@ -2729,7 +2744,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.9';
+const APP_VERSION='2026.04.04.10';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
