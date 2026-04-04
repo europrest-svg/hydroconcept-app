@@ -1689,6 +1689,21 @@ function genereazaDOCX(){
         ]})]})]});
     }
 
+    // CONSTATARE TEREN SECTION
+    function makeConstatareSection(){
+        const constatareText=genConstatare();
+        // Dacă nu are nimic bifat, nu adăugăm secțiunea
+        const hasContent=document.querySelectorAll('#constatareBody input:checked').length>0;
+        if(!hasContent) return [];
+        const paragraphs=constatareText.split('\n\n').filter(p=>p.trim());
+        const elements=[...secTitle('CONSTATARE TEREN'),sp(60)];
+        paragraphs.forEach(para=>{
+            elements.push(new D.Paragraph({spacing:{before:80,after:80},children:[R(para,{size:21})]}));
+        });
+        elements.push(sp(200));
+        return elements;
+    }
+
     // BUILD DOCUMENT
     const doc=new D.Document({
         styles:{default:{document:{run:{font:'Calibri',size:21,color:TEXT}}}},
@@ -1708,12 +1723,23 @@ function genereazaDOCX(){
                     new D.TableCell({borders:{top:{style:D.BorderStyle.SINGLE,size:6,color:BLUE},bottom:bLight,left:bLight,right:bLight},shading:{fill:BLUE_BG,type:D.ShadingType.CLEAR},margins:{top:140,bottom:140,left:200,right:200},width:{size:4680,type:D.WidthType.DXA},
                         children:[new D.Paragraph({children:[R('BENEFICIAR',{bold:true,size:19,color:BLUE_DARK})]}),new D.Paragraph({spacing:{before:60},children:[R(client,{bold:true,size:24})]}),telefon?new D.Paragraph({spacing:{before:40},children:[R('📞 '+telefon,{size:20})]}):sp(0),emailCl?new D.Paragraph({spacing:{before:20},children:[R('📧 '+emailCl,{size:20})]}):sp(0),adresa?new D.Paragraph({spacing:{before:20},children:[R('📍 '+adresa,{size:20})]}):sp(0)]}),
                     new D.TableCell({borders:{top:{style:D.BorderStyle.SINGLE,size:6,color:ORANGE},bottom:bLight,left:bLight,right:bLight},shading:{fill:'FFFDF0',type:D.ShadingType.CLEAR},margins:{top:140,bottom:140,left:200,right:200},width:{size:4680,type:D.WidthType.DXA},
-                        children:[new D.Paragraph({children:[R('DETALII LUCRARE',{bold:true,size:19,color:BLUE_DARK})]}),new D.Paragraph({spacing:{before:60},children:[R(tip,{bold:true,size:24})]}),new D.Paragraph({spacing:{before:40},children:[R('Suprafață: '+mp+' mp'+(str===2?' × 2 straturi':''),{size:20})]}),new D.Paragraph({spacing:{before:20},children:[R('Data ofertei: '+dataAzi(),{size:20})]}),new D.Paragraph({spacing:{before:20},children:[R('Valabilitate: 30 zile',{size:20,color:ORANGE,bold:true})]})]})
+                        children:[new D.Paragraph({children:[R('DETALII LUCRARE',{bold:true,size:19,color:BLUE_DARK})]}),new D.Paragraph({spacing:{before:60},children:[R(tip,{bold:true,size:24})]}),adresa?new D.Paragraph({spacing:{before:30},children:[R('Înlocuire hidroizolație — '+adresa,{size:19,color:TEXT_MID})]}):sp(0),new D.Paragraph({spacing:{before:40},children:[R('Suprafață: '+mp+' mp (aprox.)'+(str===2?' × 2 straturi':''),{size:20})]}),new D.Paragraph({spacing:{before:20},children:[R('Data ofertei: '+dataAzi(),{size:20})]}),new D.Paragraph({spacing:{before:20},children:[R('Valabilitate: 30 zile',{size:20,color:ORANGE,bold:true})]})]})
                 ]})]}),
                 sp(200),
 
                 ...secTitle('DE CE SĂ ALEGEȚI SERVICIILE NOASTRE?'),sp(100),makeBenefits(),sp(200),
                 ...secTitle('COMPARAȚIE PREȚURI'),sp(100),makePriceTable(),sp(200),
+                // IZOBIT GOLD — SECȚIUNE DEDICATĂ
+                ...secTitle('IZOBIT GOLD – SISTEM SUPERIOR PREMIUM'),sp(60),
+                new D.Paragraph({spacing:{before:80,after:60},children:[R('Specificații tehnice Izobit Gold 25 250 S 52 SBS',{bold:true,size:23,color:GOLD})]}),
+                checkBullet('Grosime reală 5.2mm – strat final premium'),
+                checkBullet('Armare poliester + fibră de sticlă – stabilitate dimensională ridicată'),
+                checkBullet('Forță rupere: 1200 N / 50mm'),
+                checkBullet('Reacție la foc: Broof (t1, t2, t3)'),
+                checkBullet('Flexibilitate la rece −20°C (SBS)'),
+                checkBullet('Garanție: 15 ani  •  Durată de viață estimată: 25 ani'),
+                sp(200),
+
                 ...secTitle('COMPARAȚIE DETALIATĂ – 3 SISTEME'),sp(100),makeCompareTable(),sp(200),
                 ...secTitle('ETAPELE LUCRĂRILOR'),sp(100),makeSteps(),sp(200),
 
@@ -1726,6 +1752,9 @@ function genereazaDOCX(){
                 checkBullet('Suprapuneri longitudinale: 100mm – sudate cu flacără și presate cu rolă de 13-15kg'),
                 checkBullet('Suprapuneri transversale: 150mm – sudate cu flacără și presate cu rolă de 13-15kg'),
                 sp(200),
+
+                // CONSTATARE TEREN (dacă există)
+                ...makeConstatareSection(),
 
                 ...secTitle('CONDIȚII GENERALE'),sp(60),
                 new D.Paragraph({spacing:{before:60,after:60},children:[R('• Prețurile includ manoperă, materiale și transport la șantier',{size:21})]}),
@@ -2761,7 +2790,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.11';
+const APP_VERSION='2026.04.04.12';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
