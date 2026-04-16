@@ -178,6 +178,25 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .output-box{background:#0a1525;border-radius:10px;padding:18px;white-space:pre-wrap;font-size:13px;line-height:1.6;color:#ddeeff;max-height:400px;overflow-y:auto;margin-top:10px;}
 .email-sub{background:#1B3A6B;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:12px;color:#C9A84C;font-weight:600;}
 
+/* CLIENT CARDS IN MESAJE */
+.mc-card{background:#111f35;border:1px solid #1B3A6B;border-radius:10px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:.2s;}
+.mc-card:hover{border-color:#C9A84C;background:#162540;}
+.mc-card.mc-selected{border-color:#C9A84C;background:#1a2a45;box-shadow:0 0 10px rgba(201,168,76,.12);}
+.mc-top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.mc-name{font-size:14px;font-weight:700;color:#fff;}
+.mc-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.mc-badge-sent{background:#f39c12;color:#fff;}
+.mc-badge-wait{background:#3498db;color:#fff;}
+.mc-badge-ok{background:#27ae60;color:#fff;}
+.mc-badge-no{background:#e74c3c;color:#fff;}
+.mc-details{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:11px;color:#6688aa;}
+.mc-details span{display:flex;align-items:center;gap:3px;}
+.mc-days{font-size:10px;margin-top:4px;}
+.mc-days.mc-old{color:#e74c3c;font-weight:700;}
+.mc-days.mc-ok{color:#27ae60;}
+.mc-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.mc-actions .btn{font-size:11px;padding:5px 12px;}
+
 .hidden{display:none!important;}
 .toast{position:fixed;bottom:25px;right:25px;background:#27ae60;color:#fff;padding:12px 22px;border-radius:10px;font-weight:600;font-size:13px;opacity:0;transition:opacity .3s;z-index:999;}
 .toast.show{opacity:1;}
@@ -254,6 +273,39 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .lightbox img{max-width:90%;max-height:85%;border-radius:8px;}
 .lightbox .lb-close{position:absolute;top:15px;right:20px;font-size:28px;color:#fff;cursor:pointer;}
 .lightbox .lb-info{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;text-align:center;font-size:13px;}
+/* PIPELINE KANBAN */
+.pipe-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.pipe-stat{flex:1;min-width:80px;background:#111f35;border-radius:8px;padding:10px;text-align:center;border-top:3px solid #1B3A6B;}
+.pipe-stat .ps-num{font-size:22px;font-weight:800;}
+.pipe-stat .ps-val{font-size:10px;color:#6688aa;margin-top:2px;}
+.pipe-stat .ps-lbl{font-size:10px;color:#8899aa;margin-top:4px;font-weight:600;}
+.pipe-board{display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch;}
+.pipe-col{min-width:220px;max-width:260px;flex:1;background:#0d1825;border-radius:10px;border:1px solid #1a2a40;display:flex;flex-direction:column;}
+.pipe-col-hdr{padding:10px 12px;border-radius:10px 10px 0 0;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;}
+.pipe-col-hdr .pc-count{font-size:18px;}
+.pipe-col-body{padding:6px 8px;flex:1;min-height:80px;}
+.pipe-card{background:#111f35;border:1px solid #1B3A6B;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:grab;transition:.2s;position:relative;}
+.pipe-card:hover{border-color:#C9A84C;background:#162540;}
+.pipe-card.dragging{opacity:.4;transform:scale(.95);}
+.pipe-card .pc-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px;}
+.pipe-card .pc-obj{font-size:11px;color:#6688aa;}
+.pipe-card .pc-val{font-size:12px;font-weight:700;color:#C9A84C;margin-top:4px;}
+.pipe-card .pc-days{font-size:10px;margin-top:3px;}
+.pipe-card .pc-move{display:flex;gap:4px;margin-top:6px;}
+.pipe-card .pc-move button{background:#1B3A6B;border:none;color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-weight:700;}
+.pipe-card .pc-move button:hover{background:#C9A84C;color:#0D1B2A;}
+.pipe-drop-zone{min-height:40px;border:2px dashed transparent;border-radius:8px;transition:.2s;}
+.pipe-drop-zone.drag-over{border-color:#C9A84C;background:rgba(201,168,76,.08);}
+@media(max-width:700px){.pipe-board{flex-direction:column;}.pipe-col{min-width:100%;max-width:100%;}}
+
+.foto-tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px;}
+.foto-tag-inainte{background:#3498db;color:#fff;}
+.foto-tag-proces{background:#e67e22;color:#fff;}
+.foto-tag-dupa{background:#27ae60;color:#fff;}
+.foto-tag-detaliu{background:#9b59b6;color:#fff;}
+.foto-tag-problema{background:#e74c3c;color:#fff;}
+.qp-thumb{width:80px;height:80px;object-fit:cover;border-radius:6px;border:2px solid #1B3A6B;}
+.gallery-info .gi-tag{margin-top:2px;}
 
 /* PROFIT */
 .profit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
@@ -276,6 +328,10 @@ body.light .cal-nav button{background:#2563A8;}
 body.light .gallery-item{background:#fff;border-color:#ddd;}
 body.light .gallery-info .gi-name{color:#1a202c;}
 body.light .gallery-upload{background:#fafafa;border-color:#ddd;}
+body.light .pipe-col{background:#f8f9fa;border-color:#ddd;}
+body.light .pipe-card{background:#fff;border-color:#e0e0e0;}
+body.light .pipe-card .pc-name{color:#1a202c;}
+body.light .pipe-stat{background:#fff;border-color:#ddd;}
 body.light .profit-card{background:#fff;border-color:#ddd;}
 body.light .profit-row{border-color:#eee;}
 
@@ -382,6 +438,7 @@ body{background:#fff!important;color:#000!important;}
 <button class="tab" onclick="showPage('profit')">💹 Profit</button>
 <button class="tab" onclick="showPage('mesaje')">📧 Mesaje</button>
 <button class="tab" onclick="showPage('calculator')">🔢 Calculator</button>
+<button class="tab" onclick="showPage('pipeline')">📈 Pipeline</button>
 <button class="tab" onclick="showPage('setari')">⚙️ Setări</button>
 </div>
 
@@ -681,23 +738,103 @@ body{background:#fff!important;color:#000!important;}
 
 <!-- ═══════ PAGE: CALENDAR ═══════ -->
 <div class="page" id="page-calendar">
-<div class="section-title">Calendar lucrări</div>
+<div class="section-title">Calendar lucrări & programare echipe</div>
+<!-- Echipe -->
+<div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:13px;font-weight:700;color:#C9A84C;">👷 Echipe:</div>
+        <div id="echipeChips" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        <button class="btn btn-outline btn-sm" onclick="addEchipa()">+ Echipă nouă</button>
+    </div>
+</div>
 <div class="card">
     <div class="cal-header">
-        <button class="cal-nav"><button onclick="calNav(-1)">◀</button></button>
+        <div class="cal-nav"><button onclick="calNav(-1)">◀</button></div>
         <h3 id="calTitle"></h3>
         <div class="cal-nav"><button onclick="calNav(-1)">◀</button><button onclick="calNav(0)">Azi</button><button onclick="calNav(1)">▶</button></div>
     </div>
     <div class="cal-grid" id="calGrid"></div>
 </div>
+<!-- Adaugă lucrare -->
+<div class="card mt10" id="addLucrareCard" style="display:none;border-color:#2ecc71;">
+    <div class="section-title" style="font-size:13px;">➕ Programează lucrare</div>
+    <div class="form-row">
+        <div class="form-group"><label>Data</label><input type="text" id="prog-data" placeholder="dd.mm.yyyy" readonly></div>
+        <div class="form-group"><label>Client</label><input type="text" id="prog-client" placeholder="Nume client" list="clientiList"></div>
+        <div class="form-group"><label>Echipa</label><select id="prog-echipa"></select></div>
+    </div>
+    <div class="form-row">
+        <div class="form-group"><label>Adresa</label><input type="text" id="prog-adresa" placeholder="Adresa lucrării"></div>
+        <div class="form-group" style="max-width:100px;"><label>Ore</label><input type="text" id="prog-ore" placeholder="08-17"></div>
+        <div class="form-group"><label>Detalii</label><input type="text" id="prog-detalii" placeholder="ex: Montaj membrană etaj 2"></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <button class="btn btn-green btn-sm" onclick="saveLucrare()">💾 Salvează</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('addLucrareCard').style.display='none'">✕ Anulează</button>
+    </div>
+</div>
+<!-- Lista zilei -->
+<div class="card mt10" id="dayDetailCard" style="display:none;">
+    <div class="section-title" style="font-size:13px;">📋 Programare <span id="dayDetailTitle"></span></div>
+    <div id="dayDetailList"></div>
+</div>
 </div>
 
 <!-- ═══════ PAGE: GALERIE ═══════ -->
 <div class="page" id="page-galerie">
-<div class="section-title">Galerie foto lucrări</div>
-<div class="form-row" style="margin-bottom:15px;">
-    <div class="form-group"><label>Filtru client</label><select id="galFilter" onchange="renderGalerie()"><option value="">Toate</option></select></div>
+<div class="section-title">📸 Poze teren & galerie lucrări</div>
+
+<!-- CAMERĂ RAPIDĂ -->
+<div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-gold" onclick="document.getElementById('camInput').click()" style="font-size:15px;padding:12px 24px;">📷 FOTOGRAFIAZĂ</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('photoInput').click()">📁 Din galerie</button>
+        <input type="file" id="camInput" accept="image/*" capture="environment" multiple onchange="quickPhoto(this)" style="display:none;">
+        <input type="file" id="photoInput" accept="image/*" multiple onchange="quickPhoto(this)" style="display:none;">
+    </div>
+    <div id="quickPhotoForm" style="display:none;margin-top:12px;">
+        <div class="form-row">
+            <div class="form-group" style="flex:2;"><label>Client</label><select id="foto-client"><option value="">— Alege client —</option></select></div>
+            <div class="form-group" style="max-width:150px;">
+                <label>Etapă</label>
+                <select id="foto-tag">
+                    <option value="înainte">📋 Înainte</option>
+                    <option value="proces">🔨 În lucru</option>
+                    <option value="după">✅ După</option>
+                    <option value="detaliu">🔍 Detaliu</option>
+                    <option value="problemă">⚠️ Problemă</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Descriere</label><input type="text" id="foto-desc" placeholder="ex: Fisură membrană zona nord"></div>
+        </div>
+        <div id="quickPhotoPreview" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;"></div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-green btn-sm" onclick="saveQuickPhotos()">💾 Salvează pozele</button>
+            <button class="btn btn-outline btn-sm" onclick="cancelQuickPhotos()">✕ Anulează</button>
+        </div>
+    </div>
 </div>
+
+<!-- FILTRE -->
+<div class="card" style="margin-bottom:12px;padding:12px 16px;">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <select id="galFilter" onchange="renderGalerie()" style="min-width:160px;">
+            <option value="">Toți clienții</option>
+        </select>
+        <select id="galTagFilter" onchange="renderGalerie()" style="min-width:120px;">
+            <option value="">Toate etapele</option>
+            <option value="înainte">📋 Înainte</option>
+            <option value="proces">🔨 În lucru</option>
+            <option value="după">✅ După</option>
+            <option value="detaliu">🔍 Detaliu</option>
+            <option value="problemă">⚠️ Problemă</option>
+        </select>
+        <span id="galCount" style="font-size:11px;color:#6688aa;margin-left:auto;"></span>
+    </div>
+</div>
+
 <div class="gallery-grid" id="galleryGrid"></div>
 <div id="lightboxArea"></div>
 </div>
@@ -711,6 +848,25 @@ body{background:#fff!important;color:#000!important;}
 
 <!-- ═══════ PAGE 3: MESAJE ═══════ -->
 <div class="page" id="page-mesaje">
+<!-- LISTA CLIENȚI CU OFERTE & TERMENE -->
+<div class="section-title">📋 Clienți — oferte & termene</div>
+<div class="card" style="margin-bottom:8px;">
+    <div class="form-row" style="margin-bottom:0;">
+        <div class="form-group" style="flex:2;"><input type="text" id="msgSearch" placeholder="🔍 Caută client..." oninput="renderMsgClients()"></div>
+        <div class="form-group" style="max-width:160px;">
+            <select id="msgFilter" onchange="renderMsgClients()">
+                <option value="">Toate</option>
+                <option value="Trimisă">Trimisă</option>
+                <option value="În așteptare">În așteptare</option>
+                <option value="Acceptată">Acceptată</option>
+                <option value="Respinsă">Respinsă</option>
+            </select>
+        </div>
+    </div>
+</div>
+<div id="msgClientsList" style="max-height:420px;overflow-y:auto;margin-bottom:18px;"></div>
+
+<hr style="border-color:#1B3A6B;margin:18px 0;">
 <div class="section-title">1. Alege tipul de mesaj</div>
 <div class="tip-grid">
     <div class="tip-btn active" data-tip="oferta" onclick="selectTip(this)"><div class="icon">💰</div><div class="label">Ofertă</div></div>
@@ -772,6 +928,13 @@ body{background:#fff!important;color:#000!important;}
     <div class="pin-err" id="pinErr"></div>
     <div class="pin-hint">PIN implicit: 1234</div>
 </div>
+</div>
+
+<!-- ═══════ PAGE: PIPELINE ═══════ -->
+<div class="page" id="page-pipeline">
+<div class="section-title">📈 Pipeline vizual — Kanban</div>
+<div class="pipe-stats" id="pipeStats"></div>
+<div class="pipe-board" id="pipeBoard"></div>
 </div>
 
 <!-- ═══════ PAGE: SETĂRI ═══════ -->
@@ -928,6 +1091,8 @@ function showPage(name){
     if(name==='calendar') renderCalendar();
     if(name==='galerie') renderGalerie();
     if(name==='profit') renderProfit();
+    if(name==='mesaje') renderMsgClients();
+    if(name==='pipeline') renderPipeline();
     if(name==='setari'){loadPinSetting();document.getElementById('lastBackupTime').textContent=localStorage.getItem('hc_last_backup')||'Niciodată';generateQR();}
 }
 
@@ -1600,7 +1765,7 @@ function renderZone(){
         }
 
         const mp=calcZona(z);
-        html+=`<span style="color:${c};font-weight:700;font-size:14px;min-width:80px;text-align:right;">${mp.toFixed(1)} mp</span>`;
+        html+=`<span id="zmp_${z.id}" style="color:${c};font-weight:700;font-size:14px;min-width:80px;text-align:right;">${mp.toFixed(1)} mp</span>`;
         html+=`</div></div>`;
     });
     container.innerHTML=html||'<p style="color:#445;font-size:12px;text-align:center;">Adaugă zone cu butoanele de mai sus</p>';
@@ -1630,21 +1795,10 @@ function calcZona(z){
 }
 
 function calcTotalMp(){
-    // Save current values before re-render
+    // Update mp labels inline — NO re-render, just update numbers
     _zone.forEach(z=>{
-        if(z.tip==='dreptunghi'){z.vals={lung:getZVal(z.id,'lung'),lat:getZVal(z.id,'lat')};}
-        else if(z.tip==='triunghi'){z.vals={baza:getZVal(z.id,'baza'),h:getZVal(z.id,'h')};}
-        else if(z.tip==='trapez'){z.vals={B:getZVal(z.id,'B'),b:getZVal(z.id,'b'),h:getZVal(z.id,'h')};}
-        else if(z.tip==='cerc'){z.vals={r:getZVal(z.id,'r'),semi:document.getElementById('zs_'+z.id+'_semi')?.checked||false};}
-        else if(z.tip==='l-shape'){z.vals={L1:getZVal(z.id,'L1'),l1:getZVal(z.id,'l1'),L2:getZVal(z.id,'L2'),l2:getZVal(z.id,'l2')};}
-    });
-    renderZone();
-    // Restore values after render
-    _zone.forEach(z=>{
-        Object.entries(z.vals).forEach(([k,v])=>{
-            if(k==='semi'){const el=document.getElementById('zs_'+z.id+'_semi');if(el)el.checked=v;}
-            else{const el=document.getElementById('zi_'+z.id+'_'+k);if(el&&v)el.value=v;}
-        });
+        const mpEl=document.getElementById('zmp_'+z.id);
+        if(mpEl) mpEl.textContent=calcZona(z).toFixed(1)+' mp';
     });
     const total=_zone.reduce((s,z)=>s+calcZona(z),0);
     document.getElementById('totalMpCalc').textContent=Math.round(total*10)/10;
@@ -1676,7 +1830,95 @@ function calcRapid(){
 }
 
 // ═══════════════════════════════════════════════════════
-// MESAJE
+// MESAJE — LISTA CLIENȚI
+// ═══════════════════════════════════════════════════════
+function parseRoDateMsg(d){if(!d||d==='—')return null;const p=d.split('.');if(p.length!==3)return null;return new Date(+p[2],+p[1]-1,+p[0]);}
+function daysAgoMsg(d){const dt=parseRoDateMsg(d);if(!dt)return null;return Math.floor((Date.now()-dt.getTime())/86400000);}
+
+function renderMsgClients(){
+    const all=getAll();
+    const q=(document.getElementById('msgSearch').value||'').toLowerCase();
+    const filt=document.getElementById('msgFilter').value;
+    let list=all.filter(o=>{
+        if(q&&!(o.client||'').toLowerCase().includes(q)&&!(o.obiectiv||'').toLowerCase().includes(q)&&!(o.telefon||'').includes(q))return false;
+        if(filt&&o.oferta!==filt)return false;
+        return true;
+    });
+    // Sort by date descending
+    list.sort((a,b)=>{const da=parseRoDateMsg(a.dataOferta),db=parseRoDateMsg(b.dataOferta);if(!da)return 1;if(!db)return -1;return db-da;});
+
+    let html='';
+    list.forEach(o=>{
+        const days=daysAgoMsg(o.dataOferta);
+        const badgeCls=o.oferta==='Trimisă'?'mc-badge-sent':o.oferta==='În așteptare'?'mc-badge-wait':o.oferta==='Acceptată'?'mc-badge-ok':'mc-badge-no';
+        const plataCls=o.statusPlata==='Plătit'?'color:#27ae60':o.statusPlata==='Parțial'?'color:#f39c12':'color:#e74c3c';
+        let daysText='';
+        if(days!==null){
+            if(days===0)daysText='<span class="mc-days mc-ok">📅 Azi</span>';
+            else if(days<=7)daysText=`<span class="mc-days mc-ok">📅 acum ${days} zile</span>`;
+            else daysText=`<span class="mc-days mc-old">⚠️ acum ${days} zile — fără răspuns!</span>`;
+        }
+        const tel=(o.telefon||'').replace(/\s/g,'');
+        const hasTel=tel.length>=6;
+
+        html+=`<div class="mc-card" onclick="selectMsgClient(this,'${(o.client||'').replace(/'/g,"\\'")}','${tel}',${o.id})">
+            <div class="mc-top">
+                <div class="mc-name">${o.client||'—'}</div>
+                <span class="mc-badge ${badgeCls}">${o.oferta||'—'}</span>
+            </div>
+            <div class="mc-details">
+                <span>📍 ${o.obiectiv||'—'}</span>
+                <span>📐 ${o.suprafata||'—'}</span>
+                <span>💰 ${o.valoare||'—'}</span>
+                <span style="${plataCls}">💳 ${o.statusPlata||'—'}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-top:4px;">
+                <div>${daysText} ${o.dataOferta&&o.dataOferta!=='—'?'<span style="font-size:10px;color:#445;">('+o.dataOferta+')</span>':''}</div>
+                ${o.contract&&o.contract!=='—'?'<span style="font-size:10px;color:#27ae60;">📝 Contract: '+o.contract+'</span>':''}
+                ${o.deviz&&o.deviz!=='—'?'<span style="font-size:10px;color:#4A9EF5;">📋 Deviz: '+o.deviz+'</span>':''}
+            </div>
+            <div class="mc-actions">
+                ${hasTel?`<button class="btn btn-green btn-sm" onclick="event.stopPropagation();openWhatsApp('${tel}','${(o.client||'').replace(/'/g,"\\'")}')">📱 WhatsApp</button>`:''}
+                ${hasTel?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();window.open('tel:${tel}')">📞 Sună</button>`:''}
+                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();useMsgClient('${(o.client||'').replace(/'/g,"\\'")}',${parseInt(o.suprafata)||0})">✉️ Mesaj</button>
+            </div>
+        </div>`;
+    });
+    if(!list.length)html='<div style="text-align:center;color:#445;padding:20px;font-size:13px;">Niciun client găsit.</div>';
+    document.getElementById('msgClientsList').innerHTML=html;
+}
+
+function selectMsgClient(el,name,tel,id){
+    document.querySelectorAll('.mc-card').forEach(c=>c.classList.remove('mc-selected'));
+    el.classList.add('mc-selected');
+}
+
+function openWhatsApp(tel,name){
+    // Clean phone number, add country code if needed
+    let phone=tel.replace(/[^0-9+]/g,'');
+    if(phone.startsWith('0'))phone='4'+phone; // Romania: 0xxx → 40xxx
+    if(!phone.startsWith('+')&&!phone.startsWith('4'))phone='40'+phone;
+    // Quick template based on selected tip
+    const tip=tipM||'oferta';
+    let text='';
+    switch(tip){
+        case'oferta':text=`Bună ziua, ${name}! 👋\nSunt de la Hydro Concept.\nV-am trimis o ofertă de hidroizolație. Ați avut timp să o analizați?\n\n${F.admin}\n📞 ${F.tel}`;break;
+        case'followup':text=`Bună ziua, ${name}! 😊\nRevin cu privire la oferta de hidroizolație.\nAveți întrebări?\n\n${F.admin}\n📞 ${F.tel}`;break;
+        case'programare':text=`Bună ziua, ${name}! ✅\nDoresc să confirm programarea.\nCând vă este convenabil?\n\n${F.admin}\n📞 ${F.tel}`;break;
+        default:text=`Bună ziua, ${name}!\n\n${F.admin}\n📞 ${F.tel}`;
+    }
+    window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(text),'_blank');
+}
+
+function useMsgClient(name,mp){
+    document.getElementById('msg-client').value=name;
+    if(mp>0)document.getElementById('msg-mp').value=mp;
+    document.getElementById('msg-client').scrollIntoView({behavior:'smooth'});
+    toast('✅ Client selectat: '+name);
+}
+
+// ═══════════════════════════════════════════════════════
+// MESAJE — TEMPLATE-URI
 // ═══════════════════════════════════════════════════════
 let tipM='oferta',fmtM='whatsapp';
 function selectTip(el){document.querySelectorAll('.tip-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipM=el.dataset.tip;updMsgForm();}
@@ -1702,6 +1944,118 @@ function genMesaj(){
     document.getElementById('msgOutput').scrollIntoView({behavior:'smooth'});
 }
 function copyMsg(){const sub=document.getElementById('msgSub');let txt='';if(!sub.classList.contains('hidden'))txt=sub.textContent.replace('📧 Subiect: ','Subiect: ')+'\n\n';txt+=document.getElementById('msgText').textContent;navigator.clipboard.writeText(txt).then(()=>toast('✅ Copiat!'));}
+
+// ═══════════════════════════════════════════════════════
+// PIPELINE KANBAN
+// ═══════════════════════════════════════════════════════
+const PIPE_STAGES=[
+    {id:'lead',name:'Lead',icon:'🎯',color:'#6c5ce7',desc:'Contact inițial'},
+    {id:'oferta',name:'Ofertă',icon:'💰',color:'#e67e22',desc:'Ofertă trimisă'},
+    {id:'negociere',name:'Negociere',icon:'🤝',color:'#3498db',desc:'În așteptare/discuții'},
+    {id:'contract',name:'Contract',icon:'📝',color:'#C9A84C',desc:'Acceptat + contract'},
+    {id:'lucru',name:'În lucru',icon:'🔨',color:'#e74c3c',desc:'Lucrare activă'},
+    {id:'finalizat',name:'Finalizat',icon:'✅',color:'#27ae60',desc:'PV semnat'}
+];
+
+function getClientStage(o){
+    if(o.pv && o.pv!=='—') return 'finalizat';
+    if(o.deviz && o.deviz!=='—' && o.deviz!=='') return 'lucru';
+    if(o.contract && o.contract!=='—' && o.contract!=='') return 'contract';
+    if(o.oferta==='Acceptată') return 'contract';
+    if(o.oferta==='În așteptare') return 'negociere';
+    if(o.oferta==='Trimisă') return 'oferta';
+    if(o.oferta==='Respinsă') return 'lead'; // respins revine la lead
+    return 'lead';
+}
+
+function moveToStage(clientId, newStage){
+    const all=getAll();
+    const idx=all.findIndex(o=>o.id===clientId);
+    if(idx===-1)return;
+    const o=all[idx];
+    // Update fields based on stage
+    switch(newStage){
+        case 'lead': o.oferta='—'; o.contract='—'; o.deviz='—'; o.pv='—'; break;
+        case 'oferta': o.oferta='Trimisă'; break;
+        case 'negociere': o.oferta='În așteptare'; break;
+        case 'contract': o.oferta='Acceptată'; if(o.contract==='—'||!o.contract)o.contract='Da'; break;
+        case 'lucru': o.oferta='Acceptată'; if(o.contract==='—'||!o.contract)o.contract='Da'; if(o.deviz==='—'||!o.deviz)o.deviz='Emis'; break;
+        case 'finalizat': o.oferta='Acceptată'; if(o.contract==='—'||!o.contract)o.contract='Da'; if(o.deviz==='—'||!o.deviz)o.deviz='Emis'; if(o.pv==='—'||!o.pv)o.pv='Semnat'; break;
+    }
+    saveAll(all);
+    renderPipeline();
+    toast('✅ '+o.client+' → '+PIPE_STAGES.find(s=>s.id===newStage).name);
+}
+
+function parseValPipe(v){if(!v||v==='—')return 0;const n=v.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');return parseFloat(n)||0;}
+
+function renderPipeline(){
+    const all=getAll();
+    const grouped={};
+    PIPE_STAGES.forEach(s=>grouped[s.id]=[]);
+    all.forEach(o=>{
+        const stage=getClientStage(o);
+        if(grouped[stage])grouped[stage].push(o);
+    });
+
+    // Stats
+    let statsHTML='';
+    PIPE_STAGES.forEach(s=>{
+        const items=grouped[s.id];
+        const val=items.reduce((sum,o)=>sum+parseValPipe(o.valoare),0);
+        statsHTML+=`<div class="pipe-stat" style="border-top-color:${s.color};">
+            <div class="ps-num" style="color:${s.color};">${items.length}</div>
+            ${val>0?`<div class="ps-val">${nr(Math.round(val))} lei</div>`:''}
+            <div class="ps-lbl">${s.icon} ${s.name}</div>
+        </div>`;
+    });
+    document.getElementById('pipeStats').innerHTML=statsHTML;
+
+    // Board
+    let boardHTML='';
+    PIPE_STAGES.forEach((s,si)=>{
+        const items=grouped[s.id];
+        boardHTML+=`<div class="pipe-col">
+            <div class="pipe-col-hdr" style="background:${s.color};color:#fff;">
+                <span>${s.icon} ${s.name}</span>
+                <span class="pc-count">${items.length}</span>
+            </div>
+            <div class="pipe-col-body pipe-drop-zone" data-stage="${s.id}"
+                ondragover="event.preventDefault();this.classList.add('drag-over')"
+                ondragleave="this.classList.remove('drag-over')"
+                ondrop="pipeDrop(event,'${s.id}');this.classList.remove('drag-over')">`;
+
+        items.forEach(o=>{
+            const days=daysAgoMsg(o.dataOferta);
+            const daysClass=days!==null&&days>7?'color:#e74c3c;font-weight:700':'color:#27ae60';
+            const daysText=days!==null?(days===0?'Azi':'acum '+days+' zile'):'';
+            const prevStage=si>0?PIPE_STAGES[si-1]:null;
+            const nextStage=si<PIPE_STAGES.length-1?PIPE_STAGES[si+1]:null;
+
+            boardHTML+=`<div class="pipe-card" draggable="true" data-id="${o.id}"
+                ondragstart="event.dataTransfer.setData('text/plain','${o.id}');this.classList.add('dragging')"
+                ondragend="this.classList.remove('dragging')">
+                <div class="pc-name">${o.client||'—'}</div>
+                <div class="pc-obj">📍 ${o.obiectiv||'—'} • 📐 ${o.suprafata||'—'}</div>
+                <div class="pc-val">${o.valoare||'—'}</div>
+                ${daysText?`<div class="pc-days" style="${daysClass}">📅 ${daysText}</div>`:''}
+                <div class="pc-move">
+                    ${prevStage?`<button onclick="moveToStage(${o.id},'${prevStage.id}')">◀ ${prevStage.icon}</button>`:''}
+                    ${nextStage?`<button onclick="moveToStage(${o.id},'${nextStage.id}')">${nextStage.icon} ▶</button>`:''}
+                </div>
+            </div>`;
+        });
+
+        boardHTML+=`</div></div>`;
+    });
+    document.getElementById('pipeBoard').innerHTML=boardHTML;
+}
+
+function pipeDrop(event,newStage){
+    event.preventDefault();
+    const id=parseInt(event.dataTransfer.getData('text/plain'));
+    if(id)moveToStage(id,newStage);
+}
 
 // ═══════════════════════════════════════════════════════
 // GENERARE DOCX (exact ca modelul din oferte/)
@@ -2171,45 +2525,145 @@ function calNav(dir){
     renderCalendar();
 }
 
+// ECHIPE & LUCRĂRI PROGRAMATE
+function getEchipe(){return JSON.parse(localStorage.getItem('hc_echipe')||'["Echipa 1","Echipa 2"]');}
+function saveEchipe(arr){localStorage.setItem('hc_echipe',JSON.stringify(arr));}
+function getLucrari(){return JSON.parse(localStorage.getItem('hc_lucrari')||'[]');}
+function saveLucrari(arr){localStorage.setItem('hc_lucrari',JSON.stringify(arr));}
+
+const ECHIPA_COLORS=['#2563A8','#27ae60','#e67e22','#9b59b6','#e74c3c','#C9A84C','#1abc9c','#3498db'];
+function echipaColor(name){const echipe=getEchipe();const idx=echipe.indexOf(name);return ECHIPA_COLORS[idx%ECHIPA_COLORS.length];}
+
+function renderEchipeChips(){
+    const echipe=getEchipe();
+    document.getElementById('echipeChips').innerHTML=echipe.map((e,i)=>`<span style="background:${ECHIPA_COLORS[i%ECHIPA_COLORS.length]};color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">${e} <span onclick="removeEchipa(${i})" style="cursor:pointer;margin-left:4px;">✕</span></span>`).join('');
+    // Populate select
+    const sel=document.getElementById('prog-echipa');
+    if(sel)sel.innerHTML=echipe.map(e=>`<option>${e}</option>`).join('');
+}
+function addEchipa(){
+    const name=prompt('Numele echipei:');
+    if(!name)return;
+    const echipe=getEchipe();echipe.push(name.trim());saveEchipe(echipe);renderEchipeChips();renderCalendar();toast('👷 Echipă adăugată: '+name.trim());
+}
+function removeEchipa(idx){
+    const echipe=getEchipe();
+    if(!confirm('Ștergi echipa "'+echipe[idx]+'"?'))return;
+    echipe.splice(idx,1);saveEchipe(echipe);renderEchipeChips();renderCalendar();
+}
+
+function openAddLucrare(dateStr){
+    document.getElementById('prog-data').value=dateStr;
+    document.getElementById('prog-client').value='';
+    document.getElementById('prog-adresa').value='';
+    document.getElementById('prog-ore').value='08:00-17:00';
+    document.getElementById('prog-detalii').value='';
+    renderEchipeChips();
+    document.getElementById('addLucrareCard').style.display='block';
+    document.getElementById('addLucrareCard').scrollIntoView({behavior:'smooth'});
+}
+function saveLucrare(){
+    const data=document.getElementById('prog-data').value;
+    const client=document.getElementById('prog-client').value.trim();
+    const echipa=document.getElementById('prog-echipa').value;
+    const adresa=document.getElementById('prog-adresa').value.trim();
+    const ore=document.getElementById('prog-ore').value.trim();
+    const detalii=document.getElementById('prog-detalii').value.trim();
+    if(!client){toast('⚠️ Completează clientul!');return;}
+    const lucrari=getLucrari();
+    lucrari.push({id:Date.now(),data,client,echipa,adresa,ore,detalii});
+    saveLucrari(lucrari);
+    document.getElementById('addLucrareCard').style.display='none';
+    renderCalendar();
+    showDayDetail(data);
+    toast('✅ Lucrare programată: '+client+' — '+data);
+    autoCloudPush();
+}
+function deleteLucrare(id){
+    if(!confirm('Ștergi această lucrare?'))return;
+    const lucrari=getLucrari().filter(l=>l.id!==id);
+    saveLucrari(lucrari);
+    renderCalendar();
+    toast('🗑️ Lucrare ștearsă');
+    autoCloudPush();
+}
+
+function showDayDetail(dateStr){
+    const lucrari=getLucrari().filter(l=>l.data===dateStr);
+    const all=getAll();
+    const oferte=all.filter(o=>o.dataOferta===dateStr);
+    document.getElementById('dayDetailTitle').textContent=dateStr;
+    let html='';
+    if(lucrari.length){
+        html+='<div style="font-size:12px;color:#C9A84C;font-weight:700;margin-bottom:6px;">🔨 LUCRĂRI PROGRAMATE:</div>';
+        lucrari.forEach(l=>{
+            const c=echipaColor(l.echipa);
+            html+=`<div style="background:#0d1f35;border-left:3px solid ${c};padding:8px 12px;margin-bottom:6px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
+                <div><strong style="color:#ddd;">${l.client}</strong><br><span style="font-size:11px;color:#6688aa;">${l.echipa} • ${l.ore||''} • ${l.adresa||''}</span>${l.detalii?'<br><span style="font-size:11px;color:#8899aa;">'+l.detalii+'</span>':''}</div>
+                <button onclick="deleteLucrare(${l.id})" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;">✕</button>
+            </div>`;
+        });
+    }
+    if(oferte.length){
+        html+='<div style="font-size:12px;color:#4A9EF5;font-weight:700;margin:8px 0 6px;">📄 OFERTE:</div>';
+        oferte.forEach(o=>{
+            html+=`<div style="background:#0d1f35;border-left:3px solid #4A9EF5;padding:6px 12px;margin-bottom:4px;border-radius:6px;font-size:12px;"><strong>${o.client||'—'}</strong> — ${o.obiectiv||''} <span style="color:#C9A84C;">${o.valoare||''}</span></div>`;
+        });
+    }
+    if(!lucrari.length&&!oferte.length) html='<p style="color:#445;font-size:12px;">Nicio programare sau ofertă în această zi.</p>';
+    document.getElementById('dayDetailList').innerHTML=html;
+    document.getElementById('dayDetailCard').style.display='block';
+}
+
 function renderCalendar(){
+    renderEchipeChips();
     const y=calDate.getFullYear(),m=calDate.getMonth();
     document.getElementById('calTitle').textContent=LUNI[m]+' '+y;
     const first=new Date(y,m,1),last=new Date(y,m+1,0);
-    let startDay=(first.getDay()+6)%7; // luni=0
-    const today=new Date();const todayStr=today.getDate()+'.'+(today.getMonth()+1)+'.'+today.getFullYear();
+    let startDay=(first.getDay()+6)%7;
+    const today=new Date();
 
-    // Eventuri din centralizator
+    // Eventuri din centralizator + lucrări programate
     const all=getAll();
+    const lucrari=getLucrari();
     const events={};
     all.forEach(o=>{
         if(!o.dataOferta||o.dataOferta==='—')return;
-        const key=o.dataOferta;
-        if(!events[key])events[key]=[];
-        events[key].push(o);
+        if(!events[o.dataOferta])events[o.dataOferta]={oferte:[],lucrari:[]};
+        events[o.dataOferta].oferte.push(o);
+    });
+    lucrari.forEach(l=>{
+        if(!events[l.data])events[l.data]={oferte:[],lucrari:[]};
+        events[l.data].lucrari.push(l);
     });
 
     let html=ZILE.map(z=>`<div class="cal-day-hdr">${z}</div>`).join('');
 
-    // Zile din luna anterioară
     const prevLast=new Date(y,m,0).getDate();
     for(let i=startDay-1;i>=0;i--){
         html+=`<div class="cal-day other-month"><div class="day-num">${prevLast-i}</div></div>`;
     }
 
-    // Zilele lunii
     for(let d=1;d<=last.getDate();d++){
         const dateStr=d.toString().padStart(2,'0')+'.'+(m+1).toString().padStart(2,'0')+'.'+y;
         const isToday=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
-        const evts=events[dateStr]||[];
-        let evHTML=evts.slice(0,3).map(e=>{
+        const ev=events[dateStr]||{oferte:[],lucrari:[]};
+        let evHTML='';
+        // Lucrări programate (prioritar)
+        ev.lucrari.slice(0,2).forEach(l=>{
+            const c=echipaColor(l.echipa);
+            evHTML+=`<div class="cal-event" style="background:${c};color:#fff;font-weight:700;" title="${l.echipa}: ${l.client} — ${l.detalii||''}">${l.echipa.substring(0,3)}: ${(l.client||'').substring(0,8)}</div>`;
+        });
+        // Oferte
+        ev.oferte.slice(0,ev.lucrari.length?1:3).forEach(e=>{
             const cls=e.oferta==='Acceptată'?'ev-accepted':e.oferta==='În așteptare'?'ev-waiting':'';
-            return`<div class="cal-event ${cls}" title="${e.client} — ${e.obiectiv}">${(e.client||'—').substring(0,12)}</div>`;
-        }).join('');
-        if(evts.length>3)evHTML+=`<div class="cal-event" style="background:#555;">+${evts.length-3} mai mult</div>`;
-        html+=`<div class="cal-day${isToday?' today':''}"><div class="day-num">${d}</div>${evHTML}</div>`;
+            evHTML+=`<div class="cal-event ${cls}" title="${e.client} — ${e.obiectiv}">${(e.client||'—').substring(0,12)}</div>`;
+        });
+        const total=ev.lucrari.length+ev.oferte.length;
+        if(total>3)evHTML+=`<div class="cal-event" style="background:#555;">+${total-3}</div>`;
+        html+=`<div class="cal-day${isToday?' today':''}" onclick="onDayClick('${dateStr}')" style="cursor:pointer;"><div class="day-num">${d}</div>${evHTML}</div>`;
     }
 
-    // Zile din luna următoare
     const totalCells=startDay+last.getDate();
     const remaining=totalCells%7===0?0:7-totalCells%7;
     for(let i=1;i<=remaining;i++){
@@ -2219,36 +2673,70 @@ function renderCalendar(){
     document.getElementById('calGrid').innerHTML=html;
 }
 
+function onDayClick(dateStr){
+    showDayDetail(dateStr);
+    // Show add button
+    document.getElementById('prog-data').value=dateStr;
+    renderEchipeChips();
+}
+
 // ═══════════════════════════════════════════════════════
 // GALERIE FOTO LUCRĂRI
 // ═══════════════════════════════════════════════════════
 function getPhotos(){return JSON.parse(localStorage.getItem('hc_photos')||'[]');}
 function savePhotos(arr){localStorage.setItem('hc_photos',JSON.stringify(arr));}
 
+let _pendingPhotos=[];
+
+function tagClass(tag){
+    const map={'înainte':'inainte','proces':'proces','după':'dupa','detaliu':'detaliu','problemă':'problema'};
+    return 'foto-tag-'+(map[tag]||'inainte');
+}
+function tagIcon(tag){
+    const map={'înainte':'📋','proces':'🔨','după':'✅','detaliu':'🔍','problemă':'⚠️'};
+    return map[tag]||'📷';
+}
+
 function renderGalerie(){
     const photos=getPhotos();
     const filter=document.getElementById('galFilter').value;
-    const filtered=filter?photos.filter(p=>p.client===filter):photos;
+    const tagFilter=document.getElementById('galTagFilter').value;
+    let filtered=photos;
+    if(filter)filtered=filtered.filter(p=>p.client===filter);
+    if(tagFilter)filtered=filtered.filter(p=>p.tag===tagFilter);
 
-    // Populare dropdown
+    // Populare dropdown clienți
     const clients=[...new Set(photos.map(p=>p.client).filter(Boolean))];
     const sel=document.getElementById('galFilter');
     const current=sel.value;
-    sel.innerHTML='<option value="">Toate</option>'+clients.map(c=>`<option value="${c}" ${c===current?'selected':''}>${c}</option>`).join('');
+    sel.innerHTML='<option value="">Toți clienții</option>'+clients.map(c=>`<option value="${c}" ${c===current?'selected':''}>${c}</option>`).join('');
 
-    let html=`<div class="gallery-upload" onclick="document.getElementById('photoInput').click()">
-        <div class="gu-icon">📷</div>
-        <div class="gu-text">Click pentru a adăuga poze<br><small>sau trage fișierele aici</small></div>
-        <input type="file" id="photoInput" accept="image/*" capture="environment" multiple onchange="uploadPhotos(this)" style="display:none;">
-    </div>`;
+    // Populare foto-client dropdown
+    const all=getAll();
+    const fotoSel=document.getElementById('foto-client');
+    if(fotoSel){
+        const fv=fotoSel.value;
+        fotoSel.innerHTML='<option value="">— Alege client —</option>'+all.map(o=>o.client).filter(Boolean).map(c=>`<option value="${c}" ${c===fv?'selected':''}>${c}</option>`).join('');
+    }
+
+    // Count
+    document.getElementById('galCount').textContent=filtered.length+' poze'+(filter?' — '+filter:'');
+
+    // Sort by date descending
+    filtered.sort((a,b)=>(b.id||0)-(a.id||0));
+
+    let html='';
+    if(!filtered.length){
+        html='<div style="text-align:center;padding:40px;color:#445;grid-column:1/-1;"><div style="font-size:48px;margin-bottom:12px;">📷</div><div style="font-size:14px;">Nicio poză încă.<br>Apasă <strong>FOTOGRAFIAZĂ</strong> pentru a adăuga poze de pe teren!</div></div>';
+    }
 
     filtered.forEach((p,i)=>{
         const realIdx=photos.indexOf(p);
         html+=`<div class="gallery-item" onclick="openLightbox(${realIdx})">
-            <img class="gallery-img" src="${p.thumb}" alt="${p.desc||''}">
+            <img class="gallery-img" src="${p.thumb}" alt="${p.desc||''}" loading="lazy">
             <div class="gallery-info">
-                <div class="gi-name">${p.client||'Fără client'}</div>
-                <div class="gi-desc">${p.desc||''} ${p.tag?'• '+p.tag:''}</div>
+                <div class="gi-name">${p.client||'Fără client'} <span class="foto-tag ${tagClass(p.tag)}">${tagIcon(p.tag)} ${p.tag||''}</span></div>
+                <div class="gi-desc">${p.desc||''}</div>
                 <div class="gi-date">${p.date||''}</div>
             </div>
         </div>`;
@@ -2257,72 +2745,98 @@ function renderGalerie(){
     document.getElementById('galleryGrid').innerHTML=html;
 }
 
-function uploadPhotos(input){
+function quickPhoto(input){
     const files=input.files;
     if(!files.length)return;
-
-    // Dialog client + descriere
-    const all=getAll();
-    const clientNames=all.map(o=>o.client).filter(Boolean);
-    const client=prompt('Client (ex: Dumitru Ghebaur):',clientNames[0]||'');
-    const desc=prompt('Descriere (ex: Înainte - terasă degradată):','');
-    const tag=prompt('Tag: înainte / după / proces:','');
-
-    const photos=getPhotos();
+    _pendingPhotos=[];
     let processed=0;
+    const preview=document.getElementById('quickPhotoPreview');
+    preview.innerHTML='<span style="color:#C9A84C;font-size:12px;">⏳ Se procesează...</span>';
 
     Array.from(files).forEach(file=>{
         const reader=new FileReader();
         reader.onload=function(e){
-            // Compress to thumbnail
             const img=new Image();
             img.onload=function(){
                 const canvas=document.createElement('canvas');
-                const maxW=600;
+                const maxW=800;
                 const scale=Math.min(maxW/img.width,1);
                 canvas.width=img.width*scale;
                 canvas.height=img.height*scale;
                 const ctx=canvas.getContext('2d');
                 ctx.drawImage(img,0,0,canvas.width,canvas.height);
-                const thumb=canvas.toDataURL('image/jpeg',0.6);
-
-                photos.push({
-                    id:Date.now()+Math.random(),
-                    client:client||'',
-                    desc:desc||'',
-                    tag:tag||'',
-                    date:dataAzi(),
-                    thumb
-                });
+                const thumb=canvas.toDataURL('image/jpeg',0.65);
+                _pendingPhotos.push(thumb);
                 processed++;
                 if(processed===files.length){
-                    try{
-                        savePhotos(photos);
-                        renderGalerie();
-                        toast(`✅ ${files.length} poze adăugate!`);
-                    }catch(e){
-                        toast('⚠️ Spațiu insuficient! Încercați cu mai puține poze.');
-                    }
+                    preview.innerHTML=_pendingPhotos.map((t,i)=>`<img src="${t}" class="qp-thumb">`).join('');
                 }
             };
             img.src=e.target.result;
         };
         reader.readAsDataURL(file);
     });
+
+    // Show form
+    document.getElementById('quickPhotoForm').style.display='block';
+    renderGalerie(); // refresh client dropdown
     input.value='';
+}
+
+function saveQuickPhotos(){
+    if(!_pendingPhotos.length){toast('⚠️ Nicio poză de salvat!');return;}
+    const client=document.getElementById('foto-client').value;
+    const tag=document.getElementById('foto-tag').value;
+    const desc=document.getElementById('foto-desc').value.trim();
+
+    const photos=getPhotos();
+    _pendingPhotos.forEach(thumb=>{
+        photos.push({
+            id:Date.now()+Math.round(Math.random()*9999),
+            client:client||'',
+            desc:desc||'',
+            tag:tag||'înainte',
+            date:dataAzi(),
+            thumb
+        });
+    });
+
+    try{
+        savePhotos(photos);
+        renderGalerie();
+        toast(`✅ ${_pendingPhotos.length} poze salvate!`);
+        _pendingPhotos=[];
+        document.getElementById('quickPhotoForm').style.display='none';
+        document.getElementById('quickPhotoPreview').innerHTML='';
+        document.getElementById('foto-desc').value='';
+        autoCloudPush();
+    }catch(e){
+        toast('⚠️ Spațiu insuficient! Ștergeți poze vechi sau reduceți numărul.');
+    }
+}
+
+function cancelQuickPhotos(){
+    _pendingPhotos=[];
+    document.getElementById('quickPhotoForm').style.display='none';
+    document.getElementById('quickPhotoPreview').innerHTML='';
 }
 
 function openLightbox(idx){
     const photos=getPhotos();
     const p=photos[idx];
+    const total=photos.length;
     document.getElementById('lightboxArea').innerHTML=`
         <div class="lightbox" onclick="closeLightbox(event)">
             <span class="lb-close" onclick="closeLightbox(event)">✕</span>
+            ${idx>0?'<div style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:36px;color:#fff;cursor:pointer;padding:10px;" onclick="event.stopPropagation();openLightbox('+(idx-1)+')">◀</div>':''}
+            ${idx<total-1?'<div style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:36px;color:#fff;cursor:pointer;padding:10px;" onclick="event.stopPropagation();openLightbox('+(idx+1)+')">▶</div>':''}
             <img src="${p.thumb}">
             <div class="lb-info">
-                <strong>${p.client||''}</strong> — ${p.desc||''} ${p.tag?'('+p.tag+')':''}<br>
-                ${p.date||''} &nbsp;
+                <strong>${p.client||''}</strong> <span class="foto-tag ${tagClass(p.tag)}">${tagIcon(p.tag)} ${p.tag||''}</span><br>
+                ${p.desc?p.desc+'<br>':''}
+                ${p.date||''} &nbsp; <span style="color:#556;">${idx+1}/${total}</span> &nbsp;
                 <button onclick="event.stopPropagation();deletePhoto(${idx})" style="background:#c0392b;color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;">🗑️ Șterge</button>
+                <button onclick="event.stopPropagation();sharePhoto(${idx})" style="background:#27ae60;color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;">📤 Trimite</button>
             </div>
         </div>`;
 }
@@ -2331,7 +2845,20 @@ function deletePhoto(idx){
     if(!confirm('Ștergi poza?'))return;
     const photos=getPhotos();photos.splice(idx,1);savePhotos(photos);
     document.getElementById('lightboxArea').innerHTML='';
-    renderGalerie();toast('🗑️ Poză ștearsă');
+    renderGalerie();toast('🗑️ Poză ștearsă');autoCloudPush();
+}
+function sharePhoto(idx){
+    const p=getPhotos()[idx];
+    if(navigator.share){
+        fetch(p.thumb).then(r=>r.blob()).then(blob=>{
+            const file=new File([blob],'foto_teren.jpg',{type:'image/jpeg'});
+            navigator.share({title:p.client+' — '+p.tag,text:p.desc||'Foto teren Hydro Concept',files:[file]}).catch(()=>{});
+        });
+    } else {
+        // Fallback: download
+        const a=document.createElement('a');a.href=p.thumb;a.download='foto_'+(p.client||'teren')+'_'+p.tag+'.jpg';a.click();
+        toast('📥 Poză descărcată!');
+    }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2725,7 +3252,7 @@ async function cloudPushSilent(){
     if(!token)return;
     _pushing=true;
     try{
-        const syncData={oferte:getAll(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
+        const syncData={oferte:getAll(),lucrari:getLucrari(),echipe:getEchipe(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
         const content=btoa(unescape(encodeURIComponent(JSON.stringify(syncData))));
         let sha='';
         try{const r=await fetch(GH_API,{headers:{'Authorization':'Bearer '+token}});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
@@ -2743,7 +3270,7 @@ async function cloudPush(){
     const token=getGHToken();
     if(!token){st.innerHTML='<span style="color:#e74c3c;">❌ Introdu tokenul GitHub mai întâi!</span>';return;}
     st.innerHTML='<span style="color:#C9A84C;">⏳ Se trimit datele...</span>';
-    const syncData={oferte:getAll(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
+    const syncData={oferte:getAll(),lucrari:getLucrari(),echipe:getEchipe(),sync_ts:Date.now(),device:navigator.userAgent.substring(0,40),date:new Date().toLocaleString('ro-RO')};
     const content=btoa(unescape(encodeURIComponent(JSON.stringify(syncData))));
     try{
         let sha='';
@@ -2775,9 +3302,12 @@ async function cloudPull(){
         if(json.sync_ts>localTs){
             // Cloud e mai nou — preluăm
             localStorage.setItem('hc_data',JSON.stringify(json.oferte));
+            if(json.lucrari)saveLucrari(json.lucrari);
+            if(json.echipe)saveEchipe(json.echipe);
             updateBadge();
             localStorage.setItem('hc_sync_ts',String(json.sync_ts));
             renderCentral();renderDashboard();
+            if(document.getElementById('page-calendar').classList.contains('active'))renderCalendar();
             if(st){st.innerHTML='<span style="color:#2ecc71;">✅ '+json.oferte.length+' clienți preluați din cloud!</span>';
             document.getElementById('cloudLastSync').innerHTML='Date din cloud de la: '+(json.date||'—');}
             toast('☁️ '+json.oferte.length+' clienți sincronizați!');
@@ -2936,7 +3466,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.15';
+const APP_VERSION='2026.04.04.21';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
