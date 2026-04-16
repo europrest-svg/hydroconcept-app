@@ -273,6 +273,31 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .lightbox img{max-width:90%;max-height:85%;border-radius:8px;}
 .lightbox .lb-close{position:absolute;top:15px;right:20px;font-size:28px;color:#fff;cursor:pointer;}
 .lightbox .lb-info{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;text-align:center;font-size:13px;}
+/* PIPELINE KANBAN */
+.pipe-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.pipe-stat{flex:1;min-width:80px;background:#111f35;border-radius:8px;padding:10px;text-align:center;border-top:3px solid #1B3A6B;}
+.pipe-stat .ps-num{font-size:22px;font-weight:800;}
+.pipe-stat .ps-val{font-size:10px;color:#6688aa;margin-top:2px;}
+.pipe-stat .ps-lbl{font-size:10px;color:#8899aa;margin-top:4px;font-weight:600;}
+.pipe-board{display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch;}
+.pipe-col{min-width:220px;max-width:260px;flex:1;background:#0d1825;border-radius:10px;border:1px solid #1a2a40;display:flex;flex-direction:column;}
+.pipe-col-hdr{padding:10px 12px;border-radius:10px 10px 0 0;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;}
+.pipe-col-hdr .pc-count{font-size:18px;}
+.pipe-col-body{padding:6px 8px;flex:1;min-height:80px;}
+.pipe-card{background:#111f35;border:1px solid #1B3A6B;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:grab;transition:.2s;position:relative;}
+.pipe-card:hover{border-color:#C9A84C;background:#162540;}
+.pipe-card.dragging{opacity:.4;transform:scale(.95);}
+.pipe-card .pc-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px;}
+.pipe-card .pc-obj{font-size:11px;color:#6688aa;}
+.pipe-card .pc-val{font-size:12px;font-weight:700;color:#C9A84C;margin-top:4px;}
+.pipe-card .pc-days{font-size:10px;margin-top:3px;}
+.pipe-card .pc-move{display:flex;gap:4px;margin-top:6px;}
+.pipe-card .pc-move button{background:#1B3A6B;border:none;color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-weight:700;}
+.pipe-card .pc-move button:hover{background:#C9A84C;color:#0D1B2A;}
+.pipe-drop-zone{min-height:40px;border:2px dashed transparent;border-radius:8px;transition:.2s;}
+.pipe-drop-zone.drag-over{border-color:#C9A84C;background:rgba(201,168,76,.08);}
+@media(max-width:700px){.pipe-board{flex-direction:column;}.pipe-col{min-width:100%;max-width:100%;}}
+
 .foto-tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px;}
 .foto-tag-inainte{background:#3498db;color:#fff;}
 .foto-tag-proces{background:#e67e22;color:#fff;}
@@ -303,6 +328,10 @@ body.light .cal-nav button{background:#2563A8;}
 body.light .gallery-item{background:#fff;border-color:#ddd;}
 body.light .gallery-info .gi-name{color:#1a202c;}
 body.light .gallery-upload{background:#fafafa;border-color:#ddd;}
+body.light .pipe-col{background:#f8f9fa;border-color:#ddd;}
+body.light .pipe-card{background:#fff;border-color:#e0e0e0;}
+body.light .pipe-card .pc-name{color:#1a202c;}
+body.light .pipe-stat{background:#fff;border-color:#ddd;}
 body.light .profit-card{background:#fff;border-color:#ddd;}
 body.light .profit-row{border-color:#eee;}
 
@@ -409,6 +438,7 @@ body{background:#fff!important;color:#000!important;}
 <button class="tab" onclick="showPage('profit')">💹 Profit</button>
 <button class="tab" onclick="showPage('mesaje')">📧 Mesaje</button>
 <button class="tab" onclick="showPage('calculator')">🔢 Calculator</button>
+<button class="tab" onclick="showPage('pipeline')">📈 Pipeline</button>
 <button class="tab" onclick="showPage('setari')">⚙️ Setări</button>
 </div>
 
@@ -900,6 +930,13 @@ body{background:#fff!important;color:#000!important;}
 </div>
 </div>
 
+<!-- ═══════ PAGE: PIPELINE ═══════ -->
+<div class="page" id="page-pipeline">
+<div class="section-title">📈 Pipeline vizual — Kanban</div>
+<div class="pipe-stats" id="pipeStats"></div>
+<div class="pipe-board" id="pipeBoard"></div>
+</div>
+
 <!-- ═══════ PAGE: SETĂRI ═══════ -->
 <div class="page" id="page-setari">
 <div class="section-title">Setări aplicație</div>
@@ -1055,6 +1092,7 @@ function showPage(name){
     if(name==='galerie') renderGalerie();
     if(name==='profit') renderProfit();
     if(name==='mesaje') renderMsgClients();
+    if(name==='pipeline') renderPipeline();
     if(name==='setari'){loadPinSetting();document.getElementById('lastBackupTime').textContent=localStorage.getItem('hc_last_backup')||'Niciodată';generateQR();}
 }
 
@@ -1906,6 +1944,118 @@ function genMesaj(){
     document.getElementById('msgOutput').scrollIntoView({behavior:'smooth'});
 }
 function copyMsg(){const sub=document.getElementById('msgSub');let txt='';if(!sub.classList.contains('hidden'))txt=sub.textContent.replace('📧 Subiect: ','Subiect: ')+'\n\n';txt+=document.getElementById('msgText').textContent;navigator.clipboard.writeText(txt).then(()=>toast('✅ Copiat!'));}
+
+// ═══════════════════════════════════════════════════════
+// PIPELINE KANBAN
+// ═══════════════════════════════════════════════════════
+const PIPE_STAGES=[
+    {id:'lead',name:'Lead',icon:'🎯',color:'#6c5ce7',desc:'Contact inițial'},
+    {id:'oferta',name:'Ofertă',icon:'💰',color:'#e67e22',desc:'Ofertă trimisă'},
+    {id:'negociere',name:'Negociere',icon:'🤝',color:'#3498db',desc:'În așteptare/discuții'},
+    {id:'contract',name:'Contract',icon:'📝',color:'#C9A84C',desc:'Acceptat + contract'},
+    {id:'lucru',name:'În lucru',icon:'🔨',color:'#e74c3c',desc:'Lucrare activă'},
+    {id:'finalizat',name:'Finalizat',icon:'✅',color:'#27ae60',desc:'PV semnat'}
+];
+
+function getClientStage(o){
+    if(o.pv && o.pv!=='—') return 'finalizat';
+    if(o.deviz && o.deviz!=='—' && o.deviz!=='') return 'lucru';
+    if(o.contract && o.contract!=='—' && o.contract!=='') return 'contract';
+    if(o.oferta==='Acceptată') return 'contract';
+    if(o.oferta==='În așteptare') return 'negociere';
+    if(o.oferta==='Trimisă') return 'oferta';
+    if(o.oferta==='Respinsă') return 'lead'; // respins revine la lead
+    return 'lead';
+}
+
+function moveToStage(clientId, newStage){
+    const all=getAll();
+    const idx=all.findIndex(o=>o.id===clientId);
+    if(idx===-1)return;
+    const o=all[idx];
+    // Update fields based on stage
+    switch(newStage){
+        case 'lead': o.oferta='—'; o.contract='—'; o.deviz='—'; o.pv='—'; break;
+        case 'oferta': o.oferta='Trimisă'; break;
+        case 'negociere': o.oferta='În așteptare'; break;
+        case 'contract': o.oferta='Acceptată'; if(o.contract==='—'||!o.contract)o.contract='Da'; break;
+        case 'lucru': o.oferta='Acceptată'; if(o.contract==='—'||!o.contract)o.contract='Da'; if(o.deviz==='—'||!o.deviz)o.deviz='Emis'; break;
+        case 'finalizat': o.oferta='Acceptată'; if(o.contract==='—'||!o.contract)o.contract='Da'; if(o.deviz==='—'||!o.deviz)o.deviz='Emis'; if(o.pv==='—'||!o.pv)o.pv='Semnat'; break;
+    }
+    saveAll(all);
+    renderPipeline();
+    toast('✅ '+o.client+' → '+PIPE_STAGES.find(s=>s.id===newStage).name);
+}
+
+function parseValPipe(v){if(!v||v==='—')return 0;const n=v.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');return parseFloat(n)||0;}
+
+function renderPipeline(){
+    const all=getAll();
+    const grouped={};
+    PIPE_STAGES.forEach(s=>grouped[s.id]=[]);
+    all.forEach(o=>{
+        const stage=getClientStage(o);
+        if(grouped[stage])grouped[stage].push(o);
+    });
+
+    // Stats
+    let statsHTML='';
+    PIPE_STAGES.forEach(s=>{
+        const items=grouped[s.id];
+        const val=items.reduce((sum,o)=>sum+parseValPipe(o.valoare),0);
+        statsHTML+=`<div class="pipe-stat" style="border-top-color:${s.color};">
+            <div class="ps-num" style="color:${s.color};">${items.length}</div>
+            ${val>0?`<div class="ps-val">${nr(Math.round(val))} lei</div>`:''}
+            <div class="ps-lbl">${s.icon} ${s.name}</div>
+        </div>`;
+    });
+    document.getElementById('pipeStats').innerHTML=statsHTML;
+
+    // Board
+    let boardHTML='';
+    PIPE_STAGES.forEach((s,si)=>{
+        const items=grouped[s.id];
+        boardHTML+=`<div class="pipe-col">
+            <div class="pipe-col-hdr" style="background:${s.color};color:#fff;">
+                <span>${s.icon} ${s.name}</span>
+                <span class="pc-count">${items.length}</span>
+            </div>
+            <div class="pipe-col-body pipe-drop-zone" data-stage="${s.id}"
+                ondragover="event.preventDefault();this.classList.add('drag-over')"
+                ondragleave="this.classList.remove('drag-over')"
+                ondrop="pipeDrop(event,'${s.id}');this.classList.remove('drag-over')">`;
+
+        items.forEach(o=>{
+            const days=daysAgoMsg(o.dataOferta);
+            const daysClass=days!==null&&days>7?'color:#e74c3c;font-weight:700':'color:#27ae60';
+            const daysText=days!==null?(days===0?'Azi':'acum '+days+' zile'):'';
+            const prevStage=si>0?PIPE_STAGES[si-1]:null;
+            const nextStage=si<PIPE_STAGES.length-1?PIPE_STAGES[si+1]:null;
+
+            boardHTML+=`<div class="pipe-card" draggable="true" data-id="${o.id}"
+                ondragstart="event.dataTransfer.setData('text/plain','${o.id}');this.classList.add('dragging')"
+                ondragend="this.classList.remove('dragging')">
+                <div class="pc-name">${o.client||'—'}</div>
+                <div class="pc-obj">📍 ${o.obiectiv||'—'} • 📐 ${o.suprafata||'—'}</div>
+                <div class="pc-val">${o.valoare||'—'}</div>
+                ${daysText?`<div class="pc-days" style="${daysClass}">📅 ${daysText}</div>`:''}
+                <div class="pc-move">
+                    ${prevStage?`<button onclick="moveToStage(${o.id},'${prevStage.id}')">◀ ${prevStage.icon}</button>`:''}
+                    ${nextStage?`<button onclick="moveToStage(${o.id},'${nextStage.id}')">${nextStage.icon} ▶</button>`:''}
+                </div>
+            </div>`;
+        });
+
+        boardHTML+=`</div></div>`;
+    });
+    document.getElementById('pipeBoard').innerHTML=boardHTML;
+}
+
+function pipeDrop(event,newStage){
+    event.preventDefault();
+    const id=parseInt(event.dataTransfer.getData('text/plain'));
+    if(id)moveToStage(id,newStage);
+}
 
 // ═══════════════════════════════════════════════════════
 // GENERARE DOCX (exact ca modelul din oferte/)
@@ -3316,7 +3466,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.20';
+const APP_VERSION='2026.04.04.21';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
