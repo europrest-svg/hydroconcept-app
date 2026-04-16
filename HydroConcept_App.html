@@ -3466,7 +3466,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.04.21';
+const APP_VERSION='2026.04.16.1';
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
@@ -3485,29 +3485,43 @@ if('serviceWorker' in navigator){
         });
     }).catch(e=>console.log('SW fail',e));
 }
-// Auto-version check — forțează refresh dacă versiunea e veche
+// Auto-version check — verifică versiunea reală de pe server
 (function autoVersionCheck(){
-    const stored=localStorage.getItem('hc_app_version');
-    if(stored&&stored!==APP_VERSION){
-        // Versiune nouă detectată — golește doar cache-ul SW, NU datele clientilor
-        caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
-        localStorage.setItem('hc_app_version',APP_VERSION);
-        location.reload();
-        return;
-    }
     localStorage.setItem('hc_app_version',APP_VERSION);
 })();
 
+// Verifică pe server dacă există versiune nouă (la fiecare 60s + la load)
+function checkRemoteVersion(){
+    fetch('./HydroConcept_App.html?_t='+Date.now(),{cache:'no-store'})
+        .then(r=>r.text())
+        .then(html=>{
+            const m=html.match(/APP_VERSION='([^']+)'/);
+            if(m&&m[1]&&m[1]!==APP_VERSION){
+                console.log('🔄 Versiune nouă detectată: '+m[1]+' (curentă: '+APP_VERSION+')');
+                toast('🔄 Versiune nouă! Se actualizează...');
+                caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>{
+                    if('serviceWorker' in navigator){
+                        navigator.serviceWorker.getRegistrations().then(regs=>{
+                            Promise.all(regs.map(r=>r.unregister())).then(()=>location.reload(true));
+                        });
+                    } else { location.reload(true); }
+                });
+            }
+        }).catch(()=>{});
+}
+setTimeout(checkRemoteVersion,5000);
+setInterval(checkRemoteVersion,60000);
+
 function forceUpdate(){
-    if(!('serviceWorker' in navigator)){location.reload();return;}
-    navigator.serviceWorker.getRegistrations().then(regs=>{
-        const promises=regs.map(r=>r.unregister());
-        Promise.all(promises).then(()=>{
-            caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>{
-                toast('✅ Cache șters! Se reîncarcă...');
-                setTimeout(()=>location.reload(true),1000);
+    toast('⏳ Se actualizează...');
+    caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>{
+        if('serviceWorker' in navigator){
+            navigator.serviceWorker.getRegistrations().then(regs=>{
+                Promise.all(regs.map(r=>r.unregister())).then(()=>{
+                    setTimeout(()=>location.reload(true),500);
+                });
             });
-        });
+        } else { location.reload(true); }
     });
 }
 </script>
