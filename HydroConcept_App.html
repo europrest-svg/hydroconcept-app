@@ -1553,6 +1553,44 @@ function dashDrillDown(val){
     setTimeout(()=>centralFilter(val),50);
 }
 
+// Universal: open a specific client in centralizator via search
+function openClientInCentral(clientName){
+    showPage('centralizator');
+    setTimeout(()=>{
+        const si=document.getElementById('searchInput');
+        if(si){si.value=clientName;}
+        const fs=document.getElementById('filterStatus');if(fs)fs.value='';
+        const fp=document.getElementById('filterPlata');if(fp)fp.value='';
+        const fper=document.getElementById('filterPeriod');if(fper)fper.value='';
+        _centralSpecial='';
+        renderCentral();
+        const tbl=document.getElementById('centralTable');
+        if(tbl)tbl.scrollIntoView({behavior:'smooth',block:'start'});
+    },50);
+}
+
+// Jump to mesaje with specific client
+function openClientInMesaje(clientName){
+    showPage('mesaje');
+    setTimeout(()=>{
+        const si=document.getElementById('msgSearch');
+        if(si){si.value=clientName;if(typeof renderMsgClients==='function')renderMsgClients();}
+    },50);
+}
+
+// Jump to galerie filtered by client
+function openClientInGalerie(clientName){
+    showPage('galerie');
+    setTimeout(()=>{
+        const f=document.getElementById('galFilter');
+        if(f){
+            // try match option by text
+            for(let i=0;i<f.options.length;i++){if(f.options[i].text.toLowerCase().includes((clientName||'').toLowerCase())){f.selectedIndex=i;break;}}
+            if(typeof renderGalerie==='function')renderGalerie();
+        }
+    },50);
+}
+
 function renderCentral(){
     const all=getAll();
     const search=(document.getElementById('searchInput').value||'').toLowerCase();
@@ -2158,16 +2196,19 @@ function renderPipeline(){
             const prevStage=si>0?PIPE_STAGES[si-1]:null;
             const nextStage=si<PIPE_STAGES.length-1?PIPE_STAGES[si+1]:null;
 
+            const safeName=(o.client||'').replace(/'/g,"\\'");
             boardHTML+=`<div class="pipe-card" draggable="true" data-id="${o.id}"
                 ondragstart="event.dataTransfer.setData('text/plain','${o.id}');this.classList.add('dragging')"
                 ondragend="this.classList.remove('dragging')">
-                <div class="pc-name">${o.client||'—'}</div>
+                <div class="pc-name" style="cursor:pointer;text-decoration:underline;text-decoration-color:#C9A84C;text-underline-offset:3px;" onclick="event.stopPropagation();openClientInCentral('${safeName}')" title="Deschide în Centralizator">${o.client||'—'}</div>
                 <div class="pc-obj">📍 ${o.obiectiv||'—'} • 📐 ${o.suprafata||'—'}</div>
                 <div class="pc-val">${o.valoare||'—'}</div>
                 ${daysText?`<div class="pc-days" style="${daysClass}">📅 ${daysText}</div>`:''}
-                <div class="pc-move">
-                    ${prevStage?`<button onclick="moveToStage(${o.id},'${prevStage.id}')">◀ ${prevStage.icon}</button>`:''}
-                    ${nextStage?`<button onclick="moveToStage(${o.id},'${nextStage.id}')">${nextStage.icon} ▶</button>`:''}
+                <div class="pc-move" style="flex-wrap:wrap;">
+                    ${prevStage?`<button onclick="event.stopPropagation();moveToStage(${o.id},'${prevStage.id}')">◀ ${prevStage.icon}</button>`:''}
+                    ${nextStage?`<button onclick="event.stopPropagation();moveToStage(${o.id},'${nextStage.id}')">${nextStage.icon} ▶</button>`:''}
+                    <button onclick="event.stopPropagation();openClientInMesaje('${safeName}')" title="Mesaje" style="background:#25D366;">📲</button>
+                    <button onclick="event.stopPropagation();openClientInGalerie('${safeName}')" title="Poze" style="background:#E87722;">📸</button>
                 </div>
             </div>`;
         });
@@ -2436,10 +2477,11 @@ function renderDashboard(){
     // Chart: Status oferte (donut-style bars)
     const colors={trimise:'#f39c12',asteptare:'#4A9EF5',acceptate:'#2ecc71',respinse:'#e74c3c'};
     const labels={trimise:'Trimise',asteptare:'În așteptare',acceptate:'Acceptate',respinse:'Respinse'};
+    const statusMap={trimise:'Trimisă',asteptare:'În așteptare',acceptate:'Acceptată',respinse:'Respinsă'};
     let donutHTML='';
     for(const[k,label] of Object.entries(labels)){
         const val=st[k],pct=st.total?Math.round(val/st.total*100):0;
-        donutHTML+=`<div class="pipeline-row">
+        donutHTML+=`<div class="pipeline-row" style="cursor:pointer;border-radius:6px;transition:.15s;" onmouseover="this.style.background='#1a2a40'" onmouseout="this.style.background=''" onclick="dashDrillDown('${statusMap[k]}')" title="Vezi ofertele ${label}">
             <div class="pipeline-label">${label}</div>
             <div class="pipeline-bar" style="background:${colors[k]};width:${Math.max(pct*2,30)}px;">${val}</div>
             <div class="pipeline-val">${pct}%</div>
@@ -2458,9 +2500,10 @@ function renderDashboard(){
     const maxPipe=Math.max(...Object.values(valByStatus),1);
     let pipeHTML='';
     const pipeColors={trimise:['Trimise','#f39c12'],asteptare:['În așteptare','#4A9EF5'],acceptate:['Acceptate','#2ecc71']};
+    const pipeStatusMap={trimise:'Trimisă',asteptare:'În așteptare',acceptate:'Acceptată'};
     for(const[k,[label,color]] of Object.entries(pipeColors)){
         const w=Math.round(valByStatus[k]/maxPipe*200);
-        pipeHTML+=`<div class="pipeline-row">
+        pipeHTML+=`<div class="pipeline-row" style="cursor:pointer;border-radius:6px;transition:.15s;" onmouseover="this.style.background='#1a2a40'" onmouseout="this.style.background=''" onclick="dashDrillDown('${pipeStatusMap[k]}')" title="Vezi ${label}">
             <div class="pipeline-label">${label}</div>
             <div class="pipeline-bar" style="background:${color};width:${Math.max(w,30)}px;">${nr(Math.round(valByStatus[k]))}</div>
             <div class="pipeline-val">lei</div>
@@ -2482,9 +2525,10 @@ function renderDashboard(){
         weeks.forEach(w=>{if(d>=w.start&&d<=w.end)w.count++;});
     });
     const maxW=Math.max(...weeks.map(w=>w.count),1);
-    document.getElementById('chartWeekly').innerHTML=weeks.map(w=>{
+    document.getElementById('chartWeekly').innerHTML=weeks.map((w,wi)=>{
         const h=Math.max(Math.round(w.count/maxW*140),8);
-        return`<div class="bar-col"><div class="bar-val">${w.count}</div><div class="bar" style="height:${h}px;background:linear-gradient(180deg,#C9A84C,#8B6914);"></div><div class="bar-label">${w.label}</div></div>`;
+        const daysBack=(3-wi)*7+7;
+        return`<div class="bar-col" style="cursor:pointer;" onclick="dashDrillDown('all');setTimeout(()=>{const fp=document.getElementById('filterPeriod');if(fp){fp.value='${daysBack}';renderCentral();}},100)" title="Vezi ofertele din săptămâna ${w.label}"><div class="bar-val">${w.count}</div><div class="bar" style="height:${h}px;background:linear-gradient(180deg,#C9A84C,#8B6914);transition:.15s;"></div><div class="bar-label">${w.label}</div></div>`;
     }).join('');
 
     // Chart: Top 5 clienți
@@ -2500,7 +2544,8 @@ function renderDashboard(){
     document.getElementById('chartTopClienti').innerHTML=top5.map((c,i)=>{
         const w=Math.round(c.val/maxC*200);
         const colors2=['#C9A84C','#2563A8','#E87722','#2ecc71','#9b59b6'];
-        return`<div class="pipeline-row">
+        const safe=c.name.replace(/'/g,"\\'");
+        return`<div class="pipeline-row" style="cursor:pointer;border-radius:6px;transition:.15s;" onmouseover="this.style.background='#1a2a40'" onmouseout="this.style.background=''" onclick="openClientInCentral('${safe}')" title="Deschide ${c.name}">
             <div class="pipeline-label" style="width:120px;font-size:10px;overflow:hidden;text-overflow:ellipsis;" title="${c.name}">${c.name.substring(0,15)}</div>
             <div class="pipeline-bar" style="background:${colors2[i]};width:${Math.max(w,40)}px;">${nr(Math.round(c.val))}</div>
             <div class="pipeline-val">lei</div>
@@ -2529,21 +2574,23 @@ function renderFollowups(all,now){
 
     if(followups.length>0){
         document.getElementById('alertArea').innerHTML=`
-            <div class="alert-bar">
+            <div class="alert-bar" style="cursor:pointer;" onclick="dashDrillDown('alerte')" title="Vezi toate ofertele fără răspuns">
                 <div class="alert-icon">🔔</div>
-                <div class="alert-text"><strong>${followups.length} oferte</strong> fără răspuns de peste 3 zile — necesită follow-up!</div>
+                <div class="alert-text"><strong>${followups.length} oferte</strong> fără răspuns de peste 3 zile — necesită follow-up! <span style="color:#C9A84C;font-size:11px;">(click pentru detalii)</span></div>
                 <div class="alert-count">${followups.length}</div>
             </div>`;
 
         let fhtml='<div class="card"><div class="section-title" style="font-size:12px;">Follow-up necesar</div><div class="followup-list">';
         followups.forEach(f=>{
             const phone=extractPhone(f.client);
-            fhtml+=`<div class="followup-item">
+            const safe=(f.client||'').replace(/'/g,"\\'");
+            fhtml+=`<div class="followup-item" style="cursor:pointer;" onclick="openClientInCentral('${safe}')" title="Deschide în Centralizator">
                 <span class="followup-days">${f.days} zile</span>
                 <span class="followup-name">${f.client||'—'}</span>
                 <span class="text-muted">${f.obiectiv||''}</span>
                 <span class="text-gold" style="font-size:11px;font-weight:700;">${f.valoare||''}</span>
-                ${phone?`<a href="https://wa.me/${phone}" target="_blank" class="btn-wa">📲 WhatsApp</a>`:''}
+                ${phone?`<a href="https://wa.me/${phone}" target="_blank" class="btn-wa" onclick="event.stopPropagation();">📲 WhatsApp</a>`:''}
+                <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openClientInMesaje('${safe}')" style="font-size:11px;">💬 Mesaj</button>
             </div>`;
         });
         fhtml+='</div></div>';
@@ -3015,8 +3062,9 @@ function renderProfit(){
 
         if(o.oferta==='Acceptată'||o.contract!=='—'){totalVenit+=venit;totalCost+=totalC;}
 
+        const safeCN=(o.client||'').replace(/'/g,"\\'");
         html+=`<div class="profit-card">
-            <div class="pc-client">${o.client||'—'}</div>
+            <div class="pc-client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#C9A84C;text-underline-offset:3px;" onclick="openClientInCentral('${safeCN}')" title="Deschide în Centralizator">${o.client||'—'}</div>
             <div class="pc-obiectiv">${o.obiectiv||''} • ${o.suprafata||''}</div>
             <div class="profit-row"><span class="pr-label">Valoare ofertă</span><span class="pr-val text-gold">${o.valoare||'—'}</span></div>
             <div class="profit-row"><span class="pr-label">Materiale</span><span class="pr-val"><input type="number" value="${cost.materiale}" onchange="updateCost('${cid}','materiale',this.value)" style="width:80px;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;text-align:right;"></span></div>
@@ -3592,7 +3640,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.20.3';
+const APP_VERSION='2026.04.20.4';
 // Inject version dynamically in title + header badge so user SEES real version
 try{document.title='Hydro Concept — v'+APP_VERSION;}catch(e){}
 try{const _vb=document.getElementById('hc_ver_badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}
