@@ -96,7 +96,10 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 
 /* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px;}
-.stat-card{background:#111f35;border:1px solid #1B3A6B;border-radius:10px;padding:14px;text-align:center;}
+.stat-card{background:#111f35;border:1px solid #1B3A6B;border-radius:10px;padding:14px;text-align:center;transition:transform .15s,border-color .15s,box-shadow .15s;}
+.stat-clk{cursor:pointer;}
+.stat-clk:hover{transform:translateY(-2px);border-color:#C9A84C;box-shadow:0 4px 12px rgba(201,168,76,0.25);}
+.stat-clk:active{transform:translateY(0);}
 .stat-card .num{font-size:28px;font-weight:800;color:#C9A84C;}
 .stat-card .lbl{font-size:10px;color:#6688aa;margin-top:4px;text-transform:uppercase;letter-spacing:1px;}
 
@@ -768,6 +771,7 @@ body{background:#fff!important;color:#000!important;}
 <div class="page" id="page-centralizator">
 <div class="section-title">Centralizator clienți & documente</div>
 <div class="stats-grid" id="statsGrid"></div>
+<div id="activeFilterBar" style="display:none;flex-wrap:wrap;gap:8px;align-items:center;background:#0a1525;border:1px solid #C9A84C;border-radius:8px;padding:8px 12px;margin-bottom:10px;"></div>
 <div class="search-bar" style="flex-wrap:wrap;gap:8px;">
     <input type="text" id="searchInput" placeholder="🔍 Caută client, telefon, adresă..." oninput="renderCentral()" style="min-width:200px;flex:1;">
     <select id="filterStatus" onchange="renderCentral()"><option value="">Toate statusurile</option><option value="Trimisă">Trimisă</option><option value="În așteptare">În așteptare</option><option value="Acceptată">Acceptată</option><option value="Respinsă">Respinsă</option></select>
@@ -1522,6 +1526,33 @@ function daysAgo(dateStr){
     return Math.floor((Date.now()-d.getTime())/(1000*60*60*24));
 }
 
+// Special filter for stat-card drill-down (contracte/alerte)
+let _centralSpecial='';
+
+function centralFilter(val){
+    // reset search
+    const si=document.getElementById('searchInput');if(si)si.value='';
+    const fs=document.getElementById('filterStatus');
+    const fp=document.getElementById('filterPlata');
+    const fper=document.getElementById('filterPeriod');
+    if(fp)fp.value='';if(fper)fper.value='';
+    _centralSpecial='';
+    if(val==='all'){if(fs)fs.value='';}
+    else if(val==='contracte'){if(fs)fs.value='';_centralSpecial='contracte';}
+    else if(val==='alerte'){if(fs)fs.value='';_centralSpecial='alerte';}
+    else {if(fs)fs.value=val;}
+    renderCentral();
+    // scroll to table
+    const tbl=document.getElementById('centralTable');
+    if(tbl)tbl.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function dashDrillDown(val){
+    showPage('centralizator');
+    // ensure page is active before filtering
+    setTimeout(()=>centralFilter(val),50);
+}
+
 function renderCentral(){
     const all=getAll();
     const search=(document.getElementById('searchInput').value||'').toLowerCase();
@@ -1536,7 +1567,10 @@ function renderCentral(){
         const mpl=!plataF||o.statusPlata===plataF;
         let mper=true;
         if(periodF){const d=parseRoDate(o.dataOferta);mper=d&&(now-d.getTime())<periodF*86400000;}
-        return ms&&mst&&mpl&&mper;
+        let msp=true;
+        if(_centralSpecial==='contracte')msp=o.contract&&o.contract!=='—';
+        else if(_centralSpecial==='alerte')msp=(o.oferta==='Trimisă'||o.oferta==='În așteptare')&&daysAgo(o.dataOferta)>7;
+        return ms&&mst&&mpl&&mper&&msp;
     });
 
     // Stats
@@ -1550,13 +1584,13 @@ function renderCentral(){
         if((o.oferta==='Trimisă'||o.oferta==='În așteptare')&&daysAgo(o.dataOferta)>7)st.alerte++;
     });
     document.getElementById('statsGrid').innerHTML=`
-        <div class="stat-card"><div class="num">${st.total}</div><div class="lbl">Total clienți</div></div>
-        <div class="stat-card"><div class="num" style="color:#f39c12;">${st.trimise}</div><div class="lbl">Oferte trimise</div></div>
-        <div class="stat-card"><div class="num" style="color:#4A9EF5;">${st.asteptare}</div><div class="lbl">În așteptare</div></div>
-        <div class="stat-card"><div class="num" style="color:#2ecc71;">${st.acceptate}</div><div class="lbl">Acceptate</div></div>
-        <div class="stat-card"><div class="num" style="color:#e74c3c;">${st.respinse}</div><div class="lbl">Respinse</div></div>
-        <div class="stat-card"><div class="num" style="color:#27ae60;">${st.contracte}</div><div class="lbl">Contracte</div></div>
-        ${st.alerte?`<div class="stat-card" style="border:1px solid #e74c3c;"><div class="num" style="color:#e74c3c;">⚠️ ${st.alerte}</div><div class="lbl">Fără răspuns >7 zile</div></div>`:''}
+        <div class="stat-card stat-clk" onclick="centralFilter('all')" title="Vezi toți clienții"><div class="num">${st.total}</div><div class="lbl">Total clienți</div></div>
+        <div class="stat-card stat-clk" onclick="centralFilter('Trimisă')" title="Filtrează după Trimisă"><div class="num" style="color:#f39c12;">${st.trimise}</div><div class="lbl">Oferte trimise</div></div>
+        <div class="stat-card stat-clk" onclick="centralFilter('În așteptare')" title="Filtrează după În așteptare"><div class="num" style="color:#4A9EF5;">${st.asteptare}</div><div class="lbl">În așteptare</div></div>
+        <div class="stat-card stat-clk" onclick="centralFilter('Acceptată')" title="Filtrează după Acceptată"><div class="num" style="color:#2ecc71;">${st.acceptate}</div><div class="lbl">Acceptate</div></div>
+        <div class="stat-card stat-clk" onclick="centralFilter('Respinsă')" title="Filtrează după Respinsă"><div class="num" style="color:#e74c3c;">${st.respinse}</div><div class="lbl">Respinse</div></div>
+        <div class="stat-card stat-clk" onclick="centralFilter('contracte')" title="Filtrează contracte semnate"><div class="num" style="color:#27ae60;">${st.contracte}</div><div class="lbl">Contracte</div></div>
+        ${st.alerte?`<div class="stat-card stat-clk" style="border:1px solid #e74c3c;" onclick="centralFilter('alerte')" title="Clienți fără răspuns >7 zile"><div class="num" style="color:#e74c3c;">⚠️ ${st.alerte}</div><div class="lbl">Fără răspuns >7 zile</div></div>`:''}
     `;
 
     // Status badge helper
@@ -1586,7 +1620,7 @@ function renderCentral(){
         const realIdx=all.indexOf(o);
         const aging=(o.oferta==='Trimisă'||o.oferta==='În așteptare')&&daysAgo(o.dataOferta)>7;
         const ageDays=daysAgo(o.dataOferta);
-        html+=`<tr style="${aging?'border-left:3px solid #e74c3c;':''}"
+        html+=`<tr style="${aging?'border-left:3px solid #e74c3c;':''}">
             <td class="col-center">${o.nr||idx+1}</td>
             <td class="editable" ondblclick="editCell(this,${realIdx},'client','text')"><strong>${o.client||'—'}</strong></td>
             <td class="editable" style="font-size:12px;" ondblclick="editCell(this,${realIdx},'telefon','text')">${o.telefon?`<a href="tel:${o.telefon}" style="color:#2ecc71;text-decoration:none;">${o.telefon}</a>`:'<span style="color:#445;">—</span>'}</td>
@@ -1607,6 +1641,32 @@ function renderCentral(){
     });
     document.getElementById('centralTbody').innerHTML=html||'<tr><td colspan="16" class="text-center text-muted">Nicio ofertă.</td></tr>';
     document.getElementById('centralTfoot').innerHTML='';
+    // Active filter indicator
+    const fb=document.getElementById('activeFilterBar');
+    if(fb){
+        const parts=[];
+        if(statusF)parts.push('Status: '+statusF);
+        if(plataF)parts.push('Plată: '+plataF);
+        if(periodF)parts.push('Ultimele '+periodF+' zile');
+        if(_centralSpecial==='contracte')parts.push('Contracte semnate');
+        if(_centralSpecial==='alerte')parts.push('Fără răspuns >7 zile');
+        if(search)parts.push('Căutare: "'+search+'"');
+        if(parts.length){
+            fb.style.display='flex';
+            fb.innerHTML=`<span style="color:#8899aa;font-size:12px;">🔍 Filtre active:</span> ${parts.map(p=>`<span style="background:#C9A84C;color:#0D1B2A;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">${p}</span>`).join('')} <button class="btn btn-outline btn-sm" style="margin-left:auto;" onclick="clearCentralFilters()">✕ Șterge filtre</button> <span style="color:#C9A84C;font-weight:700;font-size:12px;">${filtered.length} rezultate</span>`;
+        } else {
+            fb.style.display='none';fb.innerHTML='';
+        }
+    }
+}
+
+function clearCentralFilters(){
+    const si=document.getElementById('searchInput');if(si)si.value='';
+    const fs=document.getElementById('filterStatus');if(fs)fs.value='';
+    const fp=document.getElementById('filterPlata');if(fp)fp.value='';
+    const fper=document.getElementById('filterPeriod');if(fper)fper.value='';
+    _centralSpecial='';
+    renderCentral();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2365,12 +2425,12 @@ function renderDashboard(){
     });
 
     document.getElementById('dashStats').innerHTML=`
-        <div class="stat-card"><div class="num">${st.total}</div><div class="lbl">Total clienți</div></div>
-        <div class="stat-card"><div class="num" style="color:#f39c12;">${st.trimise}</div><div class="lbl">Oferte trimise</div></div>
-        <div class="stat-card"><div class="num" style="color:#2ecc71;">${st.acceptate}</div><div class="lbl">Acceptate</div></div>
-        <div class="stat-card"><div class="num" style="color:#27ae60;">${st.contracte}</div><div class="lbl">Contracte</div></div>
-        <div class="stat-card"><div class="num" style="font-size:18px;">${nr(Math.round(st.valTotal))} lei</div><div class="lbl">Valoare totală</div></div>
-        <div class="stat-card"><div class="num" style="font-size:18px;color:#2ecc71;">${nr(Math.round(st.valTotal*(st.acceptate/Math.max(st.total,1))))} lei</div><div class="lbl">Valoare acceptate</div></div>
+        <div class="stat-card stat-clk" onclick="dashDrillDown('all')" title="Vezi toți clienții"><div class="num">${st.total}</div><div class="lbl">Total clienți</div></div>
+        <div class="stat-card stat-clk" onclick="dashDrillDown('Trimisă')" title="Vezi ofertele trimise"><div class="num" style="color:#f39c12;">${st.trimise}</div><div class="lbl">Oferte trimise</div></div>
+        <div class="stat-card stat-clk" onclick="dashDrillDown('Acceptată')" title="Vezi ofertele acceptate"><div class="num" style="color:#2ecc71;">${st.acceptate}</div><div class="lbl">Acceptate</div></div>
+        <div class="stat-card stat-clk" onclick="dashDrillDown('contracte')" title="Vezi contractele semnate"><div class="num" style="color:#27ae60;">${st.contracte}</div><div class="lbl">Contracte</div></div>
+        <div class="stat-card stat-clk" onclick="dashDrillDown('all')" title="Vezi toți clienții"><div class="num" style="font-size:18px;">${nr(Math.round(st.valTotal))} lei</div><div class="lbl">Valoare totală</div></div>
+        <div class="stat-card stat-clk" onclick="dashDrillDown('Acceptată')" title="Vezi ofertele acceptate"><div class="num" style="font-size:18px;color:#2ecc71;">${nr(Math.round(st.valTotal*(st.acceptate/Math.max(st.total,1))))} lei</div><div class="lbl">Valoare acceptate</div></div>
     `;
 
     // Chart: Status oferte (donut-style bars)
@@ -3532,7 +3592,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.20.2';
+const APP_VERSION='2026.04.20.3';
 // Inject version dynamically in title + header badge so user SEES real version
 try{document.title='Hydro Concept — v'+APP_VERSION;}catch(e){}
 try{const _vb=document.getElementById('hc_ver_badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}
