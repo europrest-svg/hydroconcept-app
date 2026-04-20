@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Hydro Concept — Aplicație de Lucru v3.7</title>
+<title>Hydro Concept — Aplicație de Lucru</title>
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -421,7 +421,7 @@ body{background:#fff!important;color:#000!important;}
 <body>
 
 <div class="app-header">
-<div class="brand"><img src="logo-white.png" alt="Hydro Concept" class="hc-logo" style="height:48px;"> <small>— Aplicație de Lucru v3.7</small></div>
+<div class="brand"><img src="logo-white.png" alt="Hydro Concept" class="hc-logo" style="height:48px;"> <small>— Aplicație de Lucru <span id="hc_ver_badge" style="color:#C9A84C;font-weight:700;">...</span></small></div>
 <div style="display:flex;align-items:center;gap:12px;">
 <button class="theme-toggle" onclick="forceUpdate()" title="Actualizează aplicația" style="font-size:14px;cursor:pointer;background:none;border:1px solid #334;border-radius:6px;padding:4px 8px;color:#8899aa;">🔄</button>
 <button class="theme-toggle" onclick="toggleTheme()" title="Dark/Light">🌓</button>
@@ -3466,7 +3466,10 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.16.1';
+const APP_VERSION='2026.04.20.1';
+// Inject version dynamically in title + header badge so user SEES real version
+try{document.title='Hydro Concept — v'+APP_VERSION;}catch(e){}
+try{const _vb=document.getElementById('hc_ver_badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
         console.log('SW OK');
