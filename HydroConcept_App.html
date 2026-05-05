@@ -103,6 +103,17 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .pipeline-row-clk{cursor:pointer;border-radius:6px;transition:background .15s;}
 .pipeline-row-clk:hover{background:#1a2a40;}
 body.light .pipeline-row-clk:hover{background:#eef5ff;}
+
+/* Deviz table inputs — keep readable on mobile (override the global 16px) */
+.dev-inp{width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:13px;}
+.dev-inp-num{text-align:right;}
+.dev-inp-um{text-align:center;}
+@media(max-width:768px){.dev-inp{font-size:13px!important;padding:5px!important;}}
+.dev-tbl{min-width:760px;}
+.dev-tbl td{font-size:12px;}
+.dev-tbl .col-tot{text-align:right;font-weight:700;color:#C9A84C;white-space:nowrap;}
+.dev-tbl .col-tot-mat{color:#E87722;}
+.dev-tbl .col-tot-tva{color:#f39c12;}
 .stat-card .num{font-size:28px;font-weight:800;color:#C9A84C;}
 .stat-card .lbl{font-size:10px;color:#6688aa;margin-top:4px;text-transform:uppercase;letter-spacing:1px;}
 
@@ -1041,14 +1052,14 @@ body{background:#fff!important;color:#000!important;}
 <div class="card">
     <div class="section-title" style="font-size:13px;color:#2563A8;">Secțiunea 1 — Manoperă</div>
     <div class="tbl-wrap">
-        <table style="white-space:normal;">
+        <table class="dev-tbl" style="white-space:normal;">
             <thead><tr>
                 <th style="width:40px;">Nr.</th>
                 <th>Operațiunea desfășurată</th>
                 <th style="width:90px;">Cant.</th>
                 <th style="width:60px;">UM</th>
-                <th style="width:110px;">Preț EUR</th>
-                <th style="width:110px;">Total EUR</th>
+                <th style="width:120px;">Preț EUR</th>
+                <th style="width:130px;">Total EUR</th>
                 <th style="width:50px;">✕</th>
             </tr></thead>
             <tbody id="dev-manopera-tb"></tbody>
@@ -1065,15 +1076,15 @@ body{background:#fff!important;color:#000!important;}
 <div class="card">
     <div class="section-title" style="font-size:13px;color:#E87722;">Secțiunea 2 — Materialele utilizate</div>
     <div class="tbl-wrap">
-        <table style="white-space:normal;">
+        <table class="dev-tbl" style="white-space:normal;min-width:880px;">
             <thead><tr>
                 <th style="width:40px;">Nr.</th>
                 <th>Material</th>
                 <th style="width:90px;">QTY</th>
                 <th style="width:60px;">UM</th>
-                <th style="width:100px;">Preț EUR</th>
-                <th style="width:110px;">Val. fără TVA</th>
-                <th style="width:100px;">TVA</th>
+                <th style="width:120px;">Preț EUR</th>
+                <th style="width:130px;">Val. fără TVA</th>
+                <th style="width:110px;">TVA</th>
                 <th style="width:50px;">✕</th>
             </tr></thead>
             <tbody id="dev-materiale-tb"></tbody>
@@ -3933,13 +3944,14 @@ function renderDevizRows(){
     const mt=document.getElementById('dev-materiale-tb');
     if(!mb||!mt)return;
 
+    const esc=s=>(s==null?'':String(s)).replace(/"/g,'&quot;');
     mb.innerHTML=_devizState.manopera.map((r,i)=>`<tr>
         <td class="col-center">${i+1}</td>
-        <td><input type="text" value="${(r.desc||'').replace(/"/g,'&quot;')}" oninput="updateDevizCell('manopera',${i},'desc',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;"></td>
-        <td><input type="number" value="${r.qty}" step="0.01" oninput="updateDevizCell('manopera',${i},'qty',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:right;"></td>
-        <td><input type="text" value="${r.um||''}" oninput="updateDevizCell('manopera',${i},'um',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:center;"></td>
-        <td><input type="number" value="${r.pret}" step="0.01" oninput="updateDevizCell('manopera',${i},'pret',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:right;"></td>
-        <td style="text-align:right;font-weight:700;color:#C9A84C;">${nr((r.qty*r.pret).toFixed(2))} €</td>
+        <td><input class="dev-inp" type="text" value="${esc(r.desc)}" oninput="updateDevizCell('manopera',${i},'desc',this.value)"></td>
+        <td><input class="dev-inp dev-inp-num" type="number" value="${r.qty}" step="0.01" oninput="updateDevizCell('manopera',${i},'qty',this.value)"></td>
+        <td><input class="dev-inp dev-inp-um" type="text" value="${esc(r.um)}" oninput="updateDevizCell('manopera',${i},'um',this.value)"></td>
+        <td><input class="dev-inp dev-inp-num" type="number" value="${r.pret}" step="0.01" oninput="updateDevizCell('manopera',${i},'pret',this.value)"></td>
+        <td class="col-tot">${nr((r.qty*r.pret).toFixed(2))} €</td>
         <td><button class="btn btn-red btn-sm" onclick="removeDevizRow('manopera',${i})" style="padding:4px 8px;">✕</button></td>
     </tr>`).join('')||'<tr><td colspan="7" class="text-center text-muted">— Selectează un template sau adaugă rânduri —</td></tr>';
 
@@ -3949,12 +3961,12 @@ function renderDevizRows(){
         const tva=fara*TVA/100;
         return `<tr>
         <td class="col-center">${i+1}</td>
-        <td><input type="text" value="${(r.desc||'').replace(/"/g,'&quot;')}" oninput="updateDevizCell('materiale',${i},'desc',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;"></td>
-        <td><input type="number" value="${r.qty}" step="0.01" oninput="updateDevizCell('materiale',${i},'qty',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:right;"></td>
-        <td><input type="text" value="${r.um||''}" oninput="updateDevizCell('materiale',${i},'um',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:center;"></td>
-        <td><input type="number" value="${r.pret}" step="0.01" oninput="updateDevizCell('materiale',${i},'pret',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:right;"></td>
-        <td style="text-align:right;font-weight:700;color:#E87722;">${nr(fara.toFixed(2))} €</td>
-        <td style="text-align:right;color:#f39c12;">${nr(tva.toFixed(2))} €</td>
+        <td><input class="dev-inp" type="text" value="${esc(r.desc)}" oninput="updateDevizCell('materiale',${i},'desc',this.value)"></td>
+        <td><input class="dev-inp dev-inp-num" type="number" value="${r.qty}" step="0.01" oninput="updateDevizCell('materiale',${i},'qty',this.value)"></td>
+        <td><input class="dev-inp dev-inp-um" type="text" value="${esc(r.um)}" oninput="updateDevizCell('materiale',${i},'um',this.value)"></td>
+        <td><input class="dev-inp dev-inp-num" type="number" value="${r.pret}" step="0.01" oninput="updateDevizCell('materiale',${i},'pret',this.value)"></td>
+        <td class="col-tot col-tot-mat">${nr(fara.toFixed(2))} €</td>
+        <td class="col-tot col-tot-tva">${nr(tva.toFixed(2))} €</td>
         <td><button class="btn btn-red btn-sm" onclick="removeDevizRow('materiale',${i})" style="padding:4px 8px;">✕</button></td>
     </tr>`;}).join('')||'<tr><td colspan="8" class="text-center text-muted">— Selectează un template sau adaugă rânduri —</td></tr>';
 
@@ -4218,7 +4230,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.05.05.1';
+const APP_VERSION='2026.05.05.2';
 // Inject version dynamically in title + header badge so user SEES real version
 try{document.title='Hydro Concept — v'+APP_VERSION;}catch(e){}
 try{const _vb=document.getElementById('hc_ver_badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}
