@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ofertă Hydro Concept</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Calibri','Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#1a202c;min-height:100vh;padding:20px 10px;}
+  .wrap{max-width:760px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.12);}
+  .header{background:linear-gradient(135deg,#1B3A6B,#0D1B2A);color:#fff;padding:24px 30px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .logo{font-size:26px;font-weight:800;color:#C9A84C;letter-spacing:1px;}
+  .logo small{display:block;font-size:11px;color:#aabbcc;font-weight:400;letter-spacing:0;margin-top:2px;}
+  .iso{margin-left:auto;background:#fff;color:#1B3A6B;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;}
+  .body{padding:28px 30px;}
+  h1{font-size:26px;color:#1A202C;margin-bottom:6px;text-align:center;}
+  .subtitle{text-align:center;color:#4A5568;font-size:14px;margin-bottom:6px;}
+  .data-info{text-align:center;color:#E87722;font-style:italic;font-size:13px;margin-bottom:24px;}
+  .client-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:28px;}
+  .client-box{padding:18px 20px;border:1px solid #C8D8EA;}
+  .client-from{border-top:4px solid #2563A8;background:#EAF3FB;border-right:none;border-radius:8px 0 0 8px;}
+  .client-to{border-top:4px solid #E87722;background:#FFFDF0;border-radius:0 8px 8px 0;}
+  .client-label{font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+  .client-name{font-size:16px;font-weight:700;color:#1A202C;margin-bottom:4px;}
+  .client-det{font-size:12px;color:#4A5568;line-height:1.6;}
+  .section{font-size:18px;font-weight:800;color:#1B3A6B;margin:24px 0 10px 0;border-bottom:2px solid #C9A84C;padding-bottom:6px;}
+  .info-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:14px;}
+  .info-row strong{color:#1A202C;}
+  .info-row span{color:#4A5568;text-align:right;}
+  .price-box{background:linear-gradient(135deg,#FFFDF0,#FFF8E0);border:2px solid #C9A84C;border-radius:10px;padding:20px;text-align:center;margin:24px 0;}
+  .price-box .label{font-size:13px;color:#8B6914;text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+  .price-box .value{font-size:36px;font-weight:800;color:#C9A84C;margin-top:6px;}
+  .msg-box{background:#f8f9fa;border-left:4px solid #2563A8;padding:14px 18px;border-radius:6px;font-size:13px;line-height:1.6;color:#2c3e50;white-space:pre-wrap;margin:20px 0;}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:24px 0;}
+  .btn{padding:14px 24px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;}
+  .btn-accept{background:linear-gradient(135deg,#27ae60,#1e8449);color:#fff;}
+  .btn-call{background:linear-gradient(135deg,#2563A8,#1B3A6B);color:#fff;}
+  .btn-wa{background:#25D366;color:#fff;}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+  .footer{background:#0D1B2A;color:#aabbcc;padding:18px 30px;font-size:11px;text-align:center;}
+  .footer strong{color:#C9A84C;}
+  @media(max-width:600px){
+    body{padding:10px 5px;}
+    .client-grid{grid-template-columns:1fr;}
+    .client-from,.client-to{border-radius:8px;border:1px solid #C8D8EA;}
+    .header{padding:18px 20px;}
+    .logo{font-size:20px;}
+    .body{padding:20px 18px;}
+    h1{font-size:20px;}
+    .price-box .value{font-size:28px;}
+    .btn{flex:1 1 100%;justify-content:center;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="content">
+    <div style="padding:60px 20px;text-align:center;color:#888;">Se încarcă oferta...</div>
+</div>
+
+<script>
+function b64UrlDecode(s){
+    s=s.replace(/-/g,'+').replace(/_/g,'/');
+    while(s.length%4)s+='=';
+    return decodeURIComponent(escape(atob(s)));
+}
+
+function render(){
+    const hash=location.hash.replace(/^#/,'');
+    const m=hash.match(/data=([^&]+)/);
+    if(!m){
+        document.getElementById('content').innerHTML='<div style="padding:60px 20px;text-align:center;"><h2 style="color:#e74c3c;">⚠️ Link invalid</h2><p style="color:#666;margin-top:10px;">Acest link nu conține date de ofertă.</p></div>';
+        return;
+    }
+    let d;
+    try{d=JSON.parse(b64UrlDecode(m[1]));}
+    catch(e){document.getElementById('content').innerHTML='<div style="padding:60px 20px;text-align:center;"><h2 style="color:#e74c3c;">⚠️ Date corupte</h2></div>';return;}
+
+    const tel=d.tel||'0720 139 220';
+    const phoneClean=tel.replace(/[^\d]/g,'');
+    const waMsg=encodeURIComponent(`Bună ziua! Vreau să accept oferta primită pentru ${d.obiectiv||'lucrare'}. Vă rog să continuăm.`);
+    const subject=encodeURIComponent('Confirmare ofertă — '+(d.obiectiv||'lucrare'));
+    const body=encodeURIComponent(`Bună ziua,\n\nConfirm primirea ofertei pentru ${d.obiectiv||''} și doresc să continuăm.\n\nMulțumesc,\n${d.client||''}`);
+
+    document.title=`Ofertă ${d.firma||''} pentru ${d.client||''}`;
+
+    document.getElementById('content').innerHTML=`
+        <div class="header">
+            <div class="logo">HYDRO CONCEPT<small>${d.firma||'Euro-Prest Provider S.R.L.'}</small></div>
+            <div class="iso">ISO 9001:2015</div>
+        </div>
+        <div class="body">
+            <h1>Ofertă personalizată</h1>
+            <div class="subtitle">${d.obiectiv||'Hidroizolație profesională'}</div>
+            <div class="data-info">📅 Emisă la data: ${d.dataOferta||'—'}  •  Valabilitate: 30 zile</div>
+
+            <div class="client-grid">
+                <div class="client-box client-from">
+                    <div class="client-label">DE LA</div>
+                    <div class="client-name">${d.firma||'Hydro Concept'}</div>
+                    <div class="client-det">
+                        ${d.admin?'Administrator: <strong>'+d.admin+'</strong><br>':''}
+                        ${d.cuit?'CUI: '+d.cuit+'<br>':''}
+                        📞 ${tel}<br>
+                        ${d.emailFirma?'📧 '+d.emailFirma:''}
+                    </div>
+                </div>
+                <div class="client-box client-to">
+                    <div class="client-label">PENTRU</div>
+                    <div class="client-name">${d.client||'—'}</div>
+                    <div class="client-det">
+                        ${d.telefon?'📞 '+d.telefon+'<br>':''}
+                        ${d.email?'📧 '+d.email:''}
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">📋 Detalii lucrare</div>
+            <div class="info-row"><strong>Obiectiv:</strong><span>${d.obiectiv||'—'}</span></div>
+            ${d.suprafata?`<div class="info-row"><strong>Suprafață:</strong><span>${d.suprafata}</span></div>`:''}
+            <div class="info-row"><strong>Garanție:</strong><span>conform contract</span></div>
+            <div class="info-row"><strong>Termen:</strong><span>la stabilire de comun acord</span></div>
+
+            ${d.valoare?`
+                <div class="price-box">
+                    <div class="label">💰 Valoare ofertă</div>
+                    <div class="value">${d.valoare}</div>
+                </div>
+            `:''}
+
+            ${d.mesaj?`<div class="section">💬 Mesaj</div><div class="msg-box">${d.mesaj.replace(/</g,'&lt;')}</div>`:''}
+
+            <div class="section">✅ Acceptă oferta</div>
+            <p style="text-align:center;color:#666;font-size:13px;margin-bottom:14px;">Pentru a accepta această ofertă, contactați-ne prin metodele de mai jos:</p>
+            <div class="actions">
+                <a class="btn btn-wa" href="https://wa.me/${'4'+phoneClean.replace(/^0/,'')}?text=${waMsg}">📲 WhatsApp Acceptă</a>
+                <a class="btn btn-call" href="tel:${tel}">📞 Sună acum</a>
+                ${d.emailFirma?`<a class="btn btn-accept" href="mailto:${d.emailFirma}?subject=${subject}&body=${body}">📧 Email Acceptă</a>`:''}
+            </div>
+        </div>
+        <div class="footer">
+            <strong>${d.firma||'Hydro Concept'}</strong> — Hidroizolații profesionale<br>
+            ${d.cuit?'CUI: '+d.cuit+' • ':''}ISO 9001:2015<br>
+            <span style="opacity:.6;">Generat din aplicația HydroConcept</span>
+        </div>
+    `;
+}
+
+window.addEventListener('hashchange',render);
+render();
+</script>
+</body>
+</html>

@@ -523,6 +523,7 @@ body{background:#fff!important;color:#000!important;}
 <button class="tab" onclick="showPage('calculator')">🔢 Calculator</button>
 <button class="tab" onclick="showPage('pipeline')">📈 Pipeline</button>
 <button class="tab" onclick="showPage('devize')">📋 Devize</button>
+<button class="tab" onclick="showPage('export')">📤 Export</button>
 <button class="tab" onclick="showPage('setari')">⚙️ Setări</button>
 </div>
 
@@ -1128,6 +1129,75 @@ body{background:#fff!important;color:#000!important;}
 </div>
 </div>
 
+<!-- ═══════ PAGE: EXPORT & INTEGRĂRI ═══════ -->
+<div class="page" id="page-export">
+<div class="section-title">📤 Export & Integrări — toate într-un loc</div>
+
+<!-- 11. IMPORT CSV -->
+<div class="card">
+    <div class="section-title" style="font-size:13px;color:#27ae60;">📥 Import contacte din CSV / Phonebook</div>
+    <p class="text-muted" style="font-size:12px;margin:0 0 8px 0;">Acceptă fișiere .csv (export din Google Contacts, Outlook, sau orice manager telefon). Coloane recunoscute: <strong>nume / telefon / email / adresă / obiectiv</strong> (și echivalentele lor).</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input type="file" id="csvImportFile" accept=".csv,.txt" onchange="parseCSVImport(this)" style="font-size:12px;color:#aabbcc;">
+        <button class="btn btn-outline btn-sm" onclick="downloadCSVTemplate()">📄 Descarcă șablon CSV</button>
+    </div>
+    <div id="csvPreview" style="margin-top:10px;display:none;"></div>
+</div>
+
+<!-- 12 + 13 + 14. CLIENT MESSENGER -->
+<div class="card">
+    <div class="section-title" style="font-size:13px;color:#25D366;">📲 Trimite ofertă (WhatsApp / Email / Link public)</div>
+    <div class="form-row">
+        <div class="form-group" style="max-width:300px;"><label>Selectează client</label><select id="msg-client-select" onchange="prepareClientMessage()"><option value="">— alege client —</option></select></div>
+        <div class="form-group" style="max-width:200px;"><label>Tip mesaj</label><select id="msg-type" onchange="prepareClientMessage()">
+            <option value="oferta">📋 Ofertă inițială</option>
+            <option value="followup">⏰ Follow-up</option>
+            <option value="contract">📝 Trimitere contract</option>
+            <option value="multumire">🙏 Mulțumire</option>
+            <option value="custom">✏️ Personalizat</option>
+        </select></div>
+    </div>
+    <div style="margin-bottom:8px;">
+        <label style="font-size:11px;color:#8899aa;">Mesaj (poate fi editat):</label>
+        <textarea id="msgPreview" style="width:100%;min-height:140px;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:10px;border-radius:6px;font-family:inherit;font-size:13px;" placeholder="Selectează un client pentru a genera mesajul..."></textarea>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" style="background:#25D366;color:#fff;" onclick="sendViaWhatsApp()">📲 Trimite WhatsApp</button>
+        <button class="btn btn-blue" onclick="sendViaEmail()">📧 Trimite Email</button>
+        <button class="btn btn-gold" onclick="copyMessageToClipboard()">📋 Copiază text</button>
+        <button class="btn btn-outline btn-sm" onclick="generatePublicOfferLink()">🔗 Link public ofertă</button>
+        <button class="btn btn-outline btn-sm" onclick="shareOfferMobile()">📤 Share (Web Share)</button>
+    </div>
+    <div id="publicLinkBox" style="display:none;margin-top:12px;background:#0a1525;border:1px solid #C9A84C;border-radius:8px;padding:10px;"></div>
+</div>
+
+<!-- BACKUP & EXPORT -->
+<div class="card">
+    <div class="section-title" style="font-size:13px;color:#C9A84C;">💾 Backup & Export complet</div>
+    <p class="text-muted" style="font-size:12px;margin:0 0 8px 0;">Exportă toate datele aplicației pentru backup sau migrare.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-gold btn-sm" onclick="exportAllJSON()">💾 Backup JSON complet</button>
+        <button class="btn btn-blue btn-sm" onclick="exportCSV()">📊 Export Centralizator CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportAllDevizeJSON()">📋 Export devize JSON</button>
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;">
+            📥 Import backup JSON
+            <input type="file" accept=".json" onchange="importBackupJSON(this)" style="display:none;">
+        </label>
+    </div>
+</div>
+
+<!-- BULK ACTIONS -->
+<div class="card">
+    <div class="section-title" style="font-size:13px;color:#E87722;">🎯 Acțiuni în masă</div>
+    <p class="text-muted" style="font-size:12px;margin:0 0 8px 0;">Operațiuni pentru mai mulți clienți deodată.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="bulkFollowUpWhatsApp()">📲 WhatsApp follow-up tuturor (>7 zile fără răspuns)</button>
+        <button class="btn btn-outline btn-sm" onclick="exportFollowUpList()">📋 Export listă follow-up</button>
+        <button class="btn btn-outline btn-sm" onclick="generateMonthlyReport()">📊 Raport luna curentă</button>
+    </div>
+</div>
+</div>
+
 <!-- ═══════ Material Picker Modal ═══════ -->
 <div id="matPickerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:10px;">
     <div style="background:#0d1825;border:2px solid #C9A84C;border-radius:12px;max-width:1000px;width:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
@@ -1320,6 +1390,7 @@ function showPage(name){
     if(name==='mesaje') renderMsgClients();
     if(name==='pipeline') renderPipeline();
     if(name==='devize') renderDevize();
+    if(name==='export') renderExportPage();
     if(name==='setari'){loadPinSetting();document.getElementById('lastBackupTime').textContent=localStorage.getItem('hc_last_backup')||'Niciodată';generateQR();}
 }
 
@@ -4386,13 +4457,382 @@ function genDevizDOCX(){
 }
 
 // ═══════════════════════════════════════════════════════
+// EXPORT & INTEGRĂRI — pagină consolidată
+// ═══════════════════════════════════════════════════════
+
+let _csvParsed=null;
+
+function renderExportPage(){
+    // populate client selector
+    const sel=document.getElementById('msg-client-select');
+    if(!sel)return;
+    const all=getAll();
+    sel.innerHTML='<option value="">— alege client —</option>'+
+        all.map((o,i)=>`<option value="${i}">${(o.client||'—').replace(/</g,'&lt;')}${o.obiectiv?' • '+o.obiectiv.substring(0,30):''}</option>`).join('');
+}
+
+// ─── 11. CSV IMPORT ───────────────────────────────────────
+function downloadCSVTemplate(){
+    const csv='nume,telefon,email,adresa,obiectiv\nIon Popescu,0722123456,ion@example.ro,Str. Exemplu 1 București,Hidroizolație terasă bloc\n';
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='sablon_contacte.csv';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    toast('📄 Șablon CSV descărcat');
+}
+
+function parseCSVImport(input){
+    const f=input.files[0];if(!f)return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+        try{
+            const text=e.target.result;
+            const lines=text.split(/\r?\n/).filter(l=>l.trim());
+            if(!lines.length){toast('⚠️ Fișier gol');return;}
+            // Detect delimiter
+            const delim=lines[0].includes(';')?';':',';
+            const parseRow=(line)=>{
+                const out=[];let cur='',inQ=false;
+                for(let i=0;i<line.length;i++){
+                    const ch=line[i];
+                    if(ch==='"'){inQ=!inQ;}
+                    else if(ch===delim && !inQ){out.push(cur.trim());cur='';}
+                    else cur+=ch;
+                }
+                out.push(cur.trim());
+                return out;
+            };
+            const headers=parseRow(lines[0]).map(h=>h.toLowerCase().replace(/^"|"$/g,''));
+            // Map common header variants
+            const map={};
+            const find=(...keys)=>{for(const k of keys){const i=headers.findIndex(h=>h.includes(k));if(i>=0)return i;}return -1;};
+            map.client=find('nume','name','client','denumire');
+            map.telefon=find('telefon','phone','mobil','tel');
+            map.email=find('email','e-mail','mail');
+            map.adresa=find('adres','address','locatie','locație');
+            map.obiectiv=find('obiectiv','lucrare','project','observati','note');
+
+            const rows=lines.slice(1).map(line=>{
+                const c=parseRow(line);
+                return {
+                    client:c[map.client]||'',
+                    telefon:c[map.telefon]||'',
+                    email:c[map.email]||'',
+                    adresa:c[map.adresa]||'',
+                    obiectiv:c[map.obiectiv]||'',
+                };
+            }).filter(r=>r.client||r.telefon);
+            _csvParsed=rows;
+            renderCSVPreview(rows);
+        }catch(err){console.error(err);toast('❌ Eroare la parsare CSV');}
+    };
+    reader.readAsText(f,'UTF-8');
+}
+
+function renderCSVPreview(rows){
+    const box=document.getElementById('csvPreview');
+    if(!rows.length){box.innerHTML='<div class="text-muted">Niciun rând valid găsit.</div>';box.style.display='block';return;}
+    box.style.display='block';
+    box.innerHTML=`<div style="background:#0a1525;border:1px solid #27ae60;border-radius:8px;padding:10px;">
+        <strong style="color:#27ae60;">✓ ${rows.length} contacte găsite</strong>
+        <div style="max-height:200px;overflow-y:auto;margin-top:8px;border:1px solid #1a2a40;border-radius:4px;">
+            <table style="width:100%;font-size:11px;">
+                <thead><tr style="background:#1B3A6B;color:#fff;"><th style="padding:5px;">Nume</th><th>Telefon</th><th>Email</th><th>Adresă</th><th>Obiectiv</th></tr></thead>
+                <tbody>${rows.slice(0,30).map(r=>`<tr><td style="padding:4px 6px;">${r.client||'—'}</td><td>${r.telefon||'—'}</td><td>${r.email||'—'}</td><td>${r.adresa||'—'}</td><td>${r.obiectiv||'—'}</td></tr>`).join('')}</tbody>
+            </table>
+            ${rows.length>30?`<div class="text-muted text-center" style="padding:5px;">... și încă ${rows.length-30} contacte</div>`:''}
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-gold btn-sm" onclick="confirmCSVImport()">✅ Importă ${rows.length} contacte</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('csvPreview').style.display='none';_csvParsed=null;document.getElementById('csvImportFile').value=''">✕ Anulează</button>
+        </div>
+    </div>`;
+}
+
+function confirmCSVImport(){
+    if(!_csvParsed||!_csvParsed.length)return;
+    const all=getAll();
+    let added=0,skipped=0;
+    _csvParsed.forEach(r=>{
+        // skip if same name+telefon already exists
+        const exists=all.find(o=>(o.client||'').toLowerCase()===r.client.toLowerCase() && (o.telefon||'')===r.telefon);
+        if(exists){skipped++;return;}
+        all.push({
+            id:Date.now()+Math.random(),
+            client:r.client,telefon:r.telefon,email:r.email,
+            obiectiv:r.obiectiv||r.adresa,
+            obs:r.adresa||'',
+            suprafata:'',valoare:'',dataOferta:dataAzi(),
+            oferta:'În așteptare',contract:'—',deviz:'—',pv:'—',factura:'—',statusPlata:'—',
+        });
+        added++;
+    });
+    saveAll(all);
+    toast(`✅ ${added} contacte importate (${skipped} duplicate sărite)`);
+    document.getElementById('csvPreview').style.display='none';
+    document.getElementById('csvImportFile').value='';
+    _csvParsed=null;
+    renderExportPage();
+}
+
+// ─── 12+13. WHATSAPP / EMAIL CU TEMPLATE ────────────────────
+function _buildClientMessage(o,type){
+    const F_NUME='Hydro Concept (Euro-Prest Provider S.R.L.)';
+    const F_ADMIN='Iancu Costel';
+    const linkPublic=o._publicLink?`\n\n📋 Vezi oferta detaliat: ${o._publicLink}`:'';
+    if(type==='oferta'){
+        return `Bună ziua, ${o.client||''}!\n\nMulțumim pentru interesul acordat firmei noastre. Conform discuției, vă transmit oferta pentru ${o.obiectiv||'lucrarea solicitată'}${o.suprafata?' ('+o.suprafata+')':''}.\n\n💰 Valoare estimată: ${o.valoare||'(se va detalia)'}\n📅 Termen execuție: la stabilire\n🛡️ Garanție: conform contract\n\nVă rugăm să ne confirmați primirea ofertei.${linkPublic}\n\nCu stimă,\n${F_ADMIN}\n${F_NUME}\n📞 0720 139 220`;
+    }
+    if(type==='followup'){
+        const days=daysAgoMsg?daysAgoMsg(o.dataOferta):'câteva';
+        return `Bună ziua, ${o.client||''}!\n\nRevin cu privire la oferta transmisă pentru ${o.obiectiv||'lucrare'}${days?' acum '+days+' zile':''}. Sunt curios dacă ați avut ocazia să o analizați.\n\nDacă aveți întrebări sau doriți modificări, sunt la dispoziție.\n\nMulțumesc!\n${F_ADMIN}\n📞 0720 139 220`;
+    }
+    if(type==='contract'){
+        return `Bună ziua, ${o.client||''}!\n\nMă bucur că ați acceptat oferta pentru ${o.obiectiv||'lucrarea'}. Vă transmit contractul atașat — vă rog să-l semnați și să-mi întoarceți o copie.\n\nDupă semnare, programăm începerea lucrărilor.\n\nMulțumesc pentru încredere!\n${F_ADMIN}\n${F_NUME}\n📞 0720 139 220`;
+    }
+    if(type==='multumire'){
+        return `Bună ziua, ${o.client||''}!\n\nVă mulțumim pentru colaborare la lucrarea ${o.obiectiv||''}. Vă reamintim că aveți garanție conform contractului.\n\nDacă aveți recomandări către prieteni sau apar probleme, vă rog să mă contactați.\n\nO zi bună!\n${F_ADMIN}\n${F_NUME}\n📞 0720 139 220`;
+    }
+    return '';
+}
+
+function prepareClientMessage(){
+    const sel=document.getElementById('msg-client-select');
+    const idx=sel.value;
+    const type=document.getElementById('msg-type').value;
+    const ta=document.getElementById('msgPreview');
+    if(idx===''||type==='custom'){ta.value=type==='custom'?ta.value:'';return;}
+    const o=getAll()[parseInt(idx)];if(!o)return;
+    ta.value=_buildClientMessage(o,type);
+}
+
+function _selectedClient(){
+    const idx=document.getElementById('msg-client-select').value;
+    if(idx==='')return null;
+    return {idx:parseInt(idx),o:getAll()[parseInt(idx)]};
+}
+
+function _normalizePhone(tel){
+    if(!tel)return '';
+    let ph=String(tel).replace(/[\s\.\-\(\)]/g,'');
+    if(ph.startsWith('+'))ph=ph.substring(1);
+    if(ph.startsWith('0'))ph='4'+ph;
+    return ph;
+}
+
+function sendViaWhatsApp(){
+    const sel=_selectedClient();if(!sel){toast('⚠️ Selectează un client');return;}
+    const msg=document.getElementById('msgPreview').value;if(!msg.trim()){toast('⚠️ Mesaj gol');return;}
+    let phone=_normalizePhone(sel.o.telefon);
+    if(!phone){
+        const t=prompt('Telefon '+sel.o.client+':');
+        if(!t)return;
+        phone=_normalizePhone(t);
+        const all=getAll();all[sel.idx].telefon=t.trim();saveAll(all);
+    }
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+function sendViaEmail(){
+    const sel=_selectedClient();if(!sel){toast('⚠️ Selectează un client');return;}
+    const msg=document.getElementById('msgPreview').value;if(!msg.trim()){toast('⚠️ Mesaj gol');return;}
+    let email=sel.o.email;
+    if(!email){
+        email=prompt('Email '+sel.o.client+':');
+        if(!email)return;
+        const all=getAll();all[sel.idx].email=email.trim();saveAll(all);
+    }
+    const type=document.getElementById('msg-type').value;
+    const subjects={oferta:'Ofertă hidroizolație — Hydro Concept',followup:'Revin la oferta transmisă',contract:'Contract pentru lucrarea convenită',multumire:'Mulțumiri pentru colaborare',custom:'Mesaj de la Hydro Concept'};
+    const subject=subjects[type]||subjects.oferta;
+    window.location.href=`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`;
+}
+
+function copyMessageToClipboard(){
+    const ta=document.getElementById('msgPreview');
+    if(!ta.value.trim()){toast('⚠️ Mesaj gol');return;}
+    navigator.clipboard.writeText(ta.value).then(()=>toast('📋 Copiat!')).catch(()=>{ta.select();document.execCommand('copy');toast('📋 Copiat!');});
+}
+
+function shareOfferMobile(){
+    const sel=_selectedClient();if(!sel){toast('⚠️ Selectează un client');return;}
+    const msg=document.getElementById('msgPreview').value;
+    if(navigator.share){
+        navigator.share({title:'Ofertă Hydro Concept',text:msg}).catch(()=>{});
+    } else {
+        toast('❌ Share-ul nativ nu e disponibil pe acest device');
+    }
+}
+
+// ─── 14. PUBLIC OFFER LINK ─────────────────────────────────
+function _b64UrlEncode(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');}
+
+function generatePublicOfferLink(){
+    const sel=_selectedClient();if(!sel){toast('⚠️ Selectează un client');return;}
+    const o=sel.o;
+    const F_NUME='Hydro Concept';
+    const F_ADMIN='Iancu Costel';
+    const payload={
+        v:1,
+        client:o.client||'',
+        telefon:o.telefon||'',
+        email:o.email||'',
+        obiectiv:o.obiectiv||'',
+        suprafata:o.suprafata||'',
+        valoare:o.valoare||'',
+        dataOferta:o.dataOferta||dataAzi(),
+        firma:F_NUME,
+        admin:F_ADMIN,
+        tel:'0720 139 220',
+        emailFirma:'office@hydroconcept.ro',
+        cuit:'RO28153047',
+        // Optional message text
+        mesaj:document.getElementById('msgPreview').value||'',
+    };
+    const data=_b64UrlEncode(JSON.stringify(payload));
+    const base=location.origin+location.pathname.replace(/\/[^\/]*$/,'/');
+    const url=base+'oferta-public.html#data='+data;
+
+    const box=document.getElementById('publicLinkBox');
+    box.style.display='block';
+    box.innerHTML=`<div style="font-weight:700;color:#C9A84C;margin-bottom:8px;">🔗 Link public generat pentru ${o.client}</div>
+        <input type="text" value="${url}" readonly onclick="this.select()" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:8px;border-radius:6px;font-size:11px;font-family:monospace;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+            <button class="btn btn-gold btn-sm" onclick="navigator.clipboard.writeText('${url.replace(/'/g,'&#39;')}').then(()=>toast('📋 Link copiat!'))">📋 Copiază link</button>
+            <a class="btn btn-blue btn-sm" href="${url}" target="_blank" style="text-decoration:none;display:inline-block;">👁️ Previzualizare</a>
+            <button class="btn" style="background:#25D366;color:#fff;" onclick="(function(){const ta=document.getElementById('msgPreview');if(ta && !ta.value.includes('${url.substring(0,30)}'))ta.value+='\\n\\n📋 Vezi oferta detaliat: ${url}';toast('🔗 Link adăugat în mesaj');})()">+ Adaugă în mesaj</button>
+        </div>
+        <div class="text-muted" style="font-size:11px;margin-top:6px;">Trimite acest link clientului — îl deschide în browser fără să instaleze nimic.</div>`;
+    toast('🔗 Link generat');
+}
+
+// ─── BACKUP & EXPORT ─────────────────────────────────
+function exportAllJSON(){
+    const data={
+        version:APP_VERSION,
+        exportedAt:new Date().toISOString(),
+        clients:getAll(),
+        echipe:JSON.parse(localStorage.getItem('hc_echipe')||'[]'),
+        lucrari:JSON.parse(localStorage.getItem('hc_lucrari')||'[]'),
+        devize:getDevize(),
+        customMateriale:getCustomMateriale(),
+        costs:JSON.parse(localStorage.getItem('hc_costs')||'{}'),
+        photos:JSON.parse(localStorage.getItem('hc_photos')||'[]'),
+        firmaConfig:localStorage.getItem('hc_firma'),
+    };
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='HydroConcept_backup_'+dataAzi().replace(/\./g,'-')+'.json';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    toast('💾 Backup descărcat');
+}
+
+function exportAllDevizeJSON(){
+    const list=getDevize();
+    if(!list.length){toast('⚠️ Niciun deviz salvat');return;}
+    const blob=new Blob([JSON.stringify(list,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='Devize_'+dataAzi().replace(/\./g,'-')+'.json';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    toast('📋 Devize exportate');
+}
+
+function importBackupJSON(input){
+    const f=input.files[0];if(!f)return;
+    if(!confirm('⚠️ Import backup va SUPRASCRIE datele curente. Continui?'))return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+        try{
+            const d=JSON.parse(e.target.result);
+            if(d.clients)localStorage.setItem('hc_data',JSON.stringify(d.clients));
+            if(d.echipe)localStorage.setItem('hc_echipe',JSON.stringify(d.echipe));
+            if(d.lucrari)localStorage.setItem('hc_lucrari',JSON.stringify(d.lucrari));
+            if(d.devize)localStorage.setItem('hc_devize',JSON.stringify(d.devize));
+            if(d.customMateriale)localStorage.setItem('hc_custom_materiale',JSON.stringify(d.customMateriale));
+            if(d.costs)localStorage.setItem('hc_costs',JSON.stringify(d.costs));
+            if(d.photos)localStorage.setItem('hc_photos',JSON.stringify(d.photos));
+            if(d.firmaConfig)localStorage.setItem('hc_firma',d.firmaConfig);
+            toast('✅ Backup restaurat — reîncarc app...');
+            setTimeout(()=>location.reload(),1500);
+        }catch(err){console.error(err);toast('❌ Fișier backup invalid');}
+    };
+    reader.readAsText(f);
+    input.value='';
+}
+
+// ─── BULK ACTIONS ─────────────────────────────────
+function bulkFollowUpWhatsApp(){
+    const all=getAll();
+    const list=all.map((o,i)=>({...o,_idx:i})).filter(o=>{
+        if(o.oferta!=='Trimisă'&&o.oferta!=='În așteptare')return false;
+        const days=daysAgo(o.dataOferta);
+        return days>7 && days<999;
+    });
+    if(!list.length){toast('✅ Niciun follow-up necesar');return;}
+    if(!confirm(`Deschid WhatsApp pentru ${list.length} clienți (>7 zile fără răspuns)?`))return;
+    let opened=0,skipped=0;
+    list.forEach((o,i)=>{
+        const phone=_normalizePhone(o.telefon);
+        if(!phone){skipped++;return;}
+        const msg=_buildClientMessage(o,'followup');
+        setTimeout(()=>window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank'),i*400);
+        opened++;
+    });
+    toast(`📲 ${opened} ferestre WhatsApp deschise (${skipped} fără telefon)`);
+}
+
+function exportFollowUpList(){
+    const all=getAll();
+    const list=all.filter(o=>(o.oferta==='Trimisă'||o.oferta==='În așteptare')&&daysAgo(o.dataOferta)>3);
+    if(!list.length){toast('✅ Nimic de exportat');return;}
+    const csv='Client,Telefon,Email,Obiectiv,Valoare,Data ofertei,Zile\n'+
+        list.map(o=>`"${o.client||''}","${o.telefon||''}","${o.email||''}","${(o.obiectiv||'').replace(/"/g,"'")}","${o.valoare||''}","${o.dataOferta||''}",${daysAgo(o.dataOferta)}`).join('\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='FollowUp_'+dataAzi().replace(/\./g,'-')+'.csv';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    toast('📋 Listă follow-up exportată');
+}
+
+function generateMonthlyReport(){
+    const all=getAll();
+    const now=new Date();
+    const luna=now.getMonth();const an=now.getFullYear();
+    const inMonth=o=>{const d=parseRoDate(o.dataOferta);return d&&d.getMonth()===luna&&d.getFullYear()===an;};
+    const lunaOferte=all.filter(inMonth);
+    const acceptate=lunaOferte.filter(o=>o.oferta==='Acceptată');
+    const trimise=lunaOferte.filter(o=>o.oferta==='Trimisă'||o.oferta==='Acceptată'||o.oferta==='În așteptare');
+    const pV=v=>{if(!v)return 0;const n=String(v).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');return parseFloat(n)||0;};
+    const valTotal=trimise.reduce((s,o)=>s+pV(o.valoare),0);
+    const valAcceptat=acceptate.reduce((s,o)=>s+pV(o.valoare),0);
+    const lunaNume=['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'][luna];
+    const text=`📊 RAPORT — ${lunaNume} ${an}
+━━━━━━━━━━━━━━━━━━━━━━
+📋 Total oferte trimise: ${trimise.length}
+✅ Acceptate: ${acceptate.length} (${trimise.length?Math.round(acceptate.length/trimise.length*100):0}% conversie)
+💰 Valoare totală oferte: ${nr(Math.round(valTotal))} lei
+💚 Valoare acceptată: ${nr(Math.round(valAcceptat))} lei
+
+🏆 Top 3 clienți (luna):
+${acceptate.sort((a,b)=>pV(b.valoare)-pV(a.valoare)).slice(0,3).map((o,i)=>`${i+1}. ${o.client} — ${o.valoare}`).join('\n')||'—'}
+
+📅 Generat: ${dataAzi()}`;
+    const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`Raport_${lunaNume}_${an}.txt`;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    // Also show in toast
+    alert(text);
+}
+
+// ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard();showPinLock();
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.05.05.3';
+const APP_VERSION='2026.05.05.4';
 // Inject version dynamically in title + header badge so user SEES real version
 try{document.title='Hydro Concept — v'+APP_VERSION;}catch(e){}
 try{const _vb=document.getElementById('hc_ver_badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}
