@@ -1092,8 +1092,9 @@ body{background:#fff!important;color:#000!important;}
         </table>
     </div>
     <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-outline btn-sm" onclick="addDevizRow('materiale')">+ Rând nou</button>
-        <select id="dev-pick-materiale" onchange="addDevizPreset('materiale',this.value);this.value='';" style="background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:6px;font-size:12px;"><option value="">+ Adaugă din catalog membrane/accesorii...</option></select>
+        <button class="btn btn-gold btn-sm" onclick="openMaterialPicker()">📦 Catalog producători</button>
+        <button class="btn btn-outline btn-sm" onclick="addDevizRow('materiale')">+ Rând gol</button>
+        <select id="dev-pick-materiale" onchange="addDevizPreset('materiale',this.value);this.value='';" style="background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:6px;font-size:12px;"><option value="">+ Adaugă rapid din listă...</option></select>
     </div>
 </div>
 
@@ -1125,6 +1126,41 @@ body{background:#fff!important;color:#000!important;}
     <div class="section-title" style="font-size:12px;">📚 Devize salvate</div>
     <div id="dev-list" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;"></div>
 </div>
+</div>
+
+<!-- ═══════ Material Picker Modal ═══════ -->
+<div id="matPickerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:10px;">
+    <div style="background:#0d1825;border:2px solid #C9A84C;border-radius:12px;max-width:1000px;width:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:14px 18px;border-bottom:1px solid #1a2a40;display:flex;align-items:center;gap:10px;">
+            <h3 style="color:#C9A84C;margin:0;flex:1;font-size:16px;">📦 Catalog materiale & producători</h3>
+            <button class="btn btn-outline btn-sm" onclick="closeMaterialPicker()">✕</button>
+        </div>
+        <div style="padding:12px 18px;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #1a2a40;">
+            <input type="text" id="matSearch" placeholder="🔍 caută material/producător..." oninput="renderMaterialPicker()" style="flex:1;min-width:180px;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:8px 12px;border-radius:6px;font-size:13px;">
+            <button class="btn btn-gold btn-sm" onclick="openAddMatForm()">+ Material nou</button>
+        </div>
+        <div id="matCatChips" style="padding:8px 18px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #1a2a40;"></div>
+        <div id="matProdChips" style="padding:8px 18px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #1a2a40;"></div>
+        <div id="matPickerGrid" style="padding:14px 18px;overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;"></div>
+        <!-- Add custom material form -->
+        <div id="addMatForm" style="display:none;padding:14px 18px;border-top:2px solid #C9A84C;background:#0a1525;">
+            <div style="font-weight:700;color:#C9A84C;margin-bottom:8px;">+ Adaugă material nou în catalog</div>
+            <div class="form-row">
+                <div class="form-group" style="max-width:180px;"><label>Categorie</label><input type="text" id="newMatCat" placeholder="ex: Membrane bituminoase"></div>
+                <div class="form-group" style="max-width:160px;"><label>Producător</label><input type="text" id="newMatProd" placeholder="ex: Soprema"></div>
+                <div class="form-group"><label>Denumire</label><input type="text" id="newMatDesc" placeholder="ex: Membrană XYZ 4mm"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="max-width:90px;"><label>UM</label><input type="text" id="newMatUm" placeholder="MP" value="MP"></div>
+                <div class="form-group" style="max-width:120px;"><label>Preț EUR</label><input type="number" id="newMatPret" step="0.01" placeholder="13"></div>
+                <div class="form-group" style="max-width:140px;"><label>Calcul cant.</label><select id="newMatCalc"><option value="mp">QTY = mp</option><option value="fix">QTY = fix (1)</option><option value="mp_x_0.5">mp × 0.5</option><option value="mp_x_0.3">mp × 0.3</option><option value="mp_x_0.2">mp × 0.2</option><option value="mp_x_0.05">mp × 0.05</option><option value="mp_x_0.02">mp × 0.02</option><option value="mp_x_0.01">mp × 0.01</option><option value="">— manual —</option></select></div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-gold btn-sm" onclick="saveNewMaterial()">💾 Salvează</button>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('addMatForm').style.display='none'">Anulează</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ═══════ PAGE: SETĂRI ═══════ -->
@@ -3776,74 +3812,194 @@ const DEVIZ_MANOPERA_CATALOG=[
     {desc:'Strat protecție pietriș/dale',um:'mp',pret:4,calc:'mp'},
 ];
 
-// Catalog materiale (preț EUR/UM)
+// Catalog materiale cu producători (preț EUR/UM)
 const DEVIZ_MATERIALE_CATALOG=[
-    // Membrane
-    {desc:'Membrană Novaglass 4mm bituminoasă',um:'MP',pret:9,calc:'mp'},
-    {desc:'Membrană Soprema SBS 4mm',um:'MP',pret:13,calc:'mp'},
-    {desc:'Membrană Izobit Gold 5.2mm',um:'MP',pret:16,calc:'mp'},
-    {desc:'Membrană EPDM 1.5mm',um:'MP',pret:13,calc:'mp'},
-    {desc:'Membrană TPO 1.5mm',um:'MP',pret:14,calc:'mp'},
-    {desc:'Membrană autoadezivă bituminoasă',um:'MP',pret:11,calc:'mp'},
-    // Folie / accesorii
-    {desc:'Folie Tefond protecție',um:'ML',pret:2.86,calc:'mp_x_0.5'},
-    {desc:'Folie polietilenă',um:'MP',pret:1.2,calc:'mp'},
-    {desc:'Geotextil 200g/mp',um:'MP',pret:2.5,calc:'mp'},
-    // Amorse / chituri
-    {desc:'Amorsă bituminoasă pe solvent (20L)',um:'L',pret:13.75,calc:'mp_x_0.022'},
-    {desc:'Mastic bituminos',um:'KG',pret:6,calc:'mp_x_0.05'},
-    {desc:'Chit poliuretanic etanșare',um:'BUC',pret:8,calc:'mp_x_0.03'},
-    // Piese speciale
-    {desc:'Sifon scurgere terasă PVC',um:'BUC',pret:25,calc:'mp_x_0.01'},
-    {desc:'Manșon scurgere bituminos',um:'BUC',pret:15.44,calc:'mp_x_0.02'},
-    {desc:'Coif aerator scurgere',um:'BUC',pret:18,calc:'mp_x_0.01'},
-    {desc:'Tablă fălțuită zincată 0.5mm',um:'ML',pret:22,calc:'mp_x_0.2'},
-    {desc:'Profil aluminiu compresie',um:'ML',pret:9,calc:'mp_x_0.3'},
-    // Transport
-    {desc:'Transport materiale',um:'CURS',pret:90,calc:'fix'},
+    // === MEMBRANE BITUMINOASE ===
+    {cat:'Membrane bituminoase',prod:'Novaglass',desc:'Membrană Novaglass 4mm bituminoasă',um:'MP',pret:9,calc:'mp'},
+    {cat:'Membrane bituminoase',prod:'Soprema',desc:'Membrană Soprema SBS 4mm',um:'MP',pret:13,calc:'mp'},
+    {cat:'Membrane bituminoase',prod:'Soprema',desc:'Membrană Soprema Elastophene 4mm',um:'MP',pret:14,calc:'mp'},
+    {cat:'Membrane bituminoase',prod:'Soprema',desc:'Membrană Soprema Sopralene 250 Flam 4mm',um:'MP',pret:15,calc:'mp'},
+    {cat:'Membrane bituminoase',prod:'Izobit',desc:'Membrană Izobit Gold 5.2mm',um:'MP',pret:16,calc:'mp'},
+    {cat:'Membrane bituminoase',prod:'Izobit',desc:'Membrană Izobit Standard 4mm',um:'MP',pret:11,calc:'mp'},
+    {cat:'Membrane bituminoase',prod:'Bauder',desc:'Membrană Bauder Thermofol SBS 4mm',um:'MP',pret:14.5,calc:'mp'},
+    {cat:'Membrane bituminoase',prod:'Sika',desc:'Membrană Sika BituSeal T-140 SG',um:'MP',pret:13.5,calc:'mp'},
+    {cat:'Membrane bituminoase',prod:'Mapei',desc:'Membrană Mapeplan SBS 4mm',um:'MP',pret:13,calc:'mp'},
+    {cat:'Membrane bituminoase',prod:'Generic',desc:'Membrană autoadezivă bituminoasă',um:'MP',pret:11,calc:'mp'},
+    // === MEMBRANE EPDM ===
+    {cat:'Membrane EPDM',prod:'Firestone',desc:'Membrană Firestone RubberGard EPDM 1.5mm',um:'MP',pret:14,calc:'mp'},
+    {cat:'Membrane EPDM',prod:'Carlisle',desc:'Membrană Carlisle Sure-Seal EPDM 1.5mm',um:'MP',pret:13.5,calc:'mp'},
+    {cat:'Membrane EPDM',prod:'Resitrix',desc:'Membrană Resitrix SK W Full EPDM',um:'MP',pret:18,calc:'mp'},
+    {cat:'Membrane EPDM',prod:'Generic',desc:'Membrană EPDM 1.5mm standard',um:'MP',pret:13,calc:'mp'},
+    // === MEMBRANE TPO/PVC ===
+    {cat:'Membrane TPO/PVC',prod:'Sika',desc:'Membrană Sika Sarnafil TG 66-15',um:'MP',pret:15,calc:'mp'},
+    {cat:'Membrane TPO/PVC',prod:'Sika',desc:'Membrană Sikaplan VGWT 1.5mm',um:'MP',pret:14,calc:'mp'},
+    {cat:'Membrane TPO/PVC',prod:'Soprema',desc:'Membrană Soprema Flagon SR 1.5mm',um:'MP',pret:14.5,calc:'mp'},
+    {cat:'Membrane TPO/PVC',prod:'Bauder',desc:'Membrană Bauder Thermoplan T 1.5mm',um:'MP',pret:14,calc:'mp'},
+    {cat:'Membrane TPO/PVC',prod:'Generic',desc:'Membrană TPO 1.5mm standard',um:'MP',pret:14,calc:'mp'},
+    // === FOLII & GEOTEXTILE ===
+    {cat:'Folii & geotextile',prod:'Novaglass',desc:'Folie Tefond protecție',um:'ML',pret:2.86,calc:'mp_x_0.5'},
+    {cat:'Folii & geotextile',prod:'Dorken',desc:'Folie Delta-MS pentru drenaj',um:'MP',pret:5.5,calc:'mp'},
+    {cat:'Folii & geotextile',prod:'Generic',desc:'Folie polietilenă 0.2mm',um:'MP',pret:1.2,calc:'mp'},
+    {cat:'Folii & geotextile',prod:'Generic',desc:'Geotextil 200g/mp',um:'MP',pret:2.5,calc:'mp'},
+    {cat:'Folii & geotextile',prod:'Generic',desc:'Geotextil 300g/mp',um:'MP',pret:3.2,calc:'mp'},
+    // === AMORSE & ETANȘĂRI ===
+    {cat:'Amorse & etanșări',prod:'Soprema',desc:'Soprema Elastocol Stick — amorsă (20L)',um:'L',pret:13.75,calc:'mp_x_0.022'},
+    {cat:'Amorse & etanșări',prod:'Sika',desc:'Sika Igolflex N — amorsă bituminoasă',um:'L',pret:14.5,calc:'mp_x_0.022'},
+    {cat:'Amorse & etanșări',prod:'Mapei',desc:'Mapei Triblock P — amorsă',um:'L',pret:13,calc:'mp_x_0.022'},
+    {cat:'Amorse & etanșări',prod:'Generic',desc:'Amorsă bituminoasă pe solvent',um:'L',pret:12,calc:'mp_x_0.022'},
+    {cat:'Amorse & etanșări',prod:'Generic',desc:'Mastic bituminos',um:'KG',pret:6,calc:'mp_x_0.05'},
+    {cat:'Amorse & etanșări',prod:'Sika',desc:'Sikaflex 11FC — chit poliuretanic',um:'BUC',pret:9,calc:'mp_x_0.03'},
+    {cat:'Amorse & etanșări',prod:'Soudal',desc:'Soudal Fix All — chit etanșare',um:'BUC',pret:8,calc:'mp_x_0.03'},
+    // === PIESE SPECIALE ===
+    {cat:'Piese speciale',prod:'Generic',desc:'Sifon scurgere terasă PVC',um:'BUC',pret:25,calc:'mp_x_0.01'},
+    {cat:'Piese speciale',prod:'Soprema',desc:'Manșon scurgere bituminos Sopradrain',um:'BUC',pret:15.44,calc:'mp_x_0.02'},
+    {cat:'Piese speciale',prod:'Generic',desc:'Coif aerator scurgere',um:'BUC',pret:18,calc:'mp_x_0.01'},
+    {cat:'Piese speciale',prod:'Generic',desc:'Tablă fălțuită zincată 0.5mm',um:'ML',pret:22,calc:'mp_x_0.2'},
+    {cat:'Piese speciale',prod:'Generic',desc:'Tablă fălțuită cupru 0.6mm',um:'ML',pret:48,calc:'mp_x_0.2'},
+    {cat:'Piese speciale',prod:'Generic',desc:'Profil aluminiu compresie atic',um:'ML',pret:9,calc:'mp_x_0.3'},
+    {cat:'Piese speciale',prod:'Generic',desc:'Bandă armată ranforsare colțuri',um:'ML',pret:4,calc:'mp_x_0.4'},
+    // === IZOLAȚIE TERMICĂ (opțional sub-acoperiș) ===
+    {cat:'Izolație termică',prod:'Bauder',desc:'PIR Bauder PIR FA 100mm',um:'MP',pret:18,calc:'mp'},
+    {cat:'Izolație termică',prod:'Kingspan',desc:'Kingspan TR26 100mm',um:'MP',pret:19,calc:'mp'},
+    {cat:'Izolație termică',prod:'Generic',desc:'Polistiren extrudat XPS 50mm',um:'MP',pret:9,calc:'mp'},
+    {cat:'Izolație termică',prod:'Generic',desc:'Vată minerală bazaltică 100mm',um:'MP',pret:10,calc:'mp'},
+    // === TRANSPORT ===
+    {cat:'Transport',prod:'—',desc:'Transport materiale',um:'CURS',pret:90,calc:'fix'},
+    {cat:'Transport',prod:'—',desc:'Macara/utilaj ridicare',um:'ORĂ',pret:60,calc:'fix'},
 ];
 
-// Template-uri prestabilite (tipuri de lucrare)
+// Template-uri prestabilite (tipuri de lucrare) — indexuri în catalog
 const DEVIZ_TEMPLATES=[
-    {
-        id:'bituminos-1',name:'🛢️ Bituminos 1 strat',
+    {id:'bituminos-1',name:'🛢️ Bituminos 1 strat',
         titlu:'Hidroizolație acoperiș — Sistem bituminos 1 strat',
-        manopera:[0,2,3,8],  // indexuri din DEVIZ_MANOPERA_CATALOG
-        materiale:[1,7,9,12,16],
-    },
-    {
-        id:'bituminos-2',name:'🛢️🛢️ Bituminos 2 straturi',
+        manopera:[0,2,3,8],
+        materiale:[1,21,27,31,36]},
+    {id:'bituminos-2',name:'🛢️🛢️ Bituminos 2 straturi',
         titlu:'Hidroizolație acoperiș — Sistem bituminos 2 straturi',
         manopera:[0,2,3,4,7,8],
-        materiale:[1,1,7,9,11,13,16],
-    },
-    {
-        id:'epdm',name:'🟢 Membrană EPDM',
+        materiale:[1,1,21,27,29,32,36]},
+    {id:'epdm',name:'🟢 Membrană EPDM',
         titlu:'Hidroizolație acoperiș — Sistem membrană EPDM',
         manopera:[0,5,7,8],
-        materiale:[3,6,8,9,13,16],
-    },
-    {
-        id:'tpo',name:'⚪ Membrană TPO',
+        materiale:[13,19,22,27,32,36]},
+    {id:'tpo',name:'⚪ Membrană TPO',
         titlu:'Hidroizolație acoperiș — Sistem membrană TPO',
         manopera:[0,6,7,8],
-        materiale:[4,6,8,9,13,16],
-    },
-    {
-        id:'premium',name:'⭐ Premium Soprema',
+        materiale:[18,19,22,27,32,36]},
+    {id:'premium',name:'⭐ Premium Soprema',
         titlu:'Hidroizolație premium — Soprema SBS 4mm',
         manopera:[0,1,2,3,4,7,8,9],
-        materiale:[1,1,7,9,11,13,15,16],
-    },
-    {
-        id:'custom',name:'✏️ Custom (gol)',
-        titlu:'',manopera:[],materiale:[],
-    },
+        materiale:[1,1,21,24,29,32,34,36]},
+    {id:'custom',name:'✏️ Custom (gol)',
+        titlu:'',manopera:[],materiale:[]},
 ];
 
 let _devizState={manopera:[],materiale:[]};
+let _matPickerTarget=null; // {section, rowIdx} when opened from a row
+let _matFilterCat='',_matFilterProd='';
 
 function _setVal(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+
+// Custom materials (user-added) — persist
+function getCustomMateriale(){return JSON.parse(localStorage.getItem('hc_custom_materiale')||'[]');}
+function saveCustomMateriale(arr){localStorage.setItem('hc_custom_materiale',JSON.stringify(arr));}
+function getMaterialeAll(){return DEVIZ_MATERIALE_CATALOG.concat(getCustomMateriale());}
+
+function openMaterialPicker(section,rowIdx){
+    _matPickerTarget=(section!=null&&rowIdx!=null)?{section,rowIdx}:null;
+    _matFilterCat='';_matFilterProd='';
+    const m=document.getElementById('matSearch');if(m)m.value='';
+    document.getElementById('matPickerModal').style.display='flex';
+    document.getElementById('addMatForm').style.display='none';
+    renderMaterialPicker();
+}
+
+function closeMaterialPicker(){
+    document.getElementById('matPickerModal').style.display='none';
+    _matPickerTarget=null;
+}
+
+function renderMaterialPicker(){
+    const all=getMaterialeAll();
+    const search=(document.getElementById('matSearch')?.value||'').toLowerCase();
+    const cats=[...new Set(all.map(m=>m.cat||'Altele'))];
+    const prods=[...new Set(all.filter(m=>!_matFilterCat||(m.cat||'Altele')===_matFilterCat).map(m=>m.prod||'—'))];
+
+    document.getElementById('matCatChips').innerHTML=
+        `<span class="ck-chip${!_matFilterCat?' active-chip':''}" onclick="_matFilterCat='';_matFilterProd='';renderMaterialPicker()" style="cursor:pointer;${!_matFilterCat?'background:#C9A84C;color:#0D1B2A;':''}">Toate categoriile</span>`+
+        cats.map(c=>`<span class="ck-chip" onclick="_matFilterCat='${c.replace(/'/g,"\\'")}';_matFilterProd='';renderMaterialPicker()" style="cursor:pointer;${_matFilterCat===c?'background:#C9A84C;color:#0D1B2A;':''}">${c}</span>`).join('');
+
+    document.getElementById('matProdChips').innerHTML=
+        `<span class="ck-chip" onclick="_matFilterProd='';renderMaterialPicker()" style="cursor:pointer;font-size:11px;${!_matFilterProd?'background:#2563A8;color:#fff;':''}">Toți producătorii</span>`+
+        prods.map(p=>`<span class="ck-chip" onclick="_matFilterProd='${p.replace(/'/g,"\\'")}';renderMaterialPicker()" style="cursor:pointer;font-size:11px;${_matFilterProd===p?'background:#2563A8;color:#fff;':''}">${p}</span>`).join('');
+
+    const list=all.map((m,i)=>({...m,_idx:i})).filter(m=>{
+        if(_matFilterCat && (m.cat||'Altele')!==_matFilterCat)return false;
+        if(_matFilterProd && (m.prod||'—')!==_matFilterProd)return false;
+        if(search){
+            const blob=((m.desc||'')+' '+(m.prod||'')+' '+(m.cat||'')).toLowerCase();
+            if(!blob.includes(search))return false;
+        }
+        return true;
+    });
+
+    const grid=document.getElementById('matPickerGrid');
+    if(!list.length){grid.innerHTML='<div class="text-muted" style="grid-column:1/-1;text-align:center;padding:30px;">Niciun material găsit. Adaugă unul nou cu butonul de sus.</div>';return;}
+    grid.innerHTML=list.map(m=>{
+        const isCustom=m._idx>=DEVIZ_MATERIALE_CATALOG.length;
+        return `<div onclick="pickMaterial(${m._idx})" style="background:#111f35;border:1px solid #1B3A6B;border-radius:8px;padding:10px 12px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:4px;" onmouseover="this.style.borderColor='#C9A84C';this.style.background='#162540'" onmouseout="this.style.borderColor='#1B3A6B';this.style.background='#111f35'">
+            <div style="display:flex;align-items:center;gap:6px;">
+                <span style="font-size:10px;font-weight:700;color:#2563A8;background:#0a1525;padding:2px 6px;border-radius:8px;">${m.prod||'—'}</span>
+                <span style="font-size:9px;color:#8899aa;flex:1;">${m.cat||''}</span>
+                ${isCustom?'<span style="font-size:9px;color:#27ae60;">★ custom</span>':''}
+            </div>
+            <div style="font-weight:700;color:#fff;font-size:13px;line-height:1.3;">${m.desc}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                <span style="font-size:11px;color:#8899aa;">${m.um||''}</span>
+                <span style="font-weight:800;color:#C9A84C;font-size:14px;">${m.pret} €</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function pickMaterial(catalogIdx){
+    const all=getMaterialeAll();
+    const m=all[catalogIdx];if(!m)return;
+    const mp=parseFloat(document.getElementById('dev-mp').value)||0;
+    const row={desc:m.desc,um:m.um,qty:_devCalcQty(m.calc,mp),pret:m.pret,calc:m.calc};
+
+    if(_matPickerTarget){
+        _devizState[_matPickerTarget.section][_matPickerTarget.rowIdx]=row;
+    } else {
+        // Add as new row in materiale section
+        _devizState.materiale.push(row);
+    }
+    closeMaterialPicker();
+    renderDevizRows();
+    toast('✅ '+m.desc.substring(0,40));
+}
+
+function openAddMatForm(){
+    document.getElementById('addMatForm').style.display='block';
+    setTimeout(()=>document.getElementById('newMatDesc').focus(),50);
+}
+
+function saveNewMaterial(){
+    const cat=document.getElementById('newMatCat').value.trim()||'Altele';
+    const prod=document.getElementById('newMatProd').value.trim()||'—';
+    const desc=document.getElementById('newMatDesc').value.trim();
+    const um=document.getElementById('newMatUm').value.trim()||'BUC';
+    const pret=parseFloat(document.getElementById('newMatPret').value)||0;
+    const calc=document.getElementById('newMatCalc').value;
+    if(!desc||pret<=0){toast('⚠️ Completează denumire + preț');return;}
+    const list=getCustomMateriale();
+    list.push({cat,prod,desc,um,pret,calc});
+    saveCustomMateriale(list);
+    ['newMatCat','newMatProd','newMatDesc','newMatPret'].forEach(id=>_setVal(id,''));
+    document.getElementById('addMatForm').style.display='none';
+    toast('💾 Material salvat în catalog');
+    renderMaterialPicker();
+}
 
 function getDevize(){return JSON.parse(localStorage.getItem('hc_devize')||'[]');}
 function saveDevize(arr){localStorage.setItem('hc_devize',JSON.stringify(arr));if(typeof autoCloudPush==='function')autoCloudPush();}
@@ -3881,8 +4037,9 @@ function renderDevize(){
         pm.innerHTML='<option value="">+ Adaugă din lista predefinită...</option>'+DEVIZ_MANOPERA_CATALOG.map((m,i)=>`<option value="${i}">${m.desc} (${m.pret}€/${m.um})</option>`).join('');
     }
     const pmat=document.getElementById('dev-pick-materiale');
-    if(pmat && pmat.options.length<=1){
-        pmat.innerHTML='<option value="">+ Adaugă din catalog membrane/accesorii...</option>'+DEVIZ_MATERIALE_CATALOG.map((m,i)=>`<option value="${i}">${m.desc} (${m.pret}€/${m.um})</option>`).join('');
+    if(pmat){
+        const all=getMaterialeAll();
+        pmat.innerHTML='<option value="">+ Adaugă rapid din listă...</option>'+all.map((m,i)=>`<option value="${i}">[${m.prod||'—'}] ${m.desc} — ${m.pret}€/${m.um}</option>`).join('');
     }
     // Default values
     if(!document.getElementById('dev-data').value)document.getElementById('dev-data').value=dataAzi();
@@ -3921,7 +4078,7 @@ function addDevizRow(section){
 
 function addDevizPreset(section,idx){
     if(idx===''||idx==null)return;
-    const cat=section==='manopera'?DEVIZ_MANOPERA_CATALOG:DEVIZ_MATERIALE_CATALOG;
+    const cat=section==='manopera'?DEVIZ_MANOPERA_CATALOG:getMaterialeAll();
     const c=cat[parseInt(idx)];if(!c)return;
     const mp=parseFloat(document.getElementById('dev-mp').value)||0;
     _devizState[section].push({desc:c.desc,um:c.um,qty:_devCalcQty(c.calc,mp),pret:c.pret,calc:c.calc});
@@ -3961,7 +4118,12 @@ function renderDevizRows(){
         const tva=fara*TVA/100;
         return `<tr>
         <td class="col-center">${i+1}</td>
-        <td><input class="dev-inp" type="text" value="${esc(r.desc)}" oninput="updateDevizCell('materiale',${i},'desc',this.value)"></td>
+        <td style="position:relative;">
+            <div style="display:flex;gap:4px;">
+                <input class="dev-inp" type="text" value="${esc(r.desc)}" oninput="updateDevizCell('materiale',${i},'desc',this.value)" style="flex:1;">
+                <button onclick="openMaterialPicker('materiale',${i})" title="Alege din catalog producători" style="background:#C9A84C;border:none;color:#0D1B2A;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:14px;font-weight:700;">📦</button>
+            </div>
+        </td>
         <td><input class="dev-inp dev-inp-num" type="number" value="${r.qty}" step="0.01" oninput="updateDevizCell('materiale',${i},'qty',this.value)"></td>
         <td><input class="dev-inp dev-inp-um" type="text" value="${esc(r.um)}" oninput="updateDevizCell('materiale',${i},'um',this.value)"></td>
         <td><input class="dev-inp dev-inp-num" type="number" value="${r.pret}" step="0.01" oninput="updateDevizCell('materiale',${i},'pret',this.value)"></td>
@@ -4230,7 +4392,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.05.05.2';
+const APP_VERSION='2026.05.05.3';
 // Inject version dynamically in title + header badge so user SEES real version
 try{document.title='Hydro Concept — v'+APP_VERSION;}catch(e){}
 try{const _vb=document.getElementById('hc_ver_badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}
