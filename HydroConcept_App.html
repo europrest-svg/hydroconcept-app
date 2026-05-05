@@ -100,6 +100,9 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .stat-clk{cursor:pointer;}
 .stat-clk:hover{transform:translateY(-2px);border-color:#C9A84C;box-shadow:0 4px 12px rgba(201,168,76,0.25);}
 .stat-clk:active{transform:translateY(0);}
+.pipeline-row-clk{cursor:pointer;border-radius:6px;transition:background .15s;}
+.pipeline-row-clk:hover{background:#1a2a40;}
+body.light .pipeline-row-clk:hover{background:#eef5ff;}
 .stat-card .num{font-size:28px;font-weight:800;color:#C9A84C;}
 .stat-card .lbl{font-size:10px;color:#6688aa;margin-top:4px;text-transform:uppercase;letter-spacing:1px;}
 
@@ -508,6 +511,7 @@ body{background:#fff!important;color:#000!important;}
 <button class="tab" onclick="showPage('mesaje')">📧 Mesaje</button>
 <button class="tab" onclick="showPage('calculator')">🔢 Calculator</button>
 <button class="tab" onclick="showPage('pipeline')">📈 Pipeline</button>
+<button class="tab" onclick="showPage('devize')">📋 Devize</button>
 <button class="tab" onclick="showPage('setari')">⚙️ Setări</button>
 </div>
 
@@ -1007,6 +1011,111 @@ body{background:#fff!important;color:#000!important;}
 <div class="pipe-board" id="pipeBoard"></div>
 </div>
 
+<!-- ═══════ PAGE: DEVIZE ═══════ -->
+<div class="page" id="page-devize">
+<div class="section-title">📋 Devize executabile — Template-uri prestabilite</div>
+
+<!-- Header form -->
+<div class="card">
+    <div class="form-row">
+        <div class="form-group" style="max-width:180px;"><label>Nr. Deviz</label><input type="text" id="dev-nr" placeholder="DEV-2026-XXXX"></div>
+        <div class="form-group"><label>Titlu lucrare</label><input type="text" id="dev-titlu" placeholder="Hidroizolație acoperiș — Sistem membrană..."></div>
+        <div class="form-group" style="max-width:200px;"><label>Client</label><select id="dev-client"><option value="">— Selectează client —</option></select></div>
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="max-width:140px;"><label>Data</label><input type="text" id="dev-data" placeholder="zz.ll.aaaa"></div>
+        <div class="form-group" style="max-width:140px;"><label>Curs EUR/RON</label><input type="number" id="dev-curs" value="5.1" step="0.01" oninput="recalcDeviz()"></div>
+        <div class="form-group" style="max-width:140px;"><label>Valabilitate</label><input type="text" id="dev-valab" value="30 zile"></div>
+        <div class="form-group" style="max-width:140px;"><label>TVA %</label><input type="number" id="dev-tva" value="21" oninput="recalcDeviz()"></div>
+        <div class="form-group" style="max-width:140px;"><label>Suprafață (mp)</label><input type="number" id="dev-mp" placeholder="180" oninput="recalcDevizFromMp()"></div>
+    </div>
+</div>
+
+<!-- Template selector -->
+<div class="card">
+    <div class="section-title" style="font-size:12px;">📂 Template-uri prestabilite</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;" id="dev-templates"></div>
+</div>
+
+<!-- Secțiunea 1: MANOPERĂ -->
+<div class="card">
+    <div class="section-title" style="font-size:13px;color:#2563A8;">Secțiunea 1 — Manoperă</div>
+    <div class="tbl-wrap">
+        <table style="white-space:normal;">
+            <thead><tr>
+                <th style="width:40px;">Nr.</th>
+                <th>Operațiunea desfășurată</th>
+                <th style="width:90px;">Cant.</th>
+                <th style="width:60px;">UM</th>
+                <th style="width:110px;">Preț EUR</th>
+                <th style="width:110px;">Total EUR</th>
+                <th style="width:50px;">✕</th>
+            </tr></thead>
+            <tbody id="dev-manopera-tb"></tbody>
+            <tfoot><tr><td colspan="5" style="text-align:right;font-weight:700;color:#C9A84C;">TOTAL MANOPERĂ</td><td id="dev-tot-manopera" style="font-weight:800;color:#C9A84C;text-align:right;">0 €</td><td></td></tr></tfoot>
+        </table>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="addDevizRow('manopera')">+ Rând nou</button>
+        <select id="dev-pick-manopera" onchange="addDevizPreset('manopera',this.value);this.value='';" style="background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:6px;font-size:12px;"><option value="">+ Adaugă din lista predefinită...</option></select>
+    </div>
+</div>
+
+<!-- Secțiunea 2: MATERIALE -->
+<div class="card">
+    <div class="section-title" style="font-size:13px;color:#E87722;">Secțiunea 2 — Materialele utilizate</div>
+    <div class="tbl-wrap">
+        <table style="white-space:normal;">
+            <thead><tr>
+                <th style="width:40px;">Nr.</th>
+                <th>Material</th>
+                <th style="width:90px;">QTY</th>
+                <th style="width:60px;">UM</th>
+                <th style="width:100px;">Preț EUR</th>
+                <th style="width:110px;">Val. fără TVA</th>
+                <th style="width:100px;">TVA</th>
+                <th style="width:50px;">✕</th>
+            </tr></thead>
+            <tbody id="dev-materiale-tb"></tbody>
+            <tfoot><tr><td colspan="5" style="text-align:right;font-weight:700;color:#C9A84C;">TOTAL MATERIALE</td><td id="dev-tot-mat" style="font-weight:800;color:#C9A84C;text-align:right;">0 €</td><td id="dev-tot-tva" style="font-weight:800;color:#E87722;text-align:right;">0 €</td><td></td></tr></tfoot>
+        </table>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="addDevizRow('materiale')">+ Rând nou</button>
+        <select id="dev-pick-materiale" onchange="addDevizPreset('materiale',this.value);this.value='';" style="background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:6px;font-size:12px;"><option value="">+ Adaugă din catalog membrane/accesorii...</option></select>
+    </div>
+</div>
+
+<!-- Total General -->
+<div class="card" style="background:linear-gradient(135deg,#1a2a45,#111f35);border-color:#C9A84C;">
+    <div class="section-title">Total general</div>
+    <div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));">
+        <div class="stat-card"><div class="num" style="font-size:18px;color:#2563A8;" id="dev-sum-manopera">0 €</div><div class="lbl">Manoperă</div></div>
+        <div class="stat-card"><div class="num" style="font-size:18px;color:#E87722;" id="dev-sum-mat">0 €</div><div class="lbl">Materiale</div></div>
+        <div class="stat-card"><div class="num" style="font-size:18px;" id="dev-sum-fara-tva">0 €</div><div class="lbl">Total fără TVA</div></div>
+        <div class="stat-card"><div class="num" style="font-size:18px;color:#f39c12;" id="dev-sum-tva">0 €</div><div class="lbl">TVA</div></div>
+        <div class="stat-card" style="border-color:#C9A84C;background:#1a2a10;"><div class="num" style="font-size:22px;color:#C9A84C;" id="dev-sum-total">0 €</div><div class="lbl">TOTAL DE PLATĂ</div></div>
+        <div class="stat-card"><div class="num" style="font-size:14px;color:#8899aa;" id="dev-sum-lei">~ 0 lei</div><div class="lbl">Echivalent LEI</div></div>
+    </div>
+</div>
+
+<!-- Action buttons -->
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+    <button class="btn btn-gold" onclick="salveazaDeviz()">💾 Salvează deviz</button>
+    <button class="btn btn-blue" onclick="aplicaDevizClient()">📌 Aplică la client</button>
+    <button class="btn btn-green" onclick="genDevizDOCX()">📄 Generează DOCX</button>
+    <button class="btn btn-outline btn-sm" onclick="printDeviz()">🖨️ Print</button>
+    <button class="btn btn-outline btn-sm" onclick="resetDeviz()">🗑️ Reset</button>
+    <button class="btn btn-outline btn-sm" onclick="numarDevizNou()">🔢 Generează nr. nou</button>
+</div>
+
+<!-- Devize salvate -->
+<div class="card" style="margin-top:14px;">
+    <div class="section-title" style="font-size:12px;">📚 Devize salvate</div>
+    <div id="dev-list" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;"></div>
+</div>
+</div>
+
 <!-- ═══════ PAGE: SETĂRI ═══════ -->
 <div class="page" id="page-setari">
 <div class="section-title">Setări aplicație</div>
@@ -1163,6 +1272,7 @@ function showPage(name){
     if(name==='profit') renderProfit();
     if(name==='mesaje') renderMsgClients();
     if(name==='pipeline') renderPipeline();
+    if(name==='devize') renderDevize();
     if(name==='setari'){loadPinSetting();document.getElementById('lastBackupTime').textContent=localStorage.getItem('hc_last_backup')||'Niciodată';generateQR();}
 }
 
@@ -3634,13 +3744,481 @@ function showUploadMenu(clientIdx){
 async function refreshDocKeys(){_cachedDocKeys=await getAllDocKeys();renderCentral();}
 
 // ═══════════════════════════════════════════════════════
+// DEVIZE — module complet cu template-uri prestabilite
+// ═══════════════════════════════════════════════════════
+
+// Catalog manoperă (preț EUR/UM)
+const DEVIZ_MANOPERA_CATALOG=[
+    {desc:'Pregătire și curățare suprafață suport',um:'mp',pret:3,calc:'mp'},
+    {desc:'Decopertare hidroizolație existentă',um:'mp',pret:5,calc:'mp'},
+    {desc:'Aplicare amorsă bituminoasă',um:'mp',pret:1.5,calc:'mp'},
+    {desc:'Montaj membrană bituminoasă strat 1',um:'mp',pret:6,calc:'mp'},
+    {desc:'Montaj membrană bituminoasă strat 2',um:'mp',pret:5,calc:'mp'},
+    {desc:'Montaj membrană EPDM',um:'mp',pret:8,calc:'mp'},
+    {desc:'Montaj membrană TPO',um:'mp',pret:9,calc:'mp'},
+    {desc:'Montaj folie Tefond/protecție',um:'mp',pret:2.5,calc:'mp'},
+    {desc:'Închidere atice și racorduri',um:'ml',pret:8,calc:'mp_x_0.3'},
+    {desc:'Montaj tablă fălțuită pe atic',um:'ml',pret:14,calc:'mp_x_0.2'},
+    {desc:'Refacere guri de scurgere/sifoane',um:'buc',pret:35,calc:'mp_x_0.02'},
+    {desc:'Hidroizolație casă lift',um:'buc',pret:120,calc:'fix'},
+    {desc:'Evacuare moloz și deșeuri',um:'buc',pret:80,calc:'fix'},
+    {desc:'Strat protecție pietriș/dale',um:'mp',pret:4,calc:'mp'},
+];
+
+// Catalog materiale (preț EUR/UM)
+const DEVIZ_MATERIALE_CATALOG=[
+    // Membrane
+    {desc:'Membrană Novaglass 4mm bituminoasă',um:'MP',pret:9,calc:'mp'},
+    {desc:'Membrană Soprema SBS 4mm',um:'MP',pret:13,calc:'mp'},
+    {desc:'Membrană Izobit Gold 5.2mm',um:'MP',pret:16,calc:'mp'},
+    {desc:'Membrană EPDM 1.5mm',um:'MP',pret:13,calc:'mp'},
+    {desc:'Membrană TPO 1.5mm',um:'MP',pret:14,calc:'mp'},
+    {desc:'Membrană autoadezivă bituminoasă',um:'MP',pret:11,calc:'mp'},
+    // Folie / accesorii
+    {desc:'Folie Tefond protecție',um:'ML',pret:2.86,calc:'mp_x_0.5'},
+    {desc:'Folie polietilenă',um:'MP',pret:1.2,calc:'mp'},
+    {desc:'Geotextil 200g/mp',um:'MP',pret:2.5,calc:'mp'},
+    // Amorse / chituri
+    {desc:'Amorsă bituminoasă pe solvent (20L)',um:'L',pret:13.75,calc:'mp_x_0.022'},
+    {desc:'Mastic bituminos',um:'KG',pret:6,calc:'mp_x_0.05'},
+    {desc:'Chit poliuretanic etanșare',um:'BUC',pret:8,calc:'mp_x_0.03'},
+    // Piese speciale
+    {desc:'Sifon scurgere terasă PVC',um:'BUC',pret:25,calc:'mp_x_0.01'},
+    {desc:'Manșon scurgere bituminos',um:'BUC',pret:15.44,calc:'mp_x_0.02'},
+    {desc:'Coif aerator scurgere',um:'BUC',pret:18,calc:'mp_x_0.01'},
+    {desc:'Tablă fălțuită zincată 0.5mm',um:'ML',pret:22,calc:'mp_x_0.2'},
+    {desc:'Profil aluminiu compresie',um:'ML',pret:9,calc:'mp_x_0.3'},
+    // Transport
+    {desc:'Transport materiale',um:'CURS',pret:90,calc:'fix'},
+];
+
+// Template-uri prestabilite (tipuri de lucrare)
+const DEVIZ_TEMPLATES=[
+    {
+        id:'bituminos-1',name:'🛢️ Bituminos 1 strat',
+        titlu:'Hidroizolație acoperiș — Sistem bituminos 1 strat',
+        manopera:[0,2,3,8],  // indexuri din DEVIZ_MANOPERA_CATALOG
+        materiale:[1,7,9,12,16],
+    },
+    {
+        id:'bituminos-2',name:'🛢️🛢️ Bituminos 2 straturi',
+        titlu:'Hidroizolație acoperiș — Sistem bituminos 2 straturi',
+        manopera:[0,2,3,4,7,8],
+        materiale:[1,1,7,9,11,13,16],
+    },
+    {
+        id:'epdm',name:'🟢 Membrană EPDM',
+        titlu:'Hidroizolație acoperiș — Sistem membrană EPDM',
+        manopera:[0,5,7,8],
+        materiale:[3,6,8,9,13,16],
+    },
+    {
+        id:'tpo',name:'⚪ Membrană TPO',
+        titlu:'Hidroizolație acoperiș — Sistem membrană TPO',
+        manopera:[0,6,7,8],
+        materiale:[4,6,8,9,13,16],
+    },
+    {
+        id:'premium',name:'⭐ Premium Soprema',
+        titlu:'Hidroizolație premium — Soprema SBS 4mm',
+        manopera:[0,1,2,3,4,7,8,9],
+        materiale:[1,1,7,9,11,13,15,16],
+    },
+    {
+        id:'custom',name:'✏️ Custom (gol)',
+        titlu:'',manopera:[],materiale:[],
+    },
+];
+
+let _devizState={manopera:[],materiale:[]};
+
+function _setVal(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+
+function getDevize(){return JSON.parse(localStorage.getItem('hc_devize')||'[]');}
+function saveDevize(arr){localStorage.setItem('hc_devize',JSON.stringify(arr));if(typeof autoCloudPush==='function')autoCloudPush();}
+
+function _devCalcQty(calcRule,mp){
+    if(!mp)mp=0;
+    if(calcRule==='mp')return mp;
+    if(calcRule==='fix')return 1;
+    const m=String(calcRule).match(/^mp_x_([\d.]+)$/);
+    if(m)return Math.round(mp*parseFloat(m[1])*100)/100;
+    return mp;
+}
+
+function renderDevize(){
+    // Populate template buttons
+    const tplDiv=document.getElementById('dev-templates');
+    if(tplDiv && !tplDiv.dataset.init){
+        tplDiv.innerHTML=DEVIZ_TEMPLATES.map(t=>`<button class="btn btn-outline btn-sm" onclick="loadDevizTemplate('${t.id}')">${t.name}</button>`).join('');
+        tplDiv.dataset.init='1';
+    }
+    // Populate client dropdown
+    const cs=document.getElementById('dev-client');
+    if(cs && cs.options.length<=1){
+        const all=getAll();
+        cs.innerHTML='<option value="">— Selectează client —</option>'+all.map((o,i)=>`<option value="${i}">${(o.client||'—').replace(/</g,'&lt;')}</option>`).join('');
+        cs.onchange=()=>{
+            const i=cs.value;if(i==='')return;
+            const o=getAll()[i];
+            if(o&&o.suprafata){const m=String(o.suprafata).match(/(\d+)/);if(m){_setVal('dev-mp',m[1]);recalcDevizFromMp();}}
+        };
+    }
+    // Populate preset dropdowns
+    const pm=document.getElementById('dev-pick-manopera');
+    if(pm && pm.options.length<=1){
+        pm.innerHTML='<option value="">+ Adaugă din lista predefinită...</option>'+DEVIZ_MANOPERA_CATALOG.map((m,i)=>`<option value="${i}">${m.desc} (${m.pret}€/${m.um})</option>`).join('');
+    }
+    const pmat=document.getElementById('dev-pick-materiale');
+    if(pmat && pmat.options.length<=1){
+        pmat.innerHTML='<option value="">+ Adaugă din catalog membrane/accesorii...</option>'+DEVIZ_MATERIALE_CATALOG.map((m,i)=>`<option value="${i}">${m.desc} (${m.pret}€/${m.um})</option>`).join('');
+    }
+    // Default values
+    if(!document.getElementById('dev-data').value)document.getElementById('dev-data').value=dataAzi();
+    if(!document.getElementById('dev-nr').value)document.getElementById('dev-nr').value=numarDevizGenerat();
+    renderDevizRows();
+    renderDevizList();
+}
+
+function numarDevizGenerat(){
+    const d=new Date();
+    const y=d.getFullYear();
+    const list=getDevize();
+    const next=String((list.length||0)+1).padStart(4,'0');
+    return `DEV-${y}-${next}`;
+}
+
+function numarDevizNou(){
+    document.getElementById('dev-nr').value=numarDevizGenerat();
+}
+
+function loadDevizTemplate(id){
+    const t=DEVIZ_TEMPLATES.find(x=>x.id===id);
+    if(!t)return;
+    if(t.titlu)_setVal('dev-titlu',t.titlu);
+    const mp=parseFloat(document.getElementById('dev-mp').value)||0;
+    _devizState.manopera=t.manopera.map(i=>{const c=DEVIZ_MANOPERA_CATALOG[i];return{desc:c.desc,um:c.um,qty:_devCalcQty(c.calc,mp),pret:c.pret,calc:c.calc};});
+    _devizState.materiale=t.materiale.map(i=>{const c=DEVIZ_MATERIALE_CATALOG[i];return{desc:c.desc,um:c.um,qty:_devCalcQty(c.calc,mp),pret:c.pret,calc:c.calc};});
+    renderDevizRows();
+    toast('✅ Template încărcat: '+t.name);
+}
+
+function addDevizRow(section){
+    _devizState[section].push({desc:'',um:section==='manopera'?'mp':'BUC',qty:0,pret:0,calc:''});
+    renderDevizRows();
+}
+
+function addDevizPreset(section,idx){
+    if(idx===''||idx==null)return;
+    const cat=section==='manopera'?DEVIZ_MANOPERA_CATALOG:DEVIZ_MATERIALE_CATALOG;
+    const c=cat[parseInt(idx)];if(!c)return;
+    const mp=parseFloat(document.getElementById('dev-mp').value)||0;
+    _devizState[section].push({desc:c.desc,um:c.um,qty:_devCalcQty(c.calc,mp),pret:c.pret,calc:c.calc});
+    renderDevizRows();
+}
+
+function removeDevizRow(section,i){
+    _devizState[section].splice(i,1);
+    renderDevizRows();
+}
+
+function updateDevizCell(section,i,field,val){
+    if(field==='qty'||field==='pret')val=parseFloat(val)||0;
+    _devizState[section][i][field]=val;
+    if(field==='qty'||field==='pret')recalcDeviz();
+}
+
+function renderDevizRows(){
+    const mb=document.getElementById('dev-manopera-tb');
+    const mt=document.getElementById('dev-materiale-tb');
+    if(!mb||!mt)return;
+
+    mb.innerHTML=_devizState.manopera.map((r,i)=>`<tr>
+        <td class="col-center">${i+1}</td>
+        <td><input type="text" value="${(r.desc||'').replace(/"/g,'&quot;')}" oninput="updateDevizCell('manopera',${i},'desc',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;"></td>
+        <td><input type="number" value="${r.qty}" step="0.01" oninput="updateDevizCell('manopera',${i},'qty',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:right;"></td>
+        <td><input type="text" value="${r.um||''}" oninput="updateDevizCell('manopera',${i},'um',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:center;"></td>
+        <td><input type="number" value="${r.pret}" step="0.01" oninput="updateDevizCell('manopera',${i},'pret',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:right;"></td>
+        <td style="text-align:right;font-weight:700;color:#C9A84C;">${nr((r.qty*r.pret).toFixed(2))} €</td>
+        <td><button class="btn btn-red btn-sm" onclick="removeDevizRow('manopera',${i})" style="padding:4px 8px;">✕</button></td>
+    </tr>`).join('')||'<tr><td colspan="7" class="text-center text-muted">— Selectează un template sau adaugă rânduri —</td></tr>';
+
+    const TVA=parseFloat(document.getElementById('dev-tva').value)||21;
+    mt.innerHTML=_devizState.materiale.map((r,i)=>{
+        const fara=r.qty*r.pret;
+        const tva=fara*TVA/100;
+        return `<tr>
+        <td class="col-center">${i+1}</td>
+        <td><input type="text" value="${(r.desc||'').replace(/"/g,'&quot;')}" oninput="updateDevizCell('materiale',${i},'desc',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;"></td>
+        <td><input type="number" value="${r.qty}" step="0.01" oninput="updateDevizCell('materiale',${i},'qty',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:right;"></td>
+        <td><input type="text" value="${r.um||''}" oninput="updateDevizCell('materiale',${i},'um',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:center;"></td>
+        <td><input type="number" value="${r.pret}" step="0.01" oninput="updateDevizCell('materiale',${i},'pret',this.value)" style="width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:right;"></td>
+        <td style="text-align:right;font-weight:700;color:#E87722;">${nr(fara.toFixed(2))} €</td>
+        <td style="text-align:right;color:#f39c12;">${nr(tva.toFixed(2))} €</td>
+        <td><button class="btn btn-red btn-sm" onclick="removeDevizRow('materiale',${i})" style="padding:4px 8px;">✕</button></td>
+    </tr>`;}).join('')||'<tr><td colspan="8" class="text-center text-muted">— Selectează un template sau adaugă rânduri —</td></tr>';
+
+    recalcDeviz();
+}
+
+function recalcDeviz(){
+    const TVA=parseFloat(document.getElementById('dev-tva').value)||21;
+    const curs=parseFloat(document.getElementById('dev-curs').value)||5.1;
+    const sumMan=_devizState.manopera.reduce((s,r)=>s+r.qty*r.pret,0);
+    const sumMat=_devizState.materiale.reduce((s,r)=>s+r.qty*r.pret,0);
+    const tva=sumMat*TVA/100;
+    const faraTva=sumMan+sumMat;
+    const total=faraTva+tva;
+    const setT=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    setT('dev-tot-manopera',nr(sumMan.toFixed(0))+' €');
+    setT('dev-tot-mat',nr(sumMat.toFixed(0))+' €');
+    setT('dev-tot-tva',nr(tva.toFixed(0))+' €');
+    setT('dev-sum-manopera',nr(sumMan.toFixed(0))+' €');
+    setT('dev-sum-mat',nr(sumMat.toFixed(0))+' €');
+    setT('dev-sum-fara-tva',nr(faraTva.toFixed(0))+' €');
+    setT('dev-sum-tva',nr(tva.toFixed(0))+' €');
+    setT('dev-sum-total',nr(total.toFixed(0))+' €');
+    setT('dev-sum-lei','~ '+nr(Math.round(total*curs))+' lei');
+}
+
+function recalcDevizFromMp(){
+    const mp=parseFloat(document.getElementById('dev-mp').value)||0;
+    ['manopera','materiale'].forEach(sec=>{
+        _devizState[sec].forEach(r=>{
+            if(r.calc)r.qty=_devCalcQty(r.calc,mp);
+        });
+    });
+    renderDevizRows();
+}
+
+function resetDeviz(){
+    if(!confirm('Resetezi devizul curent?'))return;
+    _devizState={manopera:[],materiale:[]};
+    ['dev-titlu','dev-mp'].forEach(id=>_setVal(id,''));
+    _setVal('dev-data',dataAzi());
+    _setVal('dev-nr',numarDevizGenerat());
+    const cs=document.getElementById('dev-client');if(cs)cs.value='';
+    renderDevizRows();
+}
+
+function _devizSnapshot(){
+    return {
+        nr:document.getElementById('dev-nr').value,
+        titlu:document.getElementById('dev-titlu').value,
+        clientIdx:document.getElementById('dev-client').value,
+        clientName:(()=>{const c=document.getElementById('dev-client');return c.options[c.selectedIndex]?c.options[c.selectedIndex].text:'';})(),
+        data:document.getElementById('dev-data').value,
+        curs:parseFloat(document.getElementById('dev-curs').value)||5.1,
+        valab:document.getElementById('dev-valab').value,
+        tva:parseFloat(document.getElementById('dev-tva').value)||21,
+        mp:parseFloat(document.getElementById('dev-mp').value)||0,
+        manopera:JSON.parse(JSON.stringify(_devizState.manopera)),
+        materiale:JSON.parse(JSON.stringify(_devizState.materiale)),
+        savedAt:new Date().toISOString(),
+    };
+}
+
+function salveazaDeviz(){
+    const snap=_devizSnapshot();
+    if(!snap.nr){toast('⚠️ Completează nr. deviz');return;}
+    if(!_devizState.manopera.length && !_devizState.materiale.length){toast('⚠️ Adaugă măcar un rând');return;}
+    const list=getDevize();
+    const idx=list.findIndex(d=>d.nr===snap.nr);
+    if(idx>=0)list[idx]=snap; else list.push(snap);
+    saveDevize(list);
+    toast('💾 Deviz salvat: '+snap.nr);
+    renderDevizList();
+}
+
+function aplicaDevizClient(){
+    const ci=document.getElementById('dev-client').value;
+    if(ci===''){toast('⚠️ Selectează un client');return;}
+    salveazaDeviz();
+    const all=getAll();
+    const o=all[parseInt(ci)];
+    if(!o){toast('⚠️ Client invalid');return;}
+    o.deviz='Emis';
+    const TVA=parseFloat(document.getElementById('dev-tva').value)||21;
+    const sumMan=_devizState.manopera.reduce((s,r)=>s+r.qty*r.pret,0);
+    const sumMat=_devizState.materiale.reduce((s,r)=>s+r.qty*r.pret,0);
+    const total=(sumMan+sumMat)*(1+TVA/100);
+    const curs=parseFloat(document.getElementById('dev-curs').value)||5.1;
+    const totalLei=Math.round(total*curs);
+    if(!o.valoare||o.valoare==='—'||confirm(`Actualizezi valoarea ofertei la ${nr(totalLei)} lei?`)){
+        o.valoare=nr(totalLei)+' lei';
+    }
+    saveAll(all);
+    toast('✅ Deviz aplicat la '+o.client+' (status: Emis)');
+}
+
+function deleteDeviz(nrDev){
+    if(!confirm('Ștergi devizul '+nrDev+'?'))return;
+    saveDevize(getDevize().filter(d=>d.nr!==nrDev));
+    renderDevizList();
+    toast('🗑️ Deviz șters');
+}
+
+function loadDeviz(nrDev){
+    const d=getDevize().find(x=>x.nr===nrDev);if(!d)return;
+    _setVal('dev-nr',d.nr);_setVal('dev-titlu',d.titlu||'');_setVal('dev-data',d.data||dataAzi());
+    _setVal('dev-curs',d.curs||5.1);_setVal('dev-valab',d.valab||'30 zile');_setVal('dev-tva',d.tva||21);
+    _setVal('dev-mp',d.mp||'');
+    const cs=document.getElementById('dev-client');if(cs&&d.clientIdx!=null)cs.value=d.clientIdx;
+    _devizState.manopera=d.manopera||[];
+    _devizState.materiale=d.materiale||[];
+    renderDevizRows();
+    toast('📂 Deviz încărcat: '+d.nr);
+}
+
+function renderDevizList(){
+    const wrap=document.getElementById('dev-list');if(!wrap)return;
+    const list=getDevize().slice().reverse();
+    if(!list.length){wrap.innerHTML='<div class="text-muted text-center" style="padding:20px;">— Niciun deviz salvat —</div>';return;}
+    wrap.innerHTML=list.map(d=>{
+        const TVA=d.tva||21;
+        const sM=(d.manopera||[]).reduce((s,r)=>s+r.qty*r.pret,0);
+        const sMat=(d.materiale||[]).reduce((s,r)=>s+r.qty*r.pret,0);
+        const total=(sM+sMat)*(1+TVA/100);
+        return `<div style="display:flex;gap:8px;align-items:center;padding:8px 10px;background:#0a1525;border:1px solid #1a2a40;border-radius:6px;flex-wrap:wrap;">
+            <strong style="color:#C9A84C;">${d.nr}</strong>
+            <span style="font-size:12px;color:#aabbcc;flex:1;min-width:150px;">${(d.titlu||'—').substring(0,50)}</span>
+            <span style="font-size:11px;color:#8899aa;">${d.clientName||'—'}</span>
+            <span style="font-size:11px;color:#8899aa;">${d.data||''}</span>
+            <span style="font-weight:700;color:#C9A84C;">${nr(total.toFixed(0))} €</span>
+            <button class="btn btn-outline btn-sm" onclick="loadDeviz('${d.nr}')" style="padding:4px 10px;">📂 Încarcă</button>
+            <button class="btn btn-red btn-sm" onclick="deleteDeviz('${d.nr}')" style="padding:4px 8px;">✕</button>
+        </div>`;
+    }).join('');
+}
+
+function printDeviz(){window.print();}
+
+function genDevizDOCX(){
+    const D=docx;
+    const snap=_devizSnapshot();
+    if(!snap.titlu){toast('⚠️ Completează titlul');return;}
+    if(!_devizState.manopera.length && !_devizState.materiale.length){toast('⚠️ Adaugă rânduri');return;}
+    const TVA=snap.tva;
+    const R=(t,o={})=>new D.TextRun({text:t,font:'Calibri',size:o.size||20,color:o.color||'1A202C',bold:o.bold||false});
+    const P=(text,opts={})=>new D.Paragraph({alignment:opts.align||D.AlignmentType.LEFT,spacing:{after:opts.after||100},children:[R(text,opts)]});
+
+    const bL={style:D.BorderStyle.SINGLE,size:1,color:'C8D8EA'};
+    const allB={top:bL,bottom:bL,left:bL,right:bL};
+    const cell=(text,o={})=>new D.TableCell({borders:allB,shading:o.fill?{fill:o.fill,type:D.ShadingType.CLEAR}:undefined,margins:{top:60,bottom:60,left:80,right:80},
+        width:o.w?{size:o.w,type:D.WidthType.DXA}:undefined,
+        children:[new D.Paragraph({alignment:o.align||D.AlignmentType.LEFT,children:[R(text,{bold:o.bold,color:o.color||(o.fill==='1B3A6B'?'FFFFFF':'1A202C'),size:o.size||20})]})]});
+
+    // Manoperă table
+    const manHead=new D.TableRow({tableHeader:true,children:[
+        cell('Nr.',{fill:'1B3A6B',bold:true,align:D.AlignmentType.CENTER,w:600}),
+        cell('Operațiunea desfășurată',{fill:'1B3A6B',bold:true,w:5000}),
+        cell('Cant.',{fill:'1B3A6B',bold:true,align:D.AlignmentType.CENTER,w:900}),
+        cell('UM',{fill:'1B3A6B',bold:true,align:D.AlignmentType.CENTER,w:700}),
+        cell('Preț EUR',{fill:'1B3A6B',bold:true,align:D.AlignmentType.RIGHT,w:1200}),
+        cell('Valoare (EUR)',{fill:'1B3A6B',bold:true,align:D.AlignmentType.RIGHT,w:1400}),
+    ]});
+    let sumMan=0;
+    const manRows=_devizState.manopera.map((r,i)=>{const t=r.qty*r.pret;sumMan+=t;return new D.TableRow({children:[
+        cell(String(i+1),{align:D.AlignmentType.CENTER}),cell(r.desc||''),
+        cell(String(r.qty),{align:D.AlignmentType.CENTER}),cell(r.um||'',{align:D.AlignmentType.CENTER}),
+        cell(r.pret.toFixed(2)+' €',{align:D.AlignmentType.RIGHT}),
+        cell(t.toFixed(2)+' €',{align:D.AlignmentType.RIGHT,bold:true}),
+    ]});});
+    const manTot=new D.TableRow({children:[
+        cell('TOTAL MANOPERĂ',{fill:'EAF3FB',bold:true,align:D.AlignmentType.RIGHT}),
+        cell('',{fill:'EAF3FB'}),cell('',{fill:'EAF3FB'}),cell('',{fill:'EAF3FB'}),cell('',{fill:'EAF3FB'}),
+        cell(sumMan.toFixed(0)+' €',{fill:'EAF3FB',bold:true,align:D.AlignmentType.RIGHT,color:'1B3A6B'}),
+    ]});
+
+    // Materiale
+    const matHead=new D.TableRow({tableHeader:true,children:[
+        cell('Nr.',{fill:'E87722',bold:true,align:D.AlignmentType.CENTER,w:600}),
+        cell('Materiale',{fill:'E87722',bold:true,w:4200}),
+        cell('QTY',{fill:'E87722',bold:true,align:D.AlignmentType.CENTER,w:900}),
+        cell('UM',{fill:'E87722',bold:true,align:D.AlignmentType.CENTER,w:700}),
+        cell('Preț',{fill:'E87722',bold:true,align:D.AlignmentType.RIGHT,w:1100}),
+        cell('Val. fără TVA',{fill:'E87722',bold:true,align:D.AlignmentType.RIGHT,w:1400}),
+        cell('TVA '+TVA+'%',{fill:'E87722',bold:true,align:D.AlignmentType.RIGHT,w:1200}),
+    ]});
+    let sumMat=0,sumTva=0;
+    const matRows=_devizState.materiale.map((r,i)=>{const f=r.qty*r.pret;const t=f*TVA/100;sumMat+=f;sumTva+=t;return new D.TableRow({children:[
+        cell(String(i+1),{align:D.AlignmentType.CENTER}),cell(r.desc||''),
+        cell(String(r.qty),{align:D.AlignmentType.CENTER}),cell(r.um||'',{align:D.AlignmentType.CENTER}),
+        cell(r.pret.toFixed(2)+' €',{align:D.AlignmentType.RIGHT}),
+        cell(f.toFixed(2)+' €',{align:D.AlignmentType.RIGHT,bold:true}),
+        cell(t.toFixed(2)+' €',{align:D.AlignmentType.RIGHT}),
+    ]});});
+    const matTot=new D.TableRow({children:[
+        cell('TOTAL MATERIALE',{fill:'FFF0E0',bold:true,align:D.AlignmentType.RIGHT}),
+        cell('',{fill:'FFF0E0'}),cell('',{fill:'FFF0E0'}),cell('',{fill:'FFF0E0'}),cell('',{fill:'FFF0E0'}),
+        cell(sumMat.toFixed(0)+' €',{fill:'FFF0E0',bold:true,align:D.AlignmentType.RIGHT,color:'E87722'}),
+        cell(sumTva.toFixed(0)+' €',{fill:'FFF0E0',bold:true,align:D.AlignmentType.RIGHT,color:'E87722'}),
+    ]});
+
+    const totalFara=sumMan+sumMat;
+    const totalPlata=totalFara+sumTva;
+
+    const doc=new D.Document({
+        styles:{default:{document:{run:{font:'Calibri',size:20}}}},
+        sections:[{properties:{page:{margin:{top:900,right:900,bottom:900,left:900}}},
+        children:[
+            // Header
+            new D.Paragraph({alignment:D.AlignmentType.LEFT,spacing:{after:100},children:[R('FURNIZOR: Euro-Prest Provider S.R.L.',{bold:true,size:22,color:'1B3A6B'})]}),
+            P('Str. Cupolei nr. 1, Sector 6, București',{size:18}),
+            P('CUI: RO28153047  |  J40/2762/09.03.2011  |  ISO 9001:2015 Nr. 3209',{size:18,color:'4A5568',after:300}),
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{before:200,after:100},children:[R('DEVIZ NR. '+snap.nr,{bold:true,size:32,color:'1B3A6B'})]}),
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:100},children:[R(snap.titlu,{bold:true,size:24,color:'E87722'})]}),
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:300},children:[
+                R('Data: '+snap.data+'   •   Curs EUR/RON: '+snap.curs+' lei   •   Valabilitate: '+snap.valab,{size:18,color:'4A5568'}),
+            ]}),
+            ...(snap.clientName&&snap.clientName!=='— Selectează client —'?[
+                P('BENEFICIAR: '+snap.clientName,{bold:true,size:22,color:'2563A8',after:300}),
+            ]:[]),
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{before:200,after:200},children:[R('DEVIZ DE EXECUȚIE',{bold:true,size:26,color:'1B3A6B'})]}),
+
+            P('Secțiunea 1 — Manoperă',{bold:true,size:22,color:'1B3A6B',after:100}),
+            new D.Table({width:{size:9800,type:D.WidthType.DXA},rows:[manHead,...manRows,manTot]}),
+
+            new D.Paragraph({spacing:{before:300,after:100},children:[R('Secțiunea 2 — Materialele utilizate',{bold:true,size:22,color:'E87722'})]}),
+            new D.Table({width:{size:9800,type:D.WidthType.DXA},rows:[matHead,...matRows,matTot]}),
+
+            new D.Paragraph({spacing:{before:400,after:100},alignment:D.AlignmentType.CENTER,children:[R('TOTAL GENERAL',{bold:true,size:24,color:'1B3A6B'})]}),
+            new D.Table({width:{size:6000,type:D.WidthType.DXA},alignment:D.AlignmentType.CENTER,rows:[
+                new D.TableRow({children:[cell('Total fără TVA:',{bold:true,fill:'EAF3FB',w:3000}),cell(totalFara.toFixed(0)+' €',{bold:true,align:D.AlignmentType.RIGHT,fill:'EAF3FB',w:3000})]}),
+                new D.TableRow({children:[cell('TVA '+TVA+'%:',{bold:true,fill:'FFF0E0',w:3000}),cell(sumTva.toFixed(0)+' €',{bold:true,align:D.AlignmentType.RIGHT,fill:'FFF0E0',w:3000,color:'E87722'})]}),
+                new D.TableRow({children:[cell('TOTAL DE PLATĂ:',{bold:true,fill:'FFFDF0',size:24,w:3000,color:'C9A84C'}),cell(totalPlata.toFixed(0)+' €',{bold:true,align:D.AlignmentType.RIGHT,fill:'FFFDF0',size:24,w:3000,color:'C9A84C'})]}),
+                new D.TableRow({children:[cell('Echivalent LEI:',{w:3000,size:18,color:'4A5568'}),cell('~ '+nr(Math.round(totalPlata*snap.curs))+' lei',{align:D.AlignmentType.RIGHT,w:3000,size:18,color:'4A5568'})]}),
+            ]}),
+
+            new D.Paragraph({spacing:{before:600,after:100},children:[R('EXECUTANT',{bold:true,size:22,color:'1B3A6B'})]}),
+            P('Euro-Prest Provider S.R.L.'),
+            P('Iancu Costel — Administrator'),
+            P('Semnătură și ștampilă: ___________________',{after:300}),
+
+            P('BENEFICIAR',{bold:true,size:22,color:'1B3A6B'}),
+            P(snap.clientName||'____________________________'),
+            P('Reprezentant legal'),
+            P('Semnătură și ștampilă: ___________________',{after:400}),
+
+            new D.Paragraph({spacing:{before:300},alignment:D.AlignmentType.JUSTIFIED,children:[R('Recunoașteți suma totală de plată, drept pentru care veți executa plățile în totalitate după finalizarea lucrărilor. Prezentul deviz de execuție figurează ca anexă la contract și factura fiscală întocmită.',{size:18,color:'4A5568'})]}),
+        ]}],
+    });
+
+    D.Packer.toBlob(doc).then(blob=>{
+        const fn='Deviz_'+snap.nr+'_'+(snap.clientName||'client').replace(/[^a-zA-Z0-9]/g,'_')+'.docx';
+        saveAs(blob,fn);
+        toast('✅ Deviz generat: '+fn);
+    }).catch(e=>{console.error(e);toast('❌ Eroare la generare DOCX');});
+}
+
+// ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard();showPinLock();
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.04.20.4';
+const APP_VERSION='2026.05.05.1';
 // Inject version dynamically in title + header badge so user SEES real version
 try{document.title='Hydro Concept — v'+APP_VERSION;}catch(e){}
 try{const _vb=document.getElementById('hc_ver_badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}
