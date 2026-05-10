@@ -104,6 +104,45 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .pipeline-row-clk:hover{background:#1a2a40;}
 body.light .pipeline-row-clk:hover{background:#eef5ff;}
 
+/* REMINDERS — De făcut azi */
+.rem-card{background:#111f35;border:1px solid #1B3A6B;border-radius:12px;padding:16px;margin-bottom:18px;}
+.rem-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.rem-head h3{font-size:15px;color:#C9A84C;margin:0;font-weight:700;flex:1;}
+.rem-count{background:#C9A84C;color:#0D1B2A;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:800;}
+.rem-empty{text-align:center;padding:24px;color:#27ae60;font-weight:700;}
+.rem-group{margin-bottom:14px;}
+.rem-group-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #1a2a40;display:flex;align-items:center;gap:6px;}
+.rem-group-critical .rem-group-title{color:#e74c3c;}
+.rem-group-high .rem-group-title{color:#f39c12;}
+.rem-group-medium .rem-group-title{color:#4A9EF5;}
+.rem-item{background:#0a1525;border-left:4px solid #4A9EF5;border-radius:6px;padding:10px 12px;margin-bottom:6px;display:flex;flex-direction:column;gap:6px;}
+.rem-item.rem-urg-critical{border-left-color:#e74c3c;background:#1a0f10;}
+.rem-item.rem-urg-high{border-left-color:#f39c12;background:#1a1410;}
+.rem-item.rem-urg-medium{border-left-color:#4A9EF5;}
+.rem-item-row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.rem-icon{font-size:18px;flex-shrink:0;}
+.rem-title{font-size:13px;font-weight:700;color:#fff;cursor:pointer;flex:1;min-width:0;}
+.rem-title:hover{color:#C9A84C;text-decoration:underline;}
+.rem-days{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;}
+.rem-days-overdue{background:#3a1515;color:#e74c3c;}
+.rem-days-warn{background:#2c2a10;color:#f39c12;}
+.rem-days-ok{background:#1a2a40;color:#aabbcc;}
+.rem-sub{font-size:11px;color:#8899aa;margin-left:26px;}
+.rem-actions{display:flex;gap:6px;flex-wrap:wrap;margin-left:26px;}
+.rem-btn{border:none;border-radius:5px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
+.rem-btn-call{background:#27ae60;color:#fff;}
+.rem-btn-wa{background:#25D366;color:#fff;}
+.rem-btn-mark{background:#C9A84C;color:#0D1B2A;}
+.rem-btn-snooze{background:#1B3A6B;color:#aabbcc;}
+.rem-btn-done{background:#2c3e50;color:#aabbcc;}
+.rem-btn:hover{filter:brightness(1.15);}
+body.light .rem-card{background:#fff;border-color:#ddd;}
+body.light .rem-item{background:#f8f9fa;}
+body.light .rem-item.rem-urg-critical{background:#fef0f0;}
+body.light .rem-item.rem-urg-high{background:#fef8eb;}
+body.light .rem-title{color:#1a202c;}
+body.light .rem-group-title{border-bottom-color:#eee;}
+
 /* Deviz table inputs — keep readable on mobile (override the global 16px) */
 .dev-inp{width:100%;background:#0a1420;border:1px solid #1B3A6B;color:#fff;padding:6px;border-radius:4px;font-size:13px;}
 .dev-inp-num{text-align:right;}
@@ -532,6 +571,7 @@ body{background:#fff!important;color:#000!important;}
 <div class="section-title">Dashboard — Situație generală</div>
 <div id="alertArea"></div>
 <div class="stats-grid" id="dashStats"></div>
+<div id="remindersCard"></div>
 <div class="chart-grid">
     <div class="chart-card"><h3>Status oferte</h3><div id="chartOferte"></div></div>
     <div class="chart-card"><h3>Pipeline valoare</h3><div id="chartPipeline"></div></div>
@@ -2780,8 +2820,283 @@ function renderDashboard(){
         </div>`;
     }).join('')||'<div class="text-muted">Nicio valoare.</div>';
 
+    // Reminders smart (deasupra follow-up-urilor)
+    renderRemindersCard();
+
     // Follow-up alerts
     renderFollowups(all,now);
+}
+
+// ═══════════════════════════════════════════════════════
+// REMINDERS SMART — De făcut azi
+// ═══════════════════════════════════════════════════════
+function getReminderState(){return JSON.parse(localStorage.getItem('hc_reminders_state')||'{}');}
+function saveReminderState(s){localStorage.setItem('hc_reminders_state',JSON.stringify(s));}
+
+function isReminderActive(id){
+    const s=getReminderState()[id];if(!s)return true;
+    if(s.dismissed)return false;
+    if(s.snoozeUntil && new Date(s.snoozeUntil).getTime()>Date.now())return false;
+    return true;
+}
+
+function snoozeReminder(id,days){
+    const s=getReminderState();s[id]=s[id]||{};
+    s[id].snoozeUntil=new Date(Date.now()+days*86400000).toISOString();
+    saveReminderState(s);renderRemindersCard();
+    toast('⏰ Reminder amânat '+days+(days===1?' zi':' zile'));
+}
+
+function dismissReminder(id){
+    const s=getReminderState();s[id]=s[id]||{};s[id].dismissed=true;
+    saveReminderState(s);renderRemindersCard();
+}
+
+const REM_URGENCY_ORDER={critical:0,high:1,medium:2};
+const REM_URGENCY_LABEL={critical:'🔥 Critic',high:'⚠️ Important',medium:'🟡 Mediu'};
+
+function _todayRoStr(){const d=new Date();return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;}
+function _tomorrowRoStr(){const d=new Date(Date.now()+86400000);return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;}
+
+function buildReminders(){
+    const all=getAll();
+    const reminders=[];
+    const today=_todayRoStr(),tomorrow=_tomorrowRoStr();
+
+    all.forEach((o,idx)=>{
+        const days=daysAgo(o.dataOferta);
+        const isOpen=o.oferta==='Trimisă'||o.oferta==='În așteptare';
+        const stableId=t=>`${t}_${idx}_${o.dataOferta||''}`;
+
+        // 1. Plată restantă (critical)
+        if(o.factura==='Emisă' && (o.statusPlata==='Neplătit'||o.statusPlata==='Parțial') && days>=30){
+            reminders.push({
+                id:stableId('plata'),type:'plata',urgency:'critical',clientIdx:idx,client:o.client,
+                title:`💰 Plată restantă — ${o.client||'—'}`,
+                sub:`${o.statusPlata==='Parțial'?'Plătit parțial':'Neplătit'} • ${o.valoare||'—'} • ${days} zile de la ofertă`,
+                actions:[
+                    {label:'📞 Sună',type:'call'},
+                    {label:'📲 WhatsApp',type:'wa'},
+                    {label:'✓ Marchează plătit',type:'mark',markField:'statusPlata',markValue:'Plătit'},
+                ],days,
+            });
+        }
+
+        // 2. Factură de emis (high)
+        if(o.pv==='Recepționat' && o.factura==='—'){
+            reminders.push({
+                id:stableId('factura'),type:'factura',urgency:'high',clientIdx:idx,client:o.client,
+                title:`🧾 Factură de emis — ${o.client||'—'}`,
+                sub:`Lucrare recepționată • ${o.valoare||'—'} • ${o.obiectiv||''}`,
+                actions:[
+                    {label:'✓ Factură emisă',type:'mark',markField:'factura',markValue:'Emisă'},
+                    {label:'📋 Detalii',type:'open'},
+                ],days,
+            });
+        }
+
+        // 3. Contract de trimis (high)
+        if(o.oferta==='Acceptată' && (o.contract==='—'||!o.contract)){
+            reminders.push({
+                id:stableId('contract'),type:'contract',urgency:'high',clientIdx:idx,client:o.client,
+                title:`📝 Contract de trimis — ${o.client||'—'}`,
+                sub:`Ofertă acceptată • ${o.valoare||'—'} • ${o.obiectiv||''}`,
+                actions:[
+                    {label:'📲 WA',type:'wa'},
+                    {label:'📧 Email',type:'email'},
+                    {label:'✓ La semnat',type:'mark',markField:'contract',markValue:'La semnat'},
+                ],days,
+            });
+        }
+
+        // 4. Follow-up overdue (high) sau 7d (medium) sau call_3d (medium)
+        if(isOpen && days>=14 && days<999){
+            reminders.push({
+                id:stableId('fup_over'),type:'followup',urgency:'high',clientIdx:idx,client:o.client,
+                title:`⏰ Follow-up restant — ${o.client||'—'}`,
+                sub:`${days} zile fără răspuns • ${o.obiectiv||''} • ${o.valoare||''}`,
+                actions:[
+                    {label:'📞 Sună',type:'call'},
+                    {label:'📲 WA',type:'wa'},
+                    {label:'✓ Done',type:'done'},
+                ],days,
+            });
+        } else if(isOpen && days>=7 && days<14){
+            reminders.push({
+                id:stableId('fup_7d'),type:'followup',urgency:'medium',clientIdx:idx,client:o.client,
+                title:`⏰ Follow-up — ${o.client||'—'}`,
+                sub:`${days} zile fără răspuns • ${o.obiectiv||''}`,
+                actions:[
+                    {label:'📲 WA',type:'wa'},
+                    {label:'✓ Done',type:'done'},
+                ],days,
+            });
+        } else if(isOpen && days===3){
+            reminders.push({
+                id:stableId('call_3d'),type:'call_3d',urgency:'medium',clientIdx:idx,client:o.client,
+                title:`📞 Re-contact zi 3 — ${o.client||'—'}`,
+                sub:`A trecut 3 zile de la ofertă • ${o.obiectiv||''}`,
+                actions:[
+                    {label:'📞 Sună',type:'call'},
+                    {label:'📲 WA',type:'wa'},
+                    {label:'✓ Done',type:'done'},
+                ],days,
+            });
+        }
+
+        // 5. PV nesemnat (medium) — contract semnat dar PV absent + >14 zile
+        if(o.contract==='Semnat' && (o.pv==='—'||!o.pv) && days>=14){
+            reminders.push({
+                id:stableId('pv'),type:'pv',urgency:'medium',clientIdx:idx,client:o.client,
+                title:`✅ PV de semnat — ${o.client||'—'}`,
+                sub:`Contract semnat de ${days} zile • ${o.obiectiv||''}`,
+                actions:[
+                    {label:'📞 Sună',type:'call'},
+                    {label:'✓ PV recepționat',type:'mark',markField:'pv',markValue:'Recepționat'},
+                ],days,
+            });
+        }
+
+        // 6. Deviz de trimis (medium) — contract semnat dar deviz absent
+        if(o.contract==='Semnat' && (o.deviz==='—'||!o.deviz)){
+            reminders.push({
+                id:stableId('deviz'),type:'deviz',urgency:'medium',clientIdx:idx,client:o.client,
+                title:`📋 Deviz de emis — ${o.client||'—'}`,
+                sub:`Contract semnat • ${o.obiectiv||''} • ${o.suprafata||''}`,
+                actions:[
+                    {label:'📋 Mergi la Devize',type:'goto_devize'},
+                    {label:'✓ Emis',type:'mark',markField:'deviz',markValue:'Emis'},
+                ],days,
+            });
+        }
+    });
+
+    // 7+8. Lucrări programate (din calendar)
+    if(typeof getLucrari==='function'){
+        const lucrari=getLucrari();
+        lucrari.forEach((l,li)=>{
+            if(!l.data)return;
+            if(l.data===today){
+                reminders.push({
+                    id:`lucrare_today_${li}_${l.data}`,type:'lucrare_azi',urgency:'high',
+                    title:`🔨 Lucrare AZI — ${l.client||l.titlu||'—'}`,
+                    sub:`${l.echipa?'Echipa: '+l.echipa+' • ':''}${l.ore||''} ${l.locatie?'• '+l.locatie:''}`,
+                    actions:[
+                        {label:'📅 Calendar',type:'goto_calendar'},
+                        {label:'✓ Done',type:'done'},
+                    ],days:0,
+                });
+            } else if(l.data===tomorrow){
+                reminders.push({
+                    id:`lucrare_tom_${li}_${l.data}`,type:'lucrare_maine',urgency:'medium',
+                    title:`📅 Lucrare MÂINE — ${l.client||l.titlu||'—'}`,
+                    sub:`${l.echipa?'Echipa: '+l.echipa+' • ':''}${l.ore||''} ${l.locatie?'• '+l.locatie:''}`,
+                    actions:[
+                        {label:'📅 Calendar',type:'goto_calendar'},
+                        {label:'✓ Done',type:'done'},
+                    ],days:-1,
+                });
+            }
+        });
+    }
+
+    // Filter active (not dismissed/snoozed) and sort
+    return reminders.filter(r=>isReminderActive(r.id)).sort((a,b)=>{
+        const ua=REM_URGENCY_ORDER[a.urgency],ub=REM_URGENCY_ORDER[b.urgency];
+        if(ua!==ub)return ua-ub;
+        return (b.days||0)-(a.days||0);
+    });
+}
+
+function _remDaysClass(days){
+    if(days===null||days===undefined)return 'rem-days-ok';
+    if(days>=14)return 'rem-days-overdue';
+    if(days>=7)return 'rem-days-warn';
+    return 'rem-days-ok';
+}
+
+function _remDaysLabel(r){
+    if(r.type==='lucrare_azi')return 'AZI';
+    if(r.type==='lucrare_maine')return 'mâine';
+    if(r.days==null)return '';
+    if(r.days===0)return 'azi';
+    return r.days+' zile';
+}
+
+function renderRemindersCard(){
+    const wrap=document.getElementById('remindersCard');
+    if(!wrap)return;
+    const list=buildReminders();
+    if(!list.length){
+        wrap.innerHTML=`<div class="rem-card"><div class="rem-empty"><span style="font-size:32px;">✅</span><br>Toate la zi — nicio acțiune urgentă!</div></div>`;
+        return;
+    }
+    const groups={critical:[],high:[],medium:[]};
+    list.forEach(r=>{groups[r.urgency]=groups[r.urgency]||[];groups[r.urgency].push(r);});
+
+    let html=`<div class="rem-card">
+        <div class="rem-head">
+            <h3>🎯 De făcut azi</h3>
+            <span class="rem-count">${list.length} acțiuni</span>
+        </div>`;
+
+    ['critical','high','medium'].forEach(urg=>{
+        const items=groups[urg];if(!items||!items.length)return;
+        html+=`<div class="rem-group rem-group-${urg}">
+            <div class="rem-group-title">${REM_URGENCY_LABEL[urg]} <span style="opacity:.6;">(${items.length})</span></div>`;
+        items.forEach(r=>{
+            const safeName=(r.client||'').replace(/'/g,"\\'");
+            const actionsHTML=(r.actions||[]).map(a=>{
+                const cls=a.type==='call'?'rem-btn-call':a.type==='wa'?'rem-btn-wa':a.type==='mark'?'rem-btn-mark':'rem-btn-snooze';
+                let onclick='';
+                if(a.type==='call')onclick=`quickCall(${r.clientIdx})`;
+                else if(a.type==='wa')onclick=`openWA(${r.clientIdx})`;
+                else if(a.type==='email')onclick=`quickEmail(${r.clientIdx})`;
+                else if(a.type==='mark')onclick=`reminderMarkField(${r.clientIdx},'${a.markField}','${a.markValue.replace(/'/g,"\\'")}','${r.id}')`;
+                else if(a.type==='done')onclick=`dismissReminder('${r.id}')`;
+                else if(a.type==='open')onclick=`openClientInCentral('${safeName}')`;
+                else if(a.type==='goto_devize')onclick=`showPage('devize')`;
+                else if(a.type==='goto_calendar')onclick=`showPage('calendar')`;
+                return `<button class="rem-btn ${cls}" onclick="${onclick}">${a.label}</button>`;
+            }).join('');
+            const titleClick=r.client?`onclick="openClientInCentral('${safeName}')"`:'';
+            html+=`<div class="rem-item rem-urg-${r.urgency}">
+                <div class="rem-item-row1">
+                    <span class="rem-title" ${titleClick}>${r.title}</span>
+                    <span class="rem-days ${_remDaysClass(r.days)}">${_remDaysLabel(r)}</span>
+                </div>
+                <div class="rem-sub">${r.sub||''}</div>
+                <div class="rem-actions">
+                    ${actionsHTML}
+                    <button class="rem-btn rem-btn-snooze" onclick="snoozeReminderPrompt('${r.id}')">⏰ Amână</button>
+                    <button class="rem-btn rem-btn-done" onclick="dismissReminder('${r.id}')">✕</button>
+                </div>
+            </div>`;
+        });
+        html+=`</div>`;
+    });
+    html+=`</div>`;
+    wrap.innerHTML=html;
+}
+
+function snoozeReminderPrompt(id){
+    const choice=prompt('Amână reminder pentru câte zile? (1, 3, 7)','3');
+    if(!choice)return;
+    const n=parseInt(choice);
+    if(!n||n<1||n>30){toast('⚠️ Introdu un număr între 1 și 30');return;}
+    snoozeReminder(id,n);
+}
+
+function reminderMarkField(idx,field,value,reminderId){
+    const all=getAll();if(!all[idx])return;
+    if(field==='statusPlata' && value==='Plătit'){
+        if(!confirm(`Marchezi plata ca încasată pentru ${all[idx].client}?`))return;
+    }
+    all[idx][field]=value;
+    saveAll(all);
+    dismissReminder(reminderId);
+    if(typeof renderCentral==='function')renderCentral();
+    toast('✅ '+all[idx].client+': '+field+' = '+value);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -4832,7 +5147,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.05.05.4';
+const APP_VERSION='2026.05.05.5';
 // Inject version dynamically in title + header badge so user SEES real version
 try{document.title='Hydro Concept — v'+APP_VERSION;}catch(e){}
 try{const _vb=document.getElementById('hc_ver_badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}
