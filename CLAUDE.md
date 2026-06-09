@@ -2,132 +2,139 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## What this is
+## Ce este acest proiect
 
-A **Progressive Web App** for Hydro Concept (Euro-Prest Provider S.R.L.), a Romanian
-waterproofing/roofing company. It is an internal field-sales tool — it manages offers,
-a client centralizer, message generation, an offer/quote (deviz) builder, a calculator,
-photo gallery, calendar, profit tracking, and exports. The entire UI is in **Romanian**;
-keep all user-facing strings, comments, commit messages, and identifiers consistent with
-that language and the existing tone (emoji in toasts/buttons is the established style).
+O **aplicație web progresivă (PWA)** pentru Hydro Concept (Euro-Prest Provider S.R.L.), o
+firmă românească de hidroizolații/acoperișuri. Este un instrument intern de vânzări pe
+teren — gestionează oferte, un centralizator de clienți, generare de mesaje, un constructor
+de devize, un calculator, galerie foto, calendar, urmărire profit și exporturi. Întreaga
+interfață este în **română**; păstrează toate textele vizibile utilizatorului, comentariile,
+mesajele de commit și identificatorii consecvenți cu această limbă și cu tonul existent
+(emoji în toast-uri/butoane este stilul consacrat).
 
-There is **no build system, no framework, no package manager, and no tests.** The whole
-application is hand-written vanilla HTML/CSS/JS in a single file. Do not introduce a
-toolchain, bundler, or npm dependencies unless explicitly asked.
+**Nu există sistem de build, framework, manager de pachete sau teste.** Întreaga aplicație
+este JS/HTML/CSS vanilla scris de mână, într-un singur fișier. Nu introduce un toolchain,
+bundler sau dependențe npm decât dacă ți se cere explicit.
 
-## Running & "deploying"
+## Rulare și „deploy”
 
-- Open `HydroConcept_App.html` directly, or serve the directory statically:
-  `python3 -m http.server 8000` then visit `http://localhost:8000/`.
-- `index.html` is a one-line redirect to `HydroConcept_App.html`.
-- "Deployment" is just **committing and pushing to `master`** — the app is served from
-  GitHub (Pages / raw). There is no CI, lint, or test step. Changes to the HTML go live
-  as soon as they are served.
+- Deschide direct `HydroConcept_App.html` sau servește directorul static:
+  `python3 -m http.server 8000`, apoi accesează `http://localhost:8000/`.
+- `index.html` este o redirecționare de o linie către `HydroConcept_App.html`.
+- „Deploy-ul” înseamnă pur și simplu **commit și push pe `master`** — aplicația este servită
+  de pe GitHub (Pages / raw). Nu există CI, lint sau pas de testare. Modificările aduse
+  HTML-ului devin active imediat ce sunt servite.
 
-### Version bumping (critical for updates to reach users)
+### Incrementarea versiunii (esențial pentru ca actualizările să ajungă la utilizatori)
 
-The app aggressively self-updates clients. When you change `HydroConcept_App.html`, you
-**must bump `APP_VERSION`** (near the bottom of the inline script, format
-`'YYYY.MM.DD.N'`) so deployed clients pick up the change. The mechanism:
+Aplicația își actualizează agresiv clienții. Când modifici `HydroConcept_App.html`,
+**trebuie să incrementezi `APP_VERSION`** (aproape de finalul scriptului inline, formatul
+`'AAAA.LL.ZZ.N'`) ca să forțezi clienții deja instalați să preia modificarea. Mecanismul:
 
-- `checkRemoteVersion()` re-fetches the HTML every 60s, regex-matches `APP_VERSION='...'`,
-  and if it differs from the running version, **nukes all caches, unregisters the service
-  worker, and force-reloads**.
-- The service worker (`sw.js`) serves HTML **network-only** (never cached) and caches only
-  static assets. When you change `sw.js`, bump `CACHE_NAME` (`hc-app-vNN`) so the
-  `activate` handler purges old caches.
+- `checkRemoteVersion()` re-descarcă HTML-ul la fiecare 60s, extrage prin regex
+  `APP_VERSION='...'` și, dacă diferă de versiunea care rulează, **șterge toate cache-urile,
+  dezînregistrează service worker-ul și reîncarcă forțat pagina**.
+- Service worker-ul (`sw.js`) servește HTML-ul **doar din rețea** (niciodată din cache) și
+  pune în cache doar resursele statice. Când modifici `sw.js`, incrementează `CACHE_NAME`
+  (`hc-app-vNN`), ca handler-ul `activate` să șteargă cache-urile vechi.
 
-If you edit the app and forget to bump `APP_VERSION`, users will keep running the old code.
+Dacă editezi aplicația și uiți să incrementezi `APP_VERSION`, utilizatorii vor continua să
+ruleze codul vechi.
 
-## Architecture
+## Arhitectură
 
-### Single-file SPA
+### SPA într-un singur fișier
 
-`HydroConcept_App.html` (~5200 lines) contains everything: `<style>` (lines ~22–541),
-the markup for all pages (~541–1362), and one inline `<script>` (~1362–5211). There are
-no modules or imports — every function is a global. When adding a function, define it as a
-top-level `function name(){}` alongside the others; UI wires to it via inline
-`onclick="..."` attributes.
+`HydroConcept_App.html` (~5200 de linii) conține tot: `<style>` (liniile ~22–541), markup-ul
+tuturor paginilor (~541–1362) și un singur `<script>` inline (~1362–5211). Nu există module
+sau import-uri — fiecare funcție este globală. Când adaugi o funcție, definește-o ca
+`function nume(){}` la nivel superior, lângă celelalte; interfața se leagă de ea prin
+atribute `onclick="..."` inline.
 
-**Page/tab navigation** is `showPage('name')`: it toggles `.active` on `.page` divs
-(`id="page-<name>"`) and bottom-nav `.tab` buttons, then calls that page's render function.
-The pages are: `dashboard`, `oferte`, `centralizator`, `calendar`, `galerie`, `profit`,
-`mesaje`, `calculator`, `pipeline`, `devize`, `export`, `setari`. Each interactive page has
-a matching `render<Page>()` that rebuilds its DOM from localStorage — there is no reactive
-data binding, so **after mutating data you must call the relevant render function** (or
-`updateBadge()`) to refresh the view.
+**Navigarea între pagini/tab-uri** se face cu `showPage('nume')`: comută `.active` pe div-urile
+`.page` (`id="page-<nume>"`) și pe butoanele `.tab` din bara de jos, apoi apelează funcția de
+randare a acelei pagini. Paginile sunt: `dashboard`, `oferte`, `centralizator`, `calendar`,
+`galerie`, `profit`, `mesaje`, `calculator`, `pipeline`, `devize`, `export`, `setari`. Fiecare
+pagină interactivă are o funcție `render<Pagina>()` care reconstruiește DOM-ul din
+localStorage — nu există binding reactiv de date, așa că **după ce modifici datele trebuie să
+apelezi funcția de randare relevantă** (sau `updateBadge()`) ca să reîmprospătezi vizualizarea.
 
-### Data model & persistence
+### Modelul de date și persistența
 
-**All state lives in `localStorage`** as JSON; there is no backend database. Access goes
-through small getter/setter pairs — use them rather than touching `localStorage` directly:
+**Toată starea trăiește în `localStorage`** ca JSON; nu există backend cu bază de date.
+Accesul se face prin perechi mici getter/setter — folosește-le în loc să atingi direct
+`localStorage`:
 
-| Key | Accessors | Contents |
-|-----|-----------|----------|
-| `hc_data` | `getAll()` / `saveAll()` | array of offer/client records (the core entity) |
-| `hc_devize` | `getDevize()` / `saveDevize()` | saved quotes |
-| `hc_lucrari` | `getLucrari()` / `saveLucrari()` | calendar jobs |
-| `hc_echipe` | `getEchipe()` / `saveEchipe()` | work teams |
-| `hc_photos` | `getPhotos()` / `savePhotos()` | gallery photo metadata |
-| `hc_custom_materiale` | `getCustomMateriale()` / `saveCustomMateriale()` | user-added materials |
-| `hc_costs` | `getCosts()` | per-offer cost inputs for profit calc |
-| `hc_reminders_state` | `getReminderState()` / `saveReminderState()` | snooze/dismiss state |
-| `hc_pin`, `hc_pin_active` | `getPin()` / `isPinActive()` | profit-page PIN lock |
-| `hc_gh_token`, `hc_sync_ts` | `getGHToken()` / `saveGHToken()` | cloud sync (see below) |
-| `hc_theme` | `loadTheme()` / `toggleTheme()` | light/dark |
-| `hc_seeded_v5`, `hc_just_seeded` | — | seed guards |
+| Cheie | Accesoare | Conținut |
+|-------|-----------|----------|
+| `hc_data` | `getAll()` / `saveAll()` | array de înregistrări ofertă/client (entitatea de bază) |
+| `hc_devize` | `getDevize()` / `saveDevize()` | devize salvate |
+| `hc_lucrari` | `getLucrari()` / `saveLucrari()` | lucrări din calendar |
+| `hc_echipe` | `getEchipe()` / `saveEchipe()` | echipe de lucru |
+| `hc_photos` | `getPhotos()` / `savePhotos()` | metadate poze din galerie |
+| `hc_custom_materiale` | `getCustomMateriale()` / `saveCustomMateriale()` | materiale adăugate de utilizator |
+| `hc_costs` | `getCosts()` | costuri per ofertă pentru calculul profitului |
+| `hc_reminders_state` | `getReminderState()` / `saveReminderState()` | stare snooze/dismiss remindere |
+| `hc_pin`, `hc_pin_active` | `getPin()` / `isPinActive()` | blocare cu PIN a paginii profit |
+| `hc_gh_token`, `hc_sync_ts` | `getGHToken()` / `saveGHToken()` | sincronizare cloud (vezi mai jos) |
+| `hc_theme` | `loadTheme()` / `toggleTheme()` | temă light/dark |
+| `hc_seeded_v5`, `hc_just_seeded` | — | gardiene pentru seed |
 
-A client record is a flat object: `{nr, client, telefon, email, obiectiv, suprafata,
-valoare, dataOferta, oferta, contract, deviz, pv, factura, statusPlata, obs, id}`. `id` is
-`1000000 + index` for seeded rows. `valoare` is a **free-text string** ("31.150 lei",
-"21.080 €", "110 lei/mp") — never assume it is a number; parse it with the existing
-`parseVal` / `parseValNum` / `isEuro` helpers (euro is converted at `CURS` ≈ 5 lei).
-Dates are Romanian `dd.mm.yyyy` strings — parse with `parseRoDate` / `daysAgo`.
+O înregistrare de client este un obiect plat: `{nr, client, telefon, email, obiectiv,
+suprafata, valoare, dataOferta, oferta, contract, deviz, pv, factura, statusPlata, obs, id}`.
+`id` este `1000000 + index` pentru rândurile inițializate (seed). `valoare` este un **string
+liber** ("31.150 lei", "21.080 €", "110 lei/mp") — nu presupune niciodată că este număr;
+parsează-l cu helperii existenți `parseVal` / `parseValNum` / `isEuro` (euro este convertit la
+`CURS` ≈ 5 lei). Datele sunt string-uri românești `zz.ll.aaaa` — parsează-le cu `parseRoDate`
+/ `daysAgo`.
 
-`seedData()` loads the 22 historical clients from the hard-coded `HC` constant on first run
-(guarded by `hc_seeded_v5`). The company profile is the hard-coded `F` constant; product
-tiers/pricing live in `P`, `COMPARE_ROWS`, `STEPS`, `BENEFITS`; quote templates in
-`DEVIZ_TEMPLATES` and the material catalog `DEVIZ_MATERIALE_CATALOG`. These constants are
-the source of truth for offer content — edit them rather than duplicating values inline.
+`seedData()` încarcă cei 22 de clienți istorici din constanta hard-codată `HC` la prima rulare
+(protejat de `hc_seeded_v5`). Profilul firmei este constanta hard-codată `F`; nivelurile de
+produse/prețurile sunt în `P`, `COMPARE_ROWS`, `STEPS`, `BENEFITS`; template-urile de devize în
+`DEVIZ_TEMPLATES`, iar catalogul de materiale în `DEVIZ_MATERIALE_CATALOG`. Aceste constante
+sunt sursa de adevăr pentru conținutul ofertelor — editează-le în loc să duplici valorile
+inline.
 
-### Cloud sync (GitHub-as-database)
+### Sincronizare cloud (GitHub ca bază de date)
 
-Multi-device sync uses the **GitHub Contents API to read/write `sync.json` in this repo**:
-`GH_REPO='europrest-svg/hydroconcept-app'`, `GH_FILE='sync.json'`. The user pastes a
-personal access token (`hc_gh_token`) in Settings.
+Sincronizarea între dispozitive folosește **GitHub Contents API pentru a citi/scrie `sync.json`
+din acest repo**: `GH_REPO='europrest-svg/hydroconcept-app'`, `GH_FILE='sync.json'`.
+Utilizatorul lipește un token personal de acces (`hc_gh_token`) în Setări.
 
-- `saveAll()` triggers `autoCloudPush()` → debounced 5s → `cloudPushSilent()` (PUT to the
-  Contents API, fetching the current `sha` first).
-- `cloudPull()` runs ~4s after load and every 60s; it applies the remote payload **only if
-  `sync_ts` is newer** than the local one (last-write-wins, no merge).
-- `sync.json` in the repo is therefore **live user data that the app overwrites**, not
-  source config. Treat it as data, not code — don't hand-edit it expecting it to stick.
+- `saveAll()` declanșează `autoCloudPush()` → debounce 5s → `cloudPushSilent()` (PUT către
+  Contents API, după ce ia mai întâi `sha`-ul curent).
+- `cloudPull()` rulează la ~4s după încărcare și la fiecare 60s; aplică payload-ul remote
+  **doar dacă `sync_ts` este mai nou** decât cel local (last-write-wins, fără merge).
+- Prin urmare, `sync.json` din repo reprezintă **date live ale utilizatorului pe care
+  aplicația le suprascrie**, nu configurare sursă. Tratează-l ca date, nu ca pe cod — nu-l
+  edita manual așteptându-te să rămână.
 
-### Persisted documents (IndexedDB)
+### Documente persistate (IndexedDB)
 
-Uploaded offer documents (PDF/DOCX) are stored in **IndexedDB** (`docDB`, via
-`openDocDB` / `saveDoc` / `getDoc` / `delDoc`), keyed per offer — separate from the
-localStorage state. PDF text extraction uses pdf.js; DOCX parsing uses mammoth; DOCX
-generation uses the `docx` library + FileSaver — all loaded from CDN in `<head>` and listed
-in the service worker's asset cache.
+Documentele de ofertă încărcate (PDF/DOCX) sunt stocate în **IndexedDB** (`docDB`, prin
+`openDocDB` / `saveDoc` / `getDoc` / `delDoc`), indexate per ofertă — separat de starea din
+localStorage. Extragerea textului din PDF folosește pdf.js; parsarea DOCX folosește mammoth;
+generarea DOCX folosește biblioteca `docx` + FileSaver — toate încărcate de pe CDN în `<head>`
+și listate în cache-ul de resurse al service worker-ului.
 
-### Companion public pages
+### Pagini publice însoțitoare
 
-These standalone HTML files share the brand styling but are independent of the app shell:
+Aceste fișiere HTML de sine stătătoare împart stilul de brand, dar sunt independente de shell-ul
+aplicației:
 
-- `cerere.html` — public "request a quote" form; submits by opening a **WhatsApp** link to
-  the admin (`wa.me/40720139220`). No server.
-- `oferta-public.html` — renders a shareable offer from a **base64 payload in the URL hash**
-  (`generatePublicOfferLink()` in the app produces these links).
-- `portofoliu.html`, `testimoniale.html` — marketing/landing pages.
+- `cerere.html` — formular public „cerere de ofertă”; trimite prin deschiderea unui link
+  **WhatsApp** către admin (`wa.me/40720139220`). Fără server.
+- `oferta-public.html` — randează o ofertă partajabilă dintr-un **payload base64 din hash-ul
+  URL** (`generatePublicOfferLink()` din aplicație produce aceste linkuri).
+- `portofoliu.html`, `testimoniale.html` — pagini de prezentare/marketing.
 
-## Conventions
+## Convenții
 
-- **Bump `APP_VERSION` on every change to `HydroConcept_App.html`**, and `CACHE_NAME` on
-  every change to `sw.js`. This is the single most important rule.
-- Match the existing dense, single-file vanilla style: globals, inline `onclick` handlers,
-  `function` declarations grouped by feature with `═══` comment banners, and the helpers
-  `v(id)` (trimmed input value), `nr(n)` (ro-RO number format), `toast(msg)`.
-- Read/write state only through the getter/setter pairs above, and re-render the affected
-  page after mutating.
-- Keep all UI text in Romanian.
+- **Incrementează `APP_VERSION` la fiecare modificare a `HydroConcept_App.html`** și
+  `CACHE_NAME` la fiecare modificare a `sw.js`. Este cea mai importantă regulă.
+- Respectă stilul vanilla existent, dens, într-un singur fișier: globale, handler-e `onclick`
+  inline, declarații `function` grupate pe funcționalitate cu bannere de comentarii `═══`, și
+  helperii `v(id)` (valoare input trimuită), `nr(n)` (format numeric ro-RO), `toast(msg)`.
+- Citește/scrie starea doar prin perechile getter/setter de mai sus și re-randează pagina
+  afectată după ce modifici datele.
+- Păstrează tot textul de interfață în română.
