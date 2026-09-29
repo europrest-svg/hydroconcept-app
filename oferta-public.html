@@ -58,6 +58,13 @@
 </div>
 
 <script>
+// Firm contact data is fixed here, never read from the link, so nobody can craft a branded offer page
+// that sends clients to another phone/email. Keep in sync with const F in HydroConcept_App.html.
+const FIRMA={nume:'Hydro Concept',oficial:'Euro-Prest Provider S.R.L.',tel:'0720 139 220',email:'europrest@yahoo.com',cui:'RO28153047',admin:'Iancu Costel'};
+
+// Everything decoded from the link is untrusted: escape before putting it into innerHTML
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
 function b64UrlDecode(s){
     s=s.replace(/-/g,'+').replace(/_/g,'/');
     while(s.length%4)s+='=';
@@ -75,71 +82,71 @@ function render(){
     try{d=JSON.parse(b64UrlDecode(m[1]));}
     catch(e){document.getElementById('content').innerHTML='<div style="padding:60px 20px;text-align:center;"><h2 style="color:#e74c3c;">⚠️ Date corupte</h2></div>';return;}
 
-    const tel=d.tel||'0720 139 220';
-    const phoneClean=tel.replace(/[^\d]/g,'');
+    const telDigits=FIRMA.tel.replace(/[^\d]/g,'');
+    const waNumber=telDigits.startsWith('0')?'4'+telDigits:telDigits; // 0720139220 → 40720139220
     const waMsg=encodeURIComponent(`Bună ziua! Vreau să accept oferta primită pentru ${d.obiectiv||'lucrare'}. Vă rog să continuăm.`);
     const subject=encodeURIComponent('Confirmare ofertă — '+(d.obiectiv||'lucrare'));
     const body=encodeURIComponent(`Bună ziua,\n\nConfirm primirea ofertei pentru ${d.obiectiv||''} și doresc să continuăm.\n\nMulțumesc,\n${d.client||''}`);
 
-    document.title=`Ofertă ${d.firma||''} pentru ${d.client||''}`;
+    document.title=`Ofertă ${FIRMA.nume} pentru ${d.client||''}`;
 
     document.getElementById('content').innerHTML=`
         <div class="header">
-            <div class="logo">HYDRO CONCEPT<small>${d.firma||'Euro-Prest Provider S.R.L.'}</small></div>
+            <div class="logo">HYDRO CONCEPT<small>${FIRMA.oficial}</small></div>
             <div class="iso">ISO 9001:2015</div>
         </div>
         <div class="body">
             <h1>Ofertă personalizată</h1>
-            <div class="subtitle">${d.obiectiv||'Hidroizolație profesională'}</div>
-            <div class="data-info">📅 Emisă la data: ${d.dataOferta||'—'}  •  Valabilitate: 30 zile</div>
+            <div class="subtitle">${esc(d.obiectiv||'Hidroizolație profesională')}</div>
+            <div class="data-info">📅 Emisă la data: ${esc(d.dataOferta||'—')}  •  Valabilitate: 30 zile</div>
 
             <div class="client-grid">
                 <div class="client-box client-from">
                     <div class="client-label">DE LA</div>
-                    <div class="client-name">${d.firma||'Hydro Concept'}</div>
+                    <div class="client-name">${FIRMA.oficial}</div>
                     <div class="client-det">
-                        ${d.admin?'Administrator: <strong>'+d.admin+'</strong><br>':''}
-                        ${d.cuit?'CUI: '+d.cuit+'<br>':''}
-                        📞 ${tel}<br>
-                        ${d.emailFirma?'📧 '+d.emailFirma:''}
+                        Administrator: <strong>${FIRMA.admin}</strong><br>
+                        CUI: ${FIRMA.cui}<br>
+                        📞 ${FIRMA.tel}<br>
+                        📧 ${FIRMA.email}
                     </div>
                 </div>
                 <div class="client-box client-to">
                     <div class="client-label">PENTRU</div>
-                    <div class="client-name">${d.client||'—'}</div>
+                    <div class="client-name">${esc(d.client||'—')}</div>
                     <div class="client-det">
-                        ${d.telefon?'📞 '+d.telefon+'<br>':''}
-                        ${d.email?'📧 '+d.email:''}
+                        ${d.telefon?'📞 '+esc(d.telefon)+'<br>':''}
+                        ${d.email?'📧 '+esc(d.email):''}
                     </div>
                 </div>
             </div>
 
             <div class="section">📋 Detalii lucrare</div>
-            <div class="info-row"><strong>Obiectiv:</strong><span>${d.obiectiv||'—'}</span></div>
-            ${d.suprafata?`<div class="info-row"><strong>Suprafață:</strong><span>${d.suprafata}</span></div>`:''}
+            <div class="info-row"><strong>Obiectiv:</strong><span>${esc(d.obiectiv||'—')}</span></div>
+            ${d.suprafata?`<div class="info-row"><strong>Suprafață:</strong><span>${esc(d.suprafata)}</span></div>`:''}
             <div class="info-row"><strong>Garanție:</strong><span>conform contract</span></div>
             <div class="info-row"><strong>Termen:</strong><span>la stabilire de comun acord</span></div>
 
             ${d.valoare?`
                 <div class="price-box">
                     <div class="label">💰 Valoare ofertă</div>
-                    <div class="value">${d.valoare}</div>
+                    <div class="value">${esc(d.valoare)}</div>
                 </div>
             `:''}
 
-            ${d.mesaj?`<div class="section">💬 Mesaj</div><div class="msg-box">${d.mesaj.replace(/</g,'&lt;')}</div>`:''}
+            ${d.mesaj?`<div class="section">💬 Mesaj</div><div class="msg-box">${esc(d.mesaj)}</div>`:''}
 
             <div class="section">✅ Acceptă oferta</div>
             <p style="text-align:center;color:#666;font-size:13px;margin-bottom:14px;">Pentru a accepta această ofertă, contactați-ne prin metodele de mai jos:</p>
             <div class="actions">
-                <a class="btn btn-wa" href="https://wa.me/${'4'+phoneClean.replace(/^0/,'')}?text=${waMsg}">📲 WhatsApp Acceptă</a>
-                <a class="btn btn-call" href="tel:${tel}">📞 Sună acum</a>
-                ${d.emailFirma?`<a class="btn btn-accept" href="mailto:${d.emailFirma}?subject=${subject}&body=${body}">📧 Email Acceptă</a>`:''}
+                <a class="btn btn-wa" href="https://wa.me/${waNumber}?text=${waMsg}">📲 WhatsApp Acceptă</a>
+                <a class="btn btn-call" href="tel:${telDigits}">📞 Sună acum</a>
+                <a class="btn btn-accept" href="mailto:${FIRMA.email}?subject=${subject}&body=${body}">📧 Email Acceptă</a>
             </div>
         </div>
         <div class="footer">
-            <strong>${d.firma||'Hydro Concept'}</strong> — Hidroizolații profesionale<br>
-            ${d.cuit?'CUI: '+d.cuit+' • ':''}ISO 9001:2015<br>
+            <strong>${FIRMA.nume}</strong> (${FIRMA.oficial}) — Hidroizolații profesionale<br>
+            CUI: ${FIRMA.cui} • ISO 9001:2015<br>
             <span style="opacity:.6;">Generat din aplicația HydroConcept</span>
         </div>
     `;

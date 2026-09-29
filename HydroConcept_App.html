@@ -1420,7 +1420,9 @@ function showPage(name){
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     document.getElementById('page-'+name).classList.add('active');
-    event.target.closest('.tab').classList.add('active');
+    // Look the tab up by name: showPage is also called from stat cards, client links and reminders, where the click target isn't a tab
+    const tabBtn=document.querySelector(`.tab[onclick="showPage('${name}')"]`);
+    if(tabBtn){tabBtn.classList.add('active');tabBtn.scrollIntoView({block:'nearest',inline:'nearest'});}
     if(name==='centralizator') renderCentral();
     if(name==='dashboard') renderDashboard();
     if(name==='oferte') renderOfertaDocs(null);
@@ -4985,8 +4987,7 @@ function _b64UrlEncode(s){return btoa(unescape(encodeURIComponent(s))).replace(/
 function generatePublicOfferLink(){
     const sel=_selectedClient();if(!sel){toast('⚠️ Selectează un client');return;}
     const o=sel.o;
-    const F_NUME='Hydro Concept';
-    const F_ADMIN='Iancu Costel';
+    // Only client data goes in the link; oferta-public.html has the firm's contact data fixed
     const payload={
         v:1,
         client:o.client||'',
@@ -4996,12 +4997,6 @@ function generatePublicOfferLink(){
         suprafata:o.suprafata||'',
         valoare:o.valoare||'',
         dataOferta:o.dataOferta||dataAzi(),
-        firma:F_NUME,
-        admin:F_ADMIN,
-        tel:'0720 139 220',
-        emailFirma:'office@hydroconcept.ro',
-        cuit:'RO28153047',
-        // Optional message text
         mesaj:document.getElementById('msgPreview').value||'',
     };
     const data=_b64UrlEncode(JSON.stringify(payload));
@@ -5147,7 +5142,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.05.05.5';
+const APP_VERSION='2026.09.29.1';
 // Inject version dynamically in title + header badge so user SEES real version
 try{document.title='Hydro Concept — v'+APP_VERSION;}catch(e){}
 try{const _vb=document.getElementById('hc_ver_badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}

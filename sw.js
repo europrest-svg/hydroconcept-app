@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hc-app-v37';
+const CACHE_NAME = 'hc-app-v38';
 const ASSETS = [
   './manifest.json',
   './icon-192.svg',
