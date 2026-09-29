@@ -104,6 +104,26 @@ td.editing input:focus,td.editing select:focus{outline:none;}
 .pipeline-row-clk:hover{background:#1a2a40;}
 body.light .pipeline-row-clk:hover{background:#eef5ff;}
 
+/* ÎNCASĂRI */
+.inc-row{background:#0a1525;border:1px solid #1a2a40;border-radius:8px;padding:12px;margin-bottom:8px;}
+.inc-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.inc-name{font-weight:700;color:#fff;cursor:pointer;flex:1;min-width:140px;}
+.inc-name:hover{color:#C9A84C;text-decoration:underline;}
+.inc-obj{font-size:11px;color:#6688aa;font-weight:400;}
+.inc-bar{height:8px;background:#1a2a40;border-radius:4px;overflow:hidden;margin:8px 0 4px;}
+.inc-bar>div{height:100%;background:linear-gradient(90deg,#27ae60,#2ecc71);}
+.inc-nums{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:#8899aa;}
+.inc-nums b{color:#fff;}
+.inc-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.inc-panel{margin-top:10px;padding-top:10px;border-top:1px dashed #1a2a40;}
+.inc-form{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;}
+.inc-form label{display:block;font-size:10px;color:#8899aa;text-transform:uppercase;margin-bottom:2px;}
+.inc-form input,.inc-form select{background:#0d1825;border:1px solid #1B3A6B;color:#fff;padding:7px 8px;border-radius:6px;font-size:13px;font-family:inherit;}
+.inc-hist-item{display:flex;gap:10px;align-items:center;font-size:12px;padding:5px 0;border-bottom:1px solid #111f35;flex-wrap:wrap;}
+body.light .inc-row{background:#fff;border-color:#ddd;}
+body.light .inc-name,body.light .inc-nums b{color:#1a202c;}
+body.light .inc-form input,body.light .inc-form select{background:#f8f9fa;border-color:#ddd;color:#1a202c;}
+
 /* REMINDERS — De făcut azi */
 .rem-card{background:#111f35;border:1px solid #1B3A6B;border-radius:12px;padding:16px;margin-bottom:18px;}
 .rem-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
@@ -558,6 +578,7 @@ body{background:#fff!important;color:#000!important;}
 <button class="tab" onclick="showPage('calendar')">📅 Calendar</button>
 <button class="tab" onclick="showPage('galerie')">📷 Galerie</button>
 <button class="tab" onclick="showPage('profit')">💹 Profit</button>
+<button class="tab" onclick="showPage('incasari')">💰 Încasări</button>
 <button class="tab" onclick="showPage('mesaje')">📧 Mesaje</button>
 <button class="tab" onclick="showPage('calculator')">🔢 Calculator</button>
 <button class="tab" onclick="showPage('pipeline')">📈 Pipeline</button>
@@ -1052,7 +1073,7 @@ body{background:#fff!important;color:#000!important;}
     <p>Introdu PIN-ul pentru acces</p>
     <input type="password" id="pinInput" maxlength="6" placeholder="••••" oninput="checkPin()" autofocus>
     <div class="pin-err" id="pinErr"></div>
-    <div class="pin-hint">PIN implicit: 1234</div>
+    <div class="pin-hint" id="pinHint">PIN implicit: 1234</div>
 </div>
 </div>
 
@@ -1061,6 +1082,15 @@ body{background:#fff!important;color:#000!important;}
 <div class="section-title">📈 Pipeline vizual — Kanban</div>
 <div class="pipe-stats" id="pipeStats"></div>
 <div class="pipe-board" id="pipeBoard"></div>
+</div>
+
+<!-- ═══════ PAGE: ÎNCASĂRI ═══════ -->
+<div class="page" id="page-incasari">
+<div class="section-title">💰 Încasări — avansuri, tranșe, restanțe</div>
+<div class="stats-grid" id="incStats"></div>
+<div id="incChips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;"></div>
+<div id="incList"></div>
+<div class="text-muted" style="font-size:11px;margin-top:8px;">Apar clienții cu ofertă acceptată sau contract. Sumele se înregistrează în moneda contractului; totalurile în lei folosesc cursul din aplicație. Statusul plății din Centralizator se actualizează singur.</div>
 </div>
 
 <!-- ═══════ PAGE: DEVIZE ═══════ -->
@@ -1281,7 +1311,7 @@ body{background:#fff!important;color:#000!important;}
     <div class="section-title" style="font-size:12px;">🔒 Protecție PIN</div>
     <div class="form-row">
         <div class="form-group" style="max-width:200px;"><label>PIN actual</label><input type="password" id="set-pin-old" placeholder="PIN vechi"></div>
-        <div class="form-group" style="max-width:200px;"><label>PIN nou</label><input type="password" id="set-pin-new" placeholder="PIN nou (4-6 cifre)"></div>
+        <div class="form-group" style="max-width:200px;"><label>PIN nou</label><input type="password" id="set-pin-new" placeholder="PIN nou (4-6 cifre)" inputmode="numeric" maxlength="6"></div>
         <div class="form-group" style="max-width:120px;"><label>&nbsp;</label><button class="btn btn-gold btn-sm" onclick="changePin()">Schimbă PIN</button></div>
     </div>
     <div class="form-row">
@@ -1432,6 +1462,7 @@ function showPage(name){
     if(name==='mesaje') renderMsgClients();
     if(name==='pipeline') renderPipeline();
     if(name==='devize') renderDevize();
+    if(name==='incasari') renderIncasari();
     if(name==='export') renderExportPage();
     if(name==='setari'){loadPinSetting();document.getElementById('lastBackupTime').textContent=localStorage.getItem('hc_last_backup')||'Niciodată';generateQR();}
 }
@@ -1942,7 +1973,7 @@ function renderCentral(){
             <td class="col-center">${docCell(realIdx,'deviz',o.deviz)}</td>
             <td class="col-center">${docCell(realIdx,'pv',o.pv)}</td>
             <td class="col-center">${docCell(realIdx,'factura',o.factura)}</td>
-            <td class="editable col-center" ondblclick="editCell(this,${realIdx},'statusPlata','select')">${stBadge(o.statusPlata)}</td>
+            <td class="editable col-center" ondblclick="editCell(this,${realIdx},'statusPlata','select')">${stBadge(o.statusPlata)}${_plataPctLabel(o)}</td>
             <td class="editable" style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}" ondblclick="editCell(this,${realIdx},'obs','text')">${o.obs||'—'}</td>
             <td style="white-space:nowrap;"><button class="btn btn-sm" style="background:${o.telefon?'#27ae60':'#334'};color:#fff;padding:4px 6px;border-radius:6px;border:none;cursor:pointer;" onclick="quickCall(${realIdx})" title="${o.telefon||'Adaugă telefon'}">📞</button> <button class="btn btn-sm" style="background:${o.email?'#2563A8':'#334'};color:#fff;padding:4px 6px;border-radius:6px;border:none;cursor:pointer;" onclick="quickEmail(${realIdx})" title="${o.email||'Adaugă email'}">📧</button> <button class="btn-whatsapp" onclick="openWA(${realIdx})" title="WhatsApp">📲</button> <button class="btn btn-blue btn-sm" onclick="showUploadMenu(${realIdx})" title="Atașează document">📎</button> <button class="btn btn-red btn-sm" onclick="stergeOferta(${realIdx})">✕</button></td>
         </tr>`;
@@ -2721,7 +2752,7 @@ function renderDashboard(){
 
     // Parse valoare to number
     function parseVal(v){if(!v||v==='—')return 0;const n=v.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');return parseFloat(n)||0;}
-    function isEuro(v){return v&&v.includes('€');}
+    function isEuro(v){return !!v&&/€|eur/i.test(v);}
 
     // Stats
     const st={total:all.length,trimise:0,asteptare:0,acceptate:0,respinse:0,contracte:0,valTotal:0};
@@ -2830,6 +2861,218 @@ function renderDashboard(){
 }
 
 // ═══════════════════════════════════════════════════════
+// ÎNCASĂRI — plăți pe contract (o.plati), status plată automat
+// ═══════════════════════════════════════════════════════
+let _incFilter='de_incasat';
+let _incOpen={}; // {clientIdx:'form'|'hist'}
+
+function _incNum(s){const n=String(s||'').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');return parseFloat(n)||0;}
+
+// Contract value in its own currency; prices like "110 lei/mp" are multiplied by the surface
+function _contractValue(o){
+    const raw=String(o.valoare||'');
+    if(!raw||raw==='—')return null;
+    const cur=/€|eur/i.test(raw)?'€':'lei';
+    let amount=_incNum(raw),perMp=false;
+    if(/\/\s*mp/i.test(raw)){
+        const mp=_incNum(o.suprafata);
+        if(!mp)return null;
+        amount*=mp;perMp=true;
+    }
+    return amount?{amount,cur,perMp}:null;
+}
+
+function _paidTotal(o){return (o.plati||[]).reduce((s,p)=>s+(+p.suma||0),0);}
+function _toLei(amount,cur){return cur==='€'?amount*CURS:amount;}
+function _money(n,cur){return nr(Math.round(n*100)/100)+' '+cur;}
+
+// Keep statusPlata in step with recorded payments so filters, reminders and Mesaje keep working.
+// Clients never given a payment (no o.plati) keep their manually set status.
+function _syncStatusPlata(o){
+    if(!o.plati)return;
+    const paid=_paidTotal(o),cv=_contractValue(o);
+    if(!paid)o.statusPlata='Neplătit';
+    else if(cv&&paid>=cv.amount-0.5)o.statusPlata='Plătit';
+    else o.statusPlata='Parțial';
+}
+
+function _plataPctLabel(o){
+    if(o.statusPlata!=='Parțial')return '';
+    const cv=_contractValue(o);if(!cv)return '';
+    return `<br><span style="font-size:10px;color:#f39c12;font-weight:700;">${Math.round(_paidTotal(o)/cv.amount*100)}% încasat</span>`;
+}
+
+function _incInScope(o){
+    return o.oferta==='Acceptată'||(o.contract&&o.contract!=='—')||(o.plati&&o.plati.length>0);
+}
+
+function _incIsRestant(o,rest){
+    return o.factura==='Emisă'&&rest>0.5&&daysAgo(o.dataOferta)>=30&&daysAgo(o.dataOferta)<999;
+}
+
+function renderIncasari(){
+    const all=getAll();
+    const now=new Date();
+    const rows=[];
+    let deIncasatLei=0,incasatLunaLei=0,incasatTotalLei=0,restante=0;
+    all.forEach((o,idx)=>{
+        const cv=_contractValue(o);
+        const cur=cv?cv.cur:(/€|eur/i.test(o.valoare||'')?'€':'lei');
+        (o.plati||[]).forEach(p=>{
+            const lei=_toLei(+p.suma||0,cur);
+            incasatTotalLei+=lei;
+            const d=parseRoDate(p.d);
+            if(d&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear())incasatLunaLei+=lei;
+        });
+        if(!_incInScope(o))return;
+        const paid=_paidTotal(o);
+        const rest=cv?Math.max(cv.amount-paid,0):0;
+        const restant=_incIsRestant(o,rest);
+        if(cv)deIncasatLei+=_toLei(rest,cv.cur);
+        if(restant)restante++;
+        rows.push({o,idx,cv,cur,paid,rest,restant,pct:cv?Math.min(100,Math.round(paid/cv.amount*100)):0});
+    });
+
+    document.getElementById('incStats').innerHTML=`
+        <div class="stat-card stat-clk" onclick="_incFilter='de_incasat';renderIncasari()"><div class="num" style="font-size:18px;color:#e67e22;">${nr(Math.round(deIncasatLei))} lei</div><div class="lbl">De încasat</div></div>
+        <div class="stat-card"><div class="num" style="font-size:18px;color:#2ecc71;">${nr(Math.round(incasatLunaLei))} lei</div><div class="lbl">Încasat luna aceasta</div></div>
+        <div class="stat-card"><div class="num" style="font-size:18px;">${nr(Math.round(incasatTotalLei))} lei</div><div class="lbl">Încasat total</div></div>
+        <div class="stat-card stat-clk" onclick="_incFilter='restante';renderIncasari()" style="${restante?'border-color:#e74c3c;':''}"><div class="num" style="color:${restante?'#e74c3c':'#27ae60'};">${restante}</div><div class="lbl">Facturate, restante &gt;30 zile</div></div>`;
+
+    const filters=[
+        ['de_incasat','De încasat',r=>!r.cv||r.rest>0.5],
+        ['partial','Parțial',r=>r.paid>0&&r.rest>0.5],
+        ['platit','Încasat integral',r=>r.cv&&r.rest<=0.5],
+        ['restante','Restanțe',r=>r.restant],
+        ['toti','Toți',()=>true],
+    ];
+    document.getElementById('incChips').innerHTML=filters.map(([id,label,fn])=>{
+        const n=rows.filter(fn).length,on=_incFilter===id;
+        return `<span class="ck-chip" onclick="_incFilter='${id}';renderIncasari()" style="cursor:pointer;${on?'background:#C9A84C;color:#0D1B2A;border-color:#C9A84C;':''}">${label} (${n})</span>`;
+    }).join('');
+
+    const fn=(filters.find(f=>f[0]===_incFilter)||filters[0])[2];
+    const list=rows.filter(fn).sort((a,b)=>(b.restant-a.restant)||(_toLei(b.rest,b.cur)-_toLei(a.rest,a.cur)));
+    if(!list.length){
+        document.getElementById('incList').innerHTML='<div class="card" style="text-align:center;padding:26px;color:#27ae60;font-weight:700;">✅ Nimic în această listă</div>';
+        return;
+    }
+
+    const today=new Date().toISOString().slice(0,10);
+    document.getElementById('incList').innerHTML=list.map(r=>{
+        const {o,idx,cv,cur,paid,rest,restant,pct}=r;
+        const safe=(o.client||'').replace(/'/g,"\\'");
+        let badge;
+        if(!cv)badge='<span class="status-badge" style="background:#2c3e50;color:#aabbcc;">Valoare lipsă</span>';
+        else if(rest<=0.5)badge='<span class="status-badge st-finalizata">Încasat integral</span>';
+        else if(paid>0)badge=`<span class="status-badge st-lucru">Parțial ${pct}%</span>`;
+        else badge='<span class="status-badge st-refuzata">Neîncasat</span>';
+        const open=_incOpen[idx];
+        let panel='';
+        if(open==='form'){
+            panel=`<div class="inc-panel"><div class="inc-form">
+                <div><label>Data</label><input type="date" id="inc-d-${idx}" value="${today}"></div>
+                <div><label>Sumă (${cur})</label><input type="number" id="inc-s-${idx}" step="0.01" min="0" inputmode="decimal" value="${cv&&rest>0.5?Math.round(rest*100)/100:''}" style="width:130px;"></div>
+                <div><label>Mod plată</label><select id="inc-m-${idx}"><option>Transfer</option><option>Numerar</option><option>Card</option><option>Altul</option></select></div>
+                <div style="flex:1;min-width:120px;"><label>Notă</label><input type="text" id="inc-n-${idx}" placeholder="ex: avans 30%" style="width:100%;"></div>
+                <button class="btn btn-gold btn-sm" onclick="incSave(${idx})">💾 Salvează</button>
+                <button class="btn btn-outline btn-sm" onclick="incToggle(${idx},'form')">Anulează</button>
+            </div></div>`;
+        } else if(open==='hist'){
+            const hist=(o.plati||[]).map((p,pi)=>({p,pi})).reverse();
+            panel=`<div class="inc-panel">${hist.length?hist.map(({p,pi})=>`<div class="inc-hist-item">
+                <span style="color:#8899aa;min-width:78px;">${p.d||''}</span>
+                <b style="color:#2ecc71;min-width:90px;">${_money(+p.suma||0,cur)}</b>
+                <span style="color:#aabbcc;">${p.mod||''}</span>
+                <span style="color:#8899aa;flex:1;">${(p.nota||'').replace(/</g,'&lt;')}</span>
+                <button class="rem-btn rem-btn-done" onclick="incDelete(${idx},${pi})" title="Șterge încasarea">✕</button>
+            </div>`).join(''):'<div class="text-muted" style="font-size:12px;">Nicio încasare înregistrată.</div>'}</div>`;
+        }
+        return `<div class="inc-row" id="inc-row-${idx}" style="${restant?'border-left:4px solid #e74c3c;':''}">
+            <div class="inc-top">
+                <div class="inc-name" onclick="openClientInCentral('${safe}')" title="Deschide în Centralizator">${o.client||'—'}<br><span class="inc-obj">${o.obiectiv||''}${o.factura==='Emisă'?' • 🧾 facturat':''}${restant?' • ⚠️ restant '+daysAgo(o.dataOferta)+' zile':''}</span></div>
+                ${badge}
+            </div>
+            ${cv?`<div class="inc-bar"><div style="width:${pct}%;"></div></div>
+            <div class="inc-nums"><span>Contract: <b>${_money(cv.amount,cv.cur)}</b>${cv.perMp?' <span title="calculat din preț/mp × suprafață">(≈)</span>':''}</span><span>Încasat: <b style="color:#2ecc71;">${_money(paid,cur)}</b></span><span>Rest: <b style="color:${rest>0.5?'#e67e22':'#2ecc71'};">${_money(rest,cur)}</b></span></div>`
+            :`<div class="inc-nums" style="margin-top:6px;">Completează valoarea în Centralizator (dublu-click pe coloana Valoare) ca să vezi restul de plată.${paid?' Încasat: <b style="color:#2ecc71;">'+_money(paid,cur)+'</b>':''}</div>`}
+            <div class="inc-actions">
+                <button class="rem-btn rem-btn-mark" onclick="incToggle(${idx},'form')">+ Încasare</button>
+                ${cv&&rest>0.5?`<button class="rem-btn rem-btn-wa" onclick="sendPaymentReminder(${idx})">📲 Reamintire plată</button>`:''}
+                <button class="rem-btn rem-btn-snooze" onclick="incToggle(${idx},'hist')">🕘 Istoric (${(o.plati||[]).length})</button>
+            </div>
+            ${panel}
+        </div>`;
+    }).join('');
+}
+
+function incToggle(idx,panel){
+    _incOpen=_incOpen[idx]===panel?{}:{[idx]:panel};
+    renderIncasari();
+    if(_incOpen[idx]==='form')setTimeout(()=>{const s=document.getElementById('inc-s-'+idx);if(s){s.focus();s.select();}},50);
+}
+
+function incSave(idx){
+    const all=getAll();const o=all[idx];if(!o)return;
+    const suma=parseFloat(document.getElementById('inc-s-'+idx).value);
+    if(!suma||suma<=0){toast('⚠️ Introdu suma încasată');return;}
+    const iso=document.getElementById('inc-d-'+idx).value;
+    const d=iso?iso.split('-').reverse().join('.'):dataAzi();
+    const cv=_contractValue(o);
+    const cur=cv?cv.cur:'lei';
+    if(cv){
+        const rest=cv.amount-_paidTotal(o);
+        if(suma>rest+0.5&&!confirm(`Suma depășește restul de plată (${_money(Math.max(rest,0),cur)}). Salvez oricum?`))return;
+    }
+    o.plati=o.plati||[];
+    o.plati.push({d,suma,mod:document.getElementById('inc-m-'+idx).value,nota:document.getElementById('inc-n-'+idx).value.trim()});
+    _syncStatusPlata(o);
+    saveAll(all);
+    _incOpen={};
+    renderIncasari();
+    const restNou=cv?Math.max(cv.amount-_paidTotal(o),0):null;
+    toast(`✅ ${_money(suma,cur)} încasat de la ${o.client||'client'}${restNou!==null?(restNou>0.5?' — rest '+_money(restNou,cur):' — achitat integral'):''}`);
+}
+
+function incDelete(idx,pi){
+    const all=getAll();const o=all[idx];if(!o||!o.plati||!o.plati[pi])return;
+    const p=o.plati[pi];
+    if(!confirm(`Ștergi încasarea din ${p.d} (${p.suma})?`))return;
+    o.plati.splice(pi,1);
+    _syncStatusPlata(o);
+    saveAll(all);
+    renderIncasari();
+    toast('🗑️ Încasare ștearsă');
+}
+
+function openClientInIncasari(idx){
+    showPage('incasari');
+    _incFilter='toti';
+    _incOpen={[idx]:'form'};
+    renderIncasari();
+    setTimeout(()=>{
+        const row=document.getElementById('inc-row-'+idx);
+        if(row)row.scrollIntoView({behavior:'smooth',block:'center'});
+        const s=document.getElementById('inc-s-'+idx);if(s)s.focus();
+    },60);
+}
+
+function sendPaymentReminder(idx){
+    const all=getAll();const o=all[idx];if(!o)return;
+    const cv=_contractValue(o);
+    const rest=cv?Math.max(cv.amount-_paidTotal(o),0):0;
+    let phone=_normalizePhone(o.telefon)||extractPhone(o.client)||extractPhone(o.obs);
+    if(!phone){
+        const t=prompt('Telefon '+(o.client||'client')+':');
+        if(!t)return;
+        o.telefon=t.trim();saveAll(all);
+        phone=_normalizePhone(t);
+    }
+    const msg=`Bună ziua${o.client&&o.client!=='—'?', '+o.client:''}! Vă reamintim că pentru lucrarea „${o.obiectiv||'executată'}" a rămas de achitat suma de ${_money(rest,cv?cv.cur:'lei')}. Pentru orice întrebare ne puteți contacta. Vă mulțumim!\n\n${F.admin}\n${F.nume}\n📞 ${F.tel}`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+// ═══════════════════════════════════════════════════════
 // REMINDERS SMART — De făcut azi
 // ═══════════════════════════════════════════════════════
 function getReminderState(){return JSON.parse(localStorage.getItem('hc_reminders_state')||'{}');}
@@ -2877,9 +3120,9 @@ function buildReminders(){
                 title:`💰 Plată restantă — ${o.client||'—'}`,
                 sub:`${o.statusPlata==='Parțial'?'Plătit parțial':'Neplătit'} • ${o.valoare||'—'} • ${days} zile de la ofertă`,
                 actions:[
+                    {label:'💰 Înregistrează încasare',type:'goto_incasari'},
+                    {label:'📲 Reamintire plată',type:'wa_plata'},
                     {label:'📞 Sună',type:'call'},
-                    {label:'📲 WhatsApp',type:'wa'},
-                    {label:'✓ Marchează plătit',type:'mark',markField:'statusPlata',markValue:'Plătit'},
                 ],days,
             });
         }
@@ -3049,10 +3292,12 @@ function renderRemindersCard(){
         items.forEach(r=>{
             const safeName=(r.client||'').replace(/'/g,"\\'");
             const actionsHTML=(r.actions||[]).map(a=>{
-                const cls=a.type==='call'?'rem-btn-call':a.type==='wa'?'rem-btn-wa':a.type==='mark'?'rem-btn-mark':'rem-btn-snooze';
+                const cls=a.type==='call'?'rem-btn-call':(a.type==='wa'||a.type==='wa_plata')?'rem-btn-wa':(a.type==='mark'||a.type==='goto_incasari')?'rem-btn-mark':'rem-btn-snooze';
                 let onclick='';
                 if(a.type==='call')onclick=`quickCall(${r.clientIdx})`;
                 else if(a.type==='wa')onclick=`openWA(${r.clientIdx})`;
+                else if(a.type==='wa_plata')onclick=`sendPaymentReminder(${r.clientIdx})`;
+                else if(a.type==='goto_incasari')onclick=`openClientInIncasari(${r.clientIdx})`;
                 else if(a.type==='email')onclick=`quickEmail(${r.clientIdx})`;
                 else if(a.type==='mark')onclick=`reminderMarkField(${r.clientIdx},'${a.markField}','${a.markValue.replace(/'/g,"\\'")}','${r.id}')`;
                 else if(a.type==='done')onclick=`dismissReminder('${r.id}')`;
@@ -3585,7 +3830,7 @@ function sharePhoto(idx){
 function getCosts(){return JSON.parse(localStorage.getItem('hc_costs')||'{}');}
 function saveCosts(obj){localStorage.setItem('hc_costs',JSON.stringify(obj));}
 
-function parseValNum(v){if(!v||v==='—')return 0;const n=v.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');const num=parseFloat(n)||0;return v.includes('€')?num*5:num;}
+function parseValNum(v){if(!v||v==='—')return 0;const n=v.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');const num=parseFloat(n)||0;return /€|eur/i.test(v)?num*CURS:num;}
 
 function renderProfit(){
     const all=getAll();
@@ -3817,25 +4062,34 @@ function genPV(){
 function getPin(){return localStorage.getItem('hc_pin')||'1234';}
 function isPinActive(){return localStorage.getItem('hc_pin_active')!=='0';}
 
+// Numeric keypad on phones, unless a PIN saved by an older version contains letters
+function _pinInputMode(){return /^\d+$/.test(getPin())?'numeric':'text';}
+
 function showPinLock(){
     if(!isPinActive())return;
     if(sessionStorage.getItem('hc_unlocked'))return;
+    const inp=document.getElementById('pinInput');
+    inp.inputMode=_pinInputMode();
+    // The hint shows the factory PIN, so it is only true while no custom PIN is set
+    document.getElementById('pinHint').style.display=localStorage.getItem('hc_pin')?'none':'';
     document.getElementById('pinOverlay').style.display='flex';
-    setTimeout(()=>document.getElementById('pinInput').focus(),100);
+    setTimeout(()=>inp.focus(),100);
 }
 
 function checkPin(){
-    const input=document.getElementById('pinInput').value;
-    if(input.length>=4){
-        if(input===getPin()){
-            sessionStorage.setItem('hc_unlocked','1');
-            document.getElementById('pinOverlay').style.display='none';
-            toast('🔓 Deblocat!');
-        } else {
-            document.getElementById('pinErr').textContent='❌ PIN greșit!';
-            document.getElementById('pinInput').value='';
-            setTimeout(()=>document.getElementById('pinErr').textContent='',2000);
-        }
+    const inp=document.getElementById('pinInput');
+    const pin=getPin();
+    // Wait for as many characters as the PIN has: checking at 4 rejected 5-6 digit PINs before they were complete
+    if(inp.value.length<pin.length)return;
+    if(inp.value===pin){
+        sessionStorage.setItem('hc_unlocked','1');
+        inp.value='';
+        document.getElementById('pinOverlay').style.display='none';
+        toast('🔓 Deblocat!');
+    } else {
+        document.getElementById('pinErr').textContent='❌ PIN greșit!';
+        inp.value='';
+        setTimeout(()=>document.getElementById('pinErr').textContent='',2000);
     }
 }
 
@@ -3843,7 +4097,7 @@ function changePin(){
     const old=document.getElementById('set-pin-old').value;
     const nw=document.getElementById('set-pin-new').value;
     if(old!==getPin()){toast('❌ PIN vechi greșit!');return;}
-    if(nw.length<4||nw.length>6){toast('⚠️ PIN-ul trebuie să aibă 4-6 cifre');return;}
+    if(!/^\d{4,6}$/.test(nw)){toast('⚠️ PIN-ul trebuie să aibă 4-6 cifre');return;}
     localStorage.setItem('hc_pin',nw);
     document.getElementById('set-pin-old').value='';
     document.getElementById('set-pin-new').value='';
@@ -3858,6 +4112,7 @@ function togglePinActive(){
 
 function loadPinSetting(){
     document.getElementById('set-pin-active').value=isPinActive()?'1':'0';
+    document.getElementById('set-pin-old').inputMode=_pinInputMode();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -5142,7 +5397,7 @@ seedData();updateBadge();updMsgForm();populateAuto();loadTheme();renderDashboard
 openDocDB().then(()=>getAllDocKeys().then(k=>{_cachedDocKeys=k;}));
 
 // PWA — Service Worker registration with auto-update
-const APP_VERSION='2026.09.29.1';
+const APP_VERSION='2026.09.29.2';
 // Inject version dynamically in title + header badge so user SEES real version
 try{document.title='Hydro Concept — v'+APP_VERSION;}catch(e){}
 try{const _vb=document.getElementById('hc_ver_badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}
